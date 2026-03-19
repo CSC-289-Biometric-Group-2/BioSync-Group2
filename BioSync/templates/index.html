@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block header %}
+  <h1>Welcome to BioSync</h1>
+{% endblock %}
+
+{% block content %}
+  <p>A Biometric Wellness Ecosystem — track, upload, and understand your health data.</p>
+  {% if g.user %}
+    <p><a href="{{ url_for('main.upload') }}">Upload a Document</a></p>
+    <p><a href="{{ url_for('main.profile') }}">View My Profile</a></p>
+  {% else %}
+    <p><a href="{{ url_for('auth.register') }}">Register</a> or 
+       <a href="{{ url_for('auth.login') }}">Log In</a> to get started.</p>
+  {% endif %}
+{% endblock %}
