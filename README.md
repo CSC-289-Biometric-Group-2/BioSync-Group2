@@ -1,7 +1,7 @@
 # BioSync
 > A Biometric Wellness Ecosystem
 
-**CSC 289-0B01 · Programming Capstone · Spring 2026**  
+**CSC 289 · Programming Capstone · Spring 2026**  
 **Group 2:** Joshua · Toni · Myra · Sarah
 
 ---
@@ -49,4 +49,4 @@ See [SETUP.md](SETUP.md) for full instructions on running the project locally.
 ## License
 
 This project was created for educational purposes as part of the CSC 289 
-Programming Capstone at Wake Tech Community College.
+Programming Capstone at Fayetteville Technical Community College.
