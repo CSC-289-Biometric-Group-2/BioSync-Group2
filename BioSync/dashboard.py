@@ -11,7 +11,6 @@ st.set_page_config (
 )
 
 # style / theme
-
 PRIMARY_COLOR = "#7B3FE4"
 ACCENT_COLOR = "#FF6B6B"
 BG_COLOR = "#0B1020"
@@ -39,6 +38,10 @@ st.markdown(
 
 st.title("BioSync Health Dashboard")
 st.caption("Visualizing your biometric trends for deeper body awareness.")
+
+# session state for manual entries
+if "manual_readings" not in st.session_state:
+    st.session_state.manual_readings = []
 
 # mock data generation
 def generate_mock_heart_rate(days: int = 7):
@@ -85,8 +88,7 @@ temp_df = generate_mock_temperature()
 cycle_info = generate_mock_cycle()
 vitals = generate_mock_vitals()
 
-# layout
-
+# dashboard layout
 top_col1, top_col2, top_col3 = st.columns([2, 2, 1.5])
 
 with top_col1:
@@ -100,10 +102,6 @@ with top_col1:
         template="plotly_dark",
         color_discrete_sequence=[PRIMARY_COLOR]
     )
-    hr_fig.update_layout(
-        showlegend=False,
-        margin=dict(l=10, r=10, t=40, b=10),
-    )
     st.plotly_chart(hr_fig, use_container_width=True)
 
 with top_col2:
@@ -116,10 +114,6 @@ with top_col2:
         markers=True,
         template="plotly_dark",
         color_discrete_sequence=[ACCENT_COLOR]
-    )
-    temp_fig.update_layout(
-        showlegend=False,
-        margin=dict(l=10, r=10, t=40, b=10),
     )
     st.plotly_chart(temp_fig, use_container_width=True)
 
@@ -148,4 +142,31 @@ with bottom_col2:
     st.write("- Stress level")
     st.write("- Activity / steps")
     st.write("- Custom tags (e.g., mood, symptoms)")
-    st.caption("These can be added as new cards and charts in future iterations.")
+
+# adding a manual entry section to the dashboard
+st.markdown("---")
+st.header("Add a Biometric Reading")
+
+with st.form("manual_entry_form"):
+    metric = st.selectbox("Select metric", ["Heart Rate", "Temperature", "Weight", "SpO₂"])
+    value = st.number_input("Enter value", min_value=0.0, step=0.1)
+    date = st.date_input("Date of reading")
+
+    submitted = st.form_submit_button("Add Reading")
+
+if submitted:
+    new_entry = {
+        "metric": metric,
+        "value": value,
+        "date": str(date)
+    }
+    st.session_state.manual_readings.append(new_entry)
+    st.success(f"Added {metric}: {value} on {date}")
+
+# display manual entries
+st.subheader("Your Manual Entries")
+
+if st.session_state.manual_readings:
+    st.table(st.session_state.manual_readings)
+else:
+    st.caption("No manual entries yet.")
