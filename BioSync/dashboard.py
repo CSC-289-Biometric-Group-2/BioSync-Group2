@@ -31,6 +31,15 @@ st.markdown(
         border-radius: 12px;
         padding: 12px;
     }}
+    @media (max-width: 600px) {{
+        .block-container {{
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+        }}
+        h1, h2, h3 {{
+            font-size: 1.2rem !important;
+        }}
+    }}
     </style>
     """,
     unsafe_allow_html=True
@@ -172,7 +181,7 @@ if not db_readings.empty:
 cycle_info = generate_mock_cycle()
 vitals = generate_mock_vitals()
 
-# ---------- DASHBOARD LAYOUT ----------
+# ---------- TOP DASHBOARD LAYOUT ----------
 top_col1, top_col2, top_col3 = st.columns([2, 2, 1.5])
 
 with top_col1:
@@ -212,7 +221,25 @@ with top_col3:
 
 st.markdown("---")
 
+# ---------- BASIC CYCLE + OTHER TRACKING ----------
+bottom_col1, bottom_col2 = st.columns([2, 1.5])
+
+with bottom_col1:
+    st.subheader("Cycle Calendar (Summary)")
+    st.write(f"**Current cycle start:** {cycle_info['cycle_start']}")
+    st.write(f"**Estimated ovulation:** {cycle_info['ovulation']}")
+    st.write(f"**Next expected cycle:** {cycle_info['next_cycle']}")
+    st.info("A full visual calendar will be added below.")
+
+with bottom_col2:
+    st.subheader("Other Tracking (Planned)")
+    st.write("- Sleep duration and quality")
+    st.write("- Stress level")
+    st.write("- Activity / steps")
+    st.write("- Custom tags (e.g., mood, symptoms)")
+
 # ---------- MANUAL ENTRY FORM ----------
+st.markdown("---")
 st.header("Add a Biometric Reading")
 
 with st.form("manual_entry_form"):
@@ -252,7 +279,6 @@ else:
         rid = int(row["id"])
 
         if st.session_state.editing_id == rid:
-            # EDIT MODE
             st.write(f"Editing entry #{rid}")
 
             new_metric = st.selectbox(
@@ -290,7 +316,6 @@ else:
             st.markdown("---")
 
         else:
-            # NORMAL MODE
             cols = st.columns([3, 2, 2, 1, 1])
             cols[0].write(row["metric"])
             cols[1].write(row["value"])
@@ -305,3 +330,90 @@ else:
                 st.rerun()
 
             st.markdown("---")
+
+# ---------- FILTERING SCAFFOLD ----------
+st.markdown("---")
+st.header("Filter Readings")
+
+with st.expander("Filtering Options"):
+    filter_metric = st.multiselect(
+        "Filter by metric",
+        ["Heart Rate", "Temperature", "Weight", "SpO₂", "Sleep", "Stress", "Steps", "Mood"]
+    )
+    filter_date_range = st.date_input("Date range", [])
+    st.button("Apply Filters")
+    st.caption("Filtering logic will be implemented later.")
+
+# ---------- PAGINATION SCAFFOLD ----------
+st.markdown("---")
+st.header("Pagination")
+
+colA, colB, colC = st.columns([1, 1, 1])
+with colA:
+    st.button("Previous Page")
+with colB:
+    st.write("Page 1 of N (placeholder)")
+with colC:
+    st.button("Next Page")
+st.caption("Pagination logic will be added later.")
+
+# ---------- USER ACCOUNTS SCAFFOLD ----------
+st.markdown("---")
+st.header("User Accounts")
+
+with st.expander("Account Settings (Placeholder)"):
+    st.text_input("Username")
+    st.text_input("Email")
+    st.text_input("Password", type="password")
+    st.button("Create Account")
+    st.button("Login")
+    st.caption("User authentication and storage will be added later.")
+
+# ---------- FULL CYCLE CALENDAR SCAFFOLD ----------
+st.markdown("---")
+st.header("Cycle Calendar (Full View)")
+
+st.write("A full interactive cycle calendar will appear here in the future.")
+st.info("Planned: visual grid with cycle phases, ovulation, symptoms overlay.")
+
+# ---------- SYMPTOMS & MOOD TRACKING SCAFFOLD ----------
+st.markdown("---")
+st.header("Symptoms & Mood Tracking")
+
+with st.form("symptom_form"):
+    mood = st.selectbox("Mood", ["Happy", "Neutral", "Sad", "Stressed", "Irritable"])
+    symptoms = st.multiselect(
+        "Symptoms",
+        ["Cramps", "Headache", "Fatigue", "Bloating", "Tender Breasts", "Back Pain"]
+    )
+    note = st.text_area("Notes")
+    st.form_submit_button("Log Entry")
+st.caption("Later: save to a symptom_log table and visualize trends.")
+
+# ---------- ADDITIONAL BIOMETRIC CHARTS SCAFFOLD ----------
+st.markdown("---")
+st.header("Additional Biometric Charts")
+
+chart_col1, chart_col2 = st.columns(2)
+
+with chart_col1:
+    st.subheader("Sleep Patterns")
+    st.line_chart(pd.DataFrame({"sleep_hours": []}))
+    st.caption("Placeholder for future sleep data.")
+
+with chart_col2:
+    st.subheader("Stress Levels")
+    st.line_chart(pd.DataFrame({"stress_score": []}))
+    st.caption("Placeholder for future stress data.")
+
+chart_col3, chart_col4 = st.columns(2)
+
+with chart_col3:
+    st.subheader("Steps / Activity")
+    st.line_chart(pd.DataFrame({"steps": []}))
+    st.caption("Placeholder for future activity data.")
+
+with chart_col4:
+    st.subheader("Mood Tracking")
+    st.line_chart(pd.DataFrame({"mood_score": []}))
+    st.caption("Placeholder for future mood trend data.")
