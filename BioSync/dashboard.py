@@ -130,6 +130,8 @@ with top_col3:
 
 st.markdown("---")
 
+bottom_col1, bottom_col2 = st.columns([2, 1.5])
+
 with bottom_col1:
     st.subheader("Cycle Calendar")
     st.write(f"**Current cycle start:** {cycle_info['cycle_start']}")
