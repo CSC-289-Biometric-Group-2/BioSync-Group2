@@ -26,7 +26,7 @@ def create_app(test_config=None):
     from . import auth
     app.register_blueprint(auth.bp)
 
-   from . import routes
+    from . import routes
     app.register_blueprint(routes.bp)
 
     return app
