@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ patient['username'] }}'s Profile{% endblock %}
+
+{% block header %}
+  <h1>{{ patient['username'] }}'s Health Profile</h1>
+{% endblock %}
+
+{% block content %}
+  <p>Caregiver Type: <strong>{{ link['caregiver_type'] }}</strong></p>
+  <p>Duration: <strong>{{ link['duration'] }}</strong></p>
+
+  <hr>
+
+  <h2>Biometric Readings</h2>
+  {% if readings %}
+    <ul>
+      {% for r in readings %}
+        <li>
+          {{ r['metric_name'] | replace('_', ' ') | title }}:
+          <strong>{{ r['value'] }}</strong>
+          — {{ r['recorded_date'] }}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No readings recorded yet.</p>
+  {% endif %}
+
+  <hr>
+
+  <h2>Uploaded Documents</h2>
+  {% if docs %}
+    {% for doc in docs %}
+      <p>
+        {{ doc['filename'] }} — {{ doc['uploaded_at'] }}
+        {% if doc['processed'] %}
+          <span>(analyzed)</span>
+        {% endif %}
+      </p>
+    {% endfor %}
+  {% else %}
+    <p>No documents uploaded yet.</p>
+  {% endif %}
+
+  <hr>
+  <a href="{{ url_for('caretaker.dashboard') }}">← Back to Dashboard</a>
+  <a href="{{ url_f

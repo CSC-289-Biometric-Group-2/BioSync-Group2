@@ -27,6 +27,9 @@ def create_app(test_config=None):
     app.register_blueprint(auth.bp)
 
     from . import routes
-    app.register_blueprint(routes.bp)
-
+    app.register_blueprint(routes.bp) 
+    
+    from .caretaker import bp as caretaker_bp
+    app.register_blueprint(caretaker_bp)
+    
     return app

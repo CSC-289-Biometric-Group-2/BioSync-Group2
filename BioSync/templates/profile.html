@@ -39,6 +39,19 @@
   {% else %}
     <p>No documents uploaded yet.</p>
   {% endif %}
+
+  <hr>
+
+  <h2>Your Patient Code</h2>
+  <p>Share this code with your caregiver so they can link to your account:</p>
+  {% if patient_code %}
+    <h3>{{ patient_code }}</h3>
+  {% else %}
+    <form method="post" action="{{ url_for('main.generate_code') }}">
+      <input type="submit" value="Generate My Patient Code">
+    </form>
+  {% endif %}
+
   <hr>
   <a href="{{ url_for('main.index') }}">← Back to Home</a>
 {% endblock %}
