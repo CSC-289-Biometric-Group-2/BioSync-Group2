@@ -1,15 +1,44 @@
 {% extends 'base.html' %}
 
+{% block title %}Log In{% endblock %}
+
 {% block header %}
-  <h1>{% block title %}Log In{% endblock %}</h1>
+  <h1>Welcome to VitalWatch</h1>
 {% endblock %}
 
 {% block content %}
-  <form method="post">
+  <div class="account-type-select">
+    <button class="btn-caregiver" onclick="showForm('caregiver')">Care Giver</button>
+    <button class="btn-individual" onclick="showForm('individual')">Individual</button>
+  </div>
+
+  <form id="individual-form" method="post" style="display:none">
+    <input type="hidden" name="account_type" value="individual">
     <label for="username">Username</label>
     <input name="username" id="username" required>
     <label for="password">Password</label>
     <input type="password" name="password" id="password" required>
     <input type="submit" value="Log In">
+    <a href="{{ url_for('main.index') }}">← Back to Home</a>
   </form>
+
+  <form id="caregiver-form" method="post" style="display:none">
+    <input type="hidden" name="account_type" value="caregiver">
+    <label for="username">Username</label>
+    <input name="username" id="username-cg" required>
+    <label for="password">Password</label>
+    <input type="password" name="password" id="password-cg" required>
+    <label for="caregiver_id">Caregiver ID</label>
+    <input name="caregiver_id" id="caregiver_id" required>
+    <input type="submit" value="Log In">
+    <a href="{{ url_for('main.index') }}">← Back to Home</a>
+  </form>
+
+  <script>
+    function showForm(type) {
+      document.getElementById('individual-form').style.display = 'none';
+      document.getElementById('caregiver-form').style.display = 'none';
+      document.getElementById(type + '-form').style.display = 'flex';
+    }
+  </script>
 {% endblock %}
