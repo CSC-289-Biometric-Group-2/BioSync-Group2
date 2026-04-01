@@ -3,7 +3,13 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <nav>
   <h1>BioSync</h1>
-  <ul>
+  {% if g.user %}
+    <ul class="nav-left">
+      <li><a href="{{ url_for('main.upload') }}">Upload</a>
+      <li><a href="{{ url_for('main.profile') }}">Profile</a>
+    </ul>
+  {% endif %}
+  <ul class="nav-right">
     {% if g.user %}
       <li><span>{{ g.user['username'] }}</span>
       <li><a href="{{ url_for('auth.logout') }}">Log Out</a>
