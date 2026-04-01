@@ -9,7 +9,7 @@
       <li><a href="{{ url_for('main.profile') }}">Profile</a>
     </ul>
   {% endif %}
-  <ul>
+  <ul class="nav-right">
     {% if g.user %}
       <li><span>{{ g.user['username'] }}</span>
       <li><a href="{{ url_for('auth.logout') }}">Log Out</a>
