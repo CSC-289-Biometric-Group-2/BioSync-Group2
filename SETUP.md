@@ -1,5 +1,5 @@
 # BioSync — Setup Guide
-> How to get the BioSync project working on your local machine
+> How to get the VitalWatch project working on your local machine
 
 ---
 

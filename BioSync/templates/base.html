@@ -1,8 +1,8 @@
 <!doctype html>
-<title>{% block title %}{% endblock %} - BioSync</title>
+<title>{% block title %}{% endblock %} - VitalWatch</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <nav>
-  <h1>BioSync</h1>
+  <h1>VitalWatch</h1>
   {% if g.user %}
     <ul class="nav-left">
       <li><a href="{{ url_for('main.upload') }}">Upload</a>
