@@ -8,6 +8,7 @@ from BioSync.auth import login_required
 from BioSync.db import get_db
 from BioSync.doc_processor import process_document
 from BioSync.pattern_engine import get_trends, get_all_metrics, compare_baseline
+from BioSync.caretaker.utils import generate_patient_code
 
 bp = Blueprint('main', __name__)
 
@@ -69,19 +70,8 @@ def profile():
         (g.user['id'],)
     ).fetchall()
     metrics = get_all_metrics(g.user['id'])
-    return render_template('profile.html', docs=docs, metrics=metrics)
 
-@bp.route('/trends/<metric_name>')
-@login_required
-def trends(metric_name):
-    trend_data = get_trends(g.user['id'], metric_name)
-    comparison = compare_baseline(g.user['id'], metric_name)
-    return render_template('dashboard.html',
-                           metric=metric_name,
-                           trend=trend_data,
-                           comparison=comparison)
-
-@bp.route('/api/trends/<metric_name>')
-@login_required
-def api_trends(metric_name):
-    return jsonify(get_trends(g.user['id'], metric_name))
+    patient_code = db.execute(
+        'SELECT code FROM patient_code WHERE user_id = ?',
+        (g.user['id'],)
+    ).fetchone()

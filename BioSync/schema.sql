@@ -31,3 +31,24 @@ CREATE TABLE biometric_reading (
   FOREIGN KEY (user_id) REFERENCES user (id),
   FOREIGN KEY (document_id) REFERENCES medical_document (id)
 );
+-- Stores the link between a caregiver and a patient
+CREATE TABLE IF NOT EXISTS caretaker_link (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  caregiver_id INTEGER NOT NULL,
+  patient_id INTEGER NOT NULL,
+  caregiver_type TEXT NOT NULL,
+  duration TEXT NOT NULL,
+  end_date TEXT,
+  linked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (caregiver_id) REFERENCES user (id),
+  FOREIGN KEY (patient_id) REFERENCES user (id)
+);
+
+-- Stores unique patient codes for linking
+CREATE TABLE IF NOT EXISTS patient_code (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL UNIQUE,
+  code TEXT NOT NULL UNIQUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES user (id)
+);

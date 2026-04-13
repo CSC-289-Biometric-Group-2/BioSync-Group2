@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Link Patient{% endblock %}
+
+{% block header %}
+  <h1>Link a Patient</h1>
+{% endblock %}
+
+{% block content %}
+  <p>Ask your patient for their unique patient code and enter it below.</p>
+
+  <form method="post">
+    <label for="patient_code">Patient Code</label>
+    <input name="patient_code" id="patient_code" 
+           placeholder="Enter patient code" required>
+    <input type="submit" value="Link Patient">
+  </form>
+
+  <hr>
+  <a href="{{ url_for('caretaker.dashboard') }}">← Back to Dashboard</a>
+{% endblock %}
