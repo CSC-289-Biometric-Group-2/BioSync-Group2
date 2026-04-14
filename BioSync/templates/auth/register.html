@@ -1,15 +1,67 @@
 {% extends 'base.html' %}
 
+{% block title %}Register{% endblock %}
+
 {% block header %}
-  <h1>{% block title %}Register{% endblock %}</h1>
+  <h1>Create Your VitalWatch Account</h1>
 {% endblock %}
 
 {% block content %}
-  <form method="post">
+  <div class="account-type-select">
+    <button class="btn-caregiver" onclick="showForm('caregiver')">Care Giver</button>
+    <button class="btn-individual" onclick="showForm('individual')">Individual</button>
+  </div>
+
+  <form id="individual-form" method="post" style="display:none">
+    <input type="hidden" name="account_type" value="individual">
     <label for="username">Username</label>
-    <input name="username" id="username">
+    <input name="username" id="username" required>
+    <label for="email">Email</label>
+    <input type="email" name="email" id="email" required>
     <label for="password">Password</label>
-    <input type="password" name="password" id="password">
+    <input type="password" name="password" id="password" required>
     <input type="submit" value="Register">
+    <a href="{{ url_for('auth.login') }}">Already have an account? Log In</a>
   </form>
+
+  <form id="caregiver-form" method="post" style="display:none">
+    <input type="hidden" name="account_type" value="caregiver">
+    <label for="username-cg">Username</label>
+    <input name="username" id="username-cg" required>
+    <label for="email-cg">Email</label>
+    <input type="email" name="email" id="email-cg" required>
+    <label for="password-cg">Password</label>
+    <input type="password" name="password" id="password-cg" required>
+    <label for="caregiver_type">Caregiver Type</label>
+    <select name="caregiver_type" id="caregiver_type">
+      <option value="informal">Informal Caregiver (family, friends, neighbors)</option>
+      <option value="formal">Formal Caregiver (trained, agency or facility)</option>
+      <option value="agency">Agency Caregiver (CNA certified, multiple clients)</option>
+      <option value="senior_living">Senior Living Caregiver (works with elderly)</option>
+    </select>
+    <label for="duration">Duration</label>
+    <select name="duration" id="duration" onchange="showEndDate(this.value)">
+      <option value="long_term">Long Term</option>
+      <option value="temporary">Temporary</option>
+    </select>
+    <div id="end-date-field" style="display:none">
+      <label for="end_date">End Date</label>
+      <input type="date" name="end_date" id="end_date">
+    </div>
+    <input type="submit" value="Register">
+    <a href="{{ url_for('auth.login') }}">Already have an account? Log In</a>
+  </form>
+
+  <script>
+    function showForm(type) {
+      document.getElementById('individual-form').style.display = 'none';
+      document.getElementById('caregiver-form').style.display = 'none';
+      document.getElementById(type + '-form').style.display = 'flex';
+    }
+
+    function showEndDate(value) {
+      const field = document.getElementById('end-date-field');
+      field.style.display = value === 'temporary' ? 'block' : 'none';
+    }
+  </script>
 {% endblock %}
