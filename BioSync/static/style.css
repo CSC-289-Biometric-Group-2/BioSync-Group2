@@ -27,3 +27,34 @@ nav ul li a, nav ul li span, header .action { display: block; padding: 0.5rem; }
 .content textarea { min-height: 12em; resize: vertical; }
 input.danger { color: #cc2f2e; }
 input[type=submit] { align-self: start; min-width: 10em; }
+/* VitalWatch Login Page */
+.account-type-select {
+  display: flex;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.btn-caregiver {
+  background: #1C2D4F;
+  color: white;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  flex: 1;
+}
+
+.btn-individual {
+  background: #E63329;
+  color: white;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  flex: 1;
+}
+
+.btn-caregiver:hover { opacity: 0.9; }
+.btn-individual:hover { opacity: 0.9; }
