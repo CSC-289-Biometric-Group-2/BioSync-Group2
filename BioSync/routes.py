@@ -75,3 +75,10 @@ def profile():
         'SELECT code FROM patient_code WHERE user_id = ?',
         (g.user['id'],)
     ).fetchone()
+
+    return render_template('profile.html', docs=docs, metrics=metrics, patient_code=patient_code)
+
+@bp.route('/dashboard')
+@login_required
+def dashboard():
+    return render_template('dashboard.html')

@@ -2,9 +2,11 @@
 <title>{% block title %}{% endblock %} - BioSync</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <nav>
+  <img src="{{ url_for('static', filename='vitalwatch-logo.png') }}" alt="Logo" height="50">
   <h1>BioSync</h1>
   {% if g.user %}
     <ul class="nav-left">
+      <li><a href="{{ url_for('main.dashboard') }}">Dashboard</a>
       <li><a href="{{ url_for('main.upload') }}">Upload</a>
       <li><a href="{{ url_for('main.profile') }}">Profile</a>
     </ul>
