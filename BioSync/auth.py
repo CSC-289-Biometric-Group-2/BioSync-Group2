@@ -13,7 +13,7 @@ from BioSync.db import get_db
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
-# Register Page
+# Individual Register Page
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
     if request.method == 'POST':
@@ -42,6 +42,40 @@ def register():
         flash(error)
 
     return render_template('auth/register.html')
+
+# Caregiver Register Page
+@bp.route('/caregiver/register', methods=('GET', 'POST'))
+def register_caregiver():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        caregiver_type = request.form.get('caregiver_type', '')
+        duration = request.form.get('duration', '')
+        db = get_db()
+        error = None
+
+        if not username:
+            error = 'Username is required.'
+        elif not password:
+            error = 'Password is required.'
+        elif not caregiver_type:
+            error = 'Caregiver type is required.'
+
+        if error is None:
+            try:
+                db.execute(
+                    "INSERT INTO user (username, password) VALUES (?, ?)",
+                    (username, generate_password_hash(password)),
+                )
+                db.commit()
+            except db.IntegrityError:
+                error = f"User {username} is already registered."
+            else:
+                return redirect(url_for("auth.login"))
+
+        flash(error)
+
+    return render_template('auth/caregiver/register_caregiver.html')
 
 
 # Login Page

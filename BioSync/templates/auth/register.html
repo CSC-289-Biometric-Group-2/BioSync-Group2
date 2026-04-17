@@ -1,67 +1,724 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Register — BioSync</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; display: inline-block; line-height: 1; }
+  body { font-family: 'Inter', sans-serif; }
+  h1, h2, h3, h4 { font-family: 'Manrope', sans-serif; }
+  select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2344474e'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1.25rem; }
+  .toggle-btn { transition: all 0.2s; }
+  .toggle-btn.active { background: #041839; color: white; }
+</style>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "primary": "#041839", "primary-container": "#1c2d4f",
+          "on-primary": "#ffffff", "primary-fixed-dim": "#b6c6f1",
+          "secondary": "#006398", "secondary-container": "#6cbdfe",
+          "tertiary": "#3d0001", "tertiary-container": "#640002",
+          "on-tertiary-container": "#ff6050", "error": "#ba1a1a",
+          "surface": "#f7f9fc", "surface-container-lowest": "#ffffff",
+          "surface-container-low": "#f2f4f7", "surface-container": "#eceef1",
+          "surface-container-high": "#e6e8eb", "surface-container-highest": "#e0e3e6",
+          "on-surface": "#191c1e", "on-surface-variant": "#44474e",
+          "outline": "#75777f", "outline-variant": "#c5c6cf",
+        },
+        "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }
+      }
+    }
+  }
+</script>
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col md:flex-row overflow-x-hidden">
 
-{% block title %}Register{% endblock %}
+<!-- Floating Nav -->
+<header class="fixed top-6 left-1/2 -translate-x-1/2 w-[calc(100%-48px)] max-w-4xl glass-effect rounded-full px-8 py-3 flex items-center justify-between shadow-sm shadow-primary/5 z-50 hidden md:flex" style="background: rgba(255,255,255,0.8); backdrop-filter: blur(12px);">
+  <div class="flex items-center gap-6">
+    <a href="{{ url_for('main.index') }}">
+      <img src="{{ url_for('static', filename='BioSync.png') }}" alt="BioSync" class="h-20 w-auto absolute"/>
+    </a>
+    <div class="h-4 w-px bg-outline-variant/30 ml-16"></div>
+    <nav class="flex gap-6 text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant ml-4">
+      <a class="hover:text-primary transition-colors" href="{{ url_for('main.index') }}">Home</a>
+      <a class="hover:text-primary transition-colors" href="{{ url_for('auth.login') }}">Log In</a>
+    </nav>
+  </div>
+  <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">v1.0 Clinical</span>
+</header>
 
-{% block header %}
-  <h1>Create Your VitalWatch Account</h1>
-{% endblock %}
+<!-- Left Branding -->
+<section class="hidden lg:flex w-5/12 relative bg-primary items-center justify-center p-12 overflow-hidden sticky top-0 h-screen">
+  <div class="relative z-10 max-w-lg">
+    <div class="mb-12">
+      <img src="{{ url_for('static', filename='BioSync.png') }}" alt="BioSync" class="h-16 w-auto"/>
+    </div>
+    <h1 class="text-5xl font-extrabold text-white leading-tight mb-6 tracking-tight">
+      Advanced Biometric <br/><span class="text-secondary-container">Clinical Precision.</span>
+    </h1>
+    <p class="text-primary-fixed-dim text-lg leading-relaxed mb-10 max-w-md">
+      BioSync brings all your health data into one unified workspace — analyzing your biometric trends over time to help you and your caregivers spot patterns, track progress, and make smarter health decisions together.
+    </p>
+    <div class="space-y-6">
+      <div class="flex items-start gap-4">
+        <div class="bg-white/10 p-2 rounded-lg"><span class="material-symbols-outlined text-secondary-container">verified_user</span></div>
+        <div><h3 class="text-white font-semibold">HIPAA Compliant</h3><p class="text-primary-fixed-dim text-sm">Military-grade encryption for all patient records.</p></div>
+      </div>
+      <div class="flex items-start gap-4">
+        <div class="bg-white/10 p-2 rounded-lg"><span class="material-symbols-outlined text-secondary-container">monitoring</span></div>
+        <div><h3 class="text-white font-semibold">Real-time Analytics</h3><p class="text-primary-fixed-dim text-sm">Instant synchronization across clinical devices.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
 
-{% block content %}
-  <div class="account-type-select">
-    <button class="btn-caregiver" onclick="showForm('caregiver')">Care Giver</button>
-    <button class="btn-individual" onclick="showForm('individual')">Individual</button>
+<!-- Main Canvas -->
+<main class="flex-1 bg-surface flex flex-col items-center justify-start p-6 md:p-12 lg:p-16 overflow-y-auto">
+
+  <div class="lg:hidden w-full max-w-xl flex items-center justify-between mb-8">
+    <img src="{{ url_for('static', filename='BioSync.png') }}" alt="BioSync" class="h-10 w-auto"/>
+    <a class="text-sm font-semibold text-secondary" href="{{ url_for('auth.login') }}">Log in</a>
   </div>
 
-  <form id="individual-form" method="post" style="display:none">
-    <input type="hidden" name="account_type" value="individual">
-    <label for="username">Username</label>
-    <input name="username" id="username" required>
-    <label for="email">Email</label>
-    <input type="email" name="email" id="email" required>
-    <label for="password">Password</label>
-    <input type="password" name="password" id="password" required>
-    <input type="submit" value="Register">
-    <a href="{{ url_for('auth.login') }}">Already have an account? Log In</a>
-  </form>
+  <div class="w-full max-w-xl">
 
-  <form id="caregiver-form" method="post" style="display:none">
-    <input type="hidden" name="account_type" value="caregiver">
-    <label for="username-cg">Username</label>
-    <input name="username" id="username-cg" required>
-    <label for="email-cg">Email</label>
-    <input type="email" name="email" id="email-cg" required>
-    <label for="password-cg">Password</label>
-    <input type="password" name="password" id="password-cg" required>
-    <label for="caregiver_type">Caregiver Type</label>
-    <select name="caregiver_type" id="caregiver_type">
-      <option value="informal">Informal Caregiver (family, friends, neighbors)</option>
-      <option value="formal">Formal Caregiver (trained, agency or facility)</option>
-      <option value="agency">Agency Caregiver (CNA certified, multiple clients)</option>
-      <option value="senior_living">Senior Living Caregiver (works with elderly)</option>
-    </select>
-    <label for="duration">Duration</label>
-    <select name="duration" id="duration" onchange="showEndDate(this.value)">
-      <option value="long_term">Long Term</option>
-      <option value="temporary">Temporary</option>
-    </select>
-    <div id="end-date-field" style="display:none">
-      <label for="end_date">End Date</label>
-      <input type="date" name="end_date" id="end_date">
+    <!-- Progress -->
+    <div class="flex items-center justify-between mb-10 px-2">
+      <div class="flex flex-col items-center gap-2 cursor-pointer" onclick="goToStep(1)">
+        <div id="step1-circle" class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white text-sm font-bold shadow-md transition-all">1</div>
+        <span class="text-xs font-semibold text-primary">Account Type</span>
+      </div>
+      <div class="flex-1 h-0.5 bg-surface-container-highest mx-4 relative top-[-10px]">
+        <div id="progress-bar-1" class="absolute top-0 left-0 h-full bg-primary transition-all duration-500" style="width:0%"></div>
+      </div>
+      <div class="flex flex-col items-center gap-2 cursor-pointer" onclick="goToStep(2)">
+        <div id="step2-circle" class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant text-sm font-medium transition-all">2</div>
+        <span class="text-xs font-medium text-on-surface-variant">Personal Details</span>
+      </div>
+      <div class="flex-1 h-0.5 bg-surface-container-highest mx-4 relative top-[-10px]">
+        <div id="progress-bar-2" class="absolute top-0 left-0 h-full bg-primary transition-all duration-500" style="width:0%"></div>
+      </div>
+      <div class="flex flex-col items-center gap-2 cursor-pointer" onclick="goToStep(3)">
+        <div id="step3-circle" class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant text-sm font-medium transition-all">3</div>
+        <span class="text-xs font-medium text-on-surface-variant">Medical History</span>
+      </div>
     </div>
-    <input type="submit" value="Register">
-    <a href="{{ url_for('auth.login') }}">Already have an account? Log In</a>
-  </form>
 
-  <script>
-    function showForm(type) {
-      document.getElementById('individual-form').style.display = 'none';
-      document.getElementById('caregiver-form').style.display = 'none';
-      document.getElementById(type + '-form').style.display = 'flex';
-    }
+    {% for message in get_flashed_messages() %}
+      <div class="mb-6 px-4 py-3 bg-red-50 text-red-700 rounded-lg text-sm font-medium">{{ message }}</div>
+    {% endfor %}
 
-    function showEndDate(value) {
-      const field = document.getElementById('end-date-field');
-      field.style.display = value === 'temporary' ? 'block' : 'none';
+    <!-- ── STEP 1 ── -->
+    <div id="step-1">
+      <div class="space-y-2 mb-8">
+        <h2 class="text-3xl font-extrabold text-on-surface tracking-tight">Create your Workspace</h2>
+        <p class="text-on-surface-variant text-lg">Select the primary profile for your clinical activities.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+        <div class="relative flex flex-col p-8 bg-surface-container-lowest rounded-xl ring-2 ring-secondary shadow-xl overflow-hidden">
+          <div class="absolute top-0 right-0 p-4 opacity-10"><span class="material-symbols-outlined text-9xl text-primary">person</span></div>
+          <div class="w-14 h-14 rounded-full bg-secondary/10 flex items-center justify-center mb-6"><span class="material-symbols-outlined text-secondary text-3xl">person_search</span></div>
+          <div class="absolute top-4 right-4 bg-secondary text-white text-[10px] px-2 py-1 rounded-full font-bold uppercase tracking-widest">Selected</div>
+          <h4 class="text-xl font-bold text-primary mb-2">Individual</h4>
+          <p class="text-sm text-on-surface-variant leading-relaxed">Monitor personal biometrics, track wellness trends, and sync with your wearable devices.</p>
+          <div class="mt-6 flex items-center text-secondary font-semibold text-sm">Continue to details <span class="material-symbols-outlined ml-2 text-sm">arrow_forward</span></div>
+        </div>
+        <a href="{{ url_for('auth.register_caregiver') }}" class="group relative flex flex-col p-8 bg-surface-container-lowest rounded-xl ring-2 ring-transparent hover:ring-secondary hover:shadow-xl transition-all overflow-hidden">
+          <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20"><span class="material-symbols-outlined text-9xl text-tertiary">medical_services</span></div>
+          <div class="w-14 h-14 rounded-full bg-surface-container-low flex items-center justify-center mb-6 group-hover:bg-secondary/10"><span class="material-symbols-outlined text-secondary text-3xl">clinical_notes</span></div>
+          <h4 class="text-xl font-bold text-primary mb-2">Care Giver</h4>
+          <p class="text-sm text-on-surface-variant leading-relaxed">Manage patient charts, monitor remote biometrics, and collaborate with clinical teams.</p>
+          <div class="mt-6 flex items-center text-secondary font-semibold text-sm">Select this type <span class="material-symbols-outlined ml-2 text-sm">arrow_forward</span></div>
+        </a>
+      </div>
+
+      <div class="space-y-6">
+        <div class="space-y-2">
+          <label class="text-sm font-bold text-primary uppercase tracking-wider ml-1">Username</label>
+          <div class="relative flex items-center">
+            <span class="material-symbols-outlined absolute left-4 text-on-surface-variant">person</span>
+            <input id="username" type="text" placeholder="Choose a username"
+              class="w-full bg-surface-container-low border-none rounded-lg pl-12 pr-4 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-outline-variant"/>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <label class="text-sm font-bold text-primary uppercase tracking-wider ml-1">Password</label>
+          <div class="relative flex items-center">
+            <span class="material-symbols-outlined absolute left-4 text-on-surface-variant">lock</span>
+            <input id="password" type="password" placeholder="••••••••"
+              class="w-full bg-surface-container-low border-none rounded-lg pl-12 pr-4 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-outline-variant"/>
+          </div>
+        </div>
+
+        <div class="space-y-4 pt-2">
+          <h3 class="text-sm font-bold text-primary uppercase tracking-wider ml-1">Connect Your Wearables</h3>
+          <div class="grid grid-cols-5 gap-3">
+            <button type="button" onclick="toggleWearable(this)" class="wearable-btn flex flex-col items-center justify-center p-3 bg-surface-container-low rounded-xl ring-1 ring-transparent hover:ring-secondary/20 transition-all">
+              <span class="material-symbols-outlined text-2xl text-error mb-1" style="font-variation-settings:'FILL' 1;">favorite</span>
+              <span class="text-[10px] font-bold text-on-surface-variant text-center">Apple Health</span>
+            </button>
+            <button type="button" onclick="toggleWearable(this)" class="wearable-btn flex flex-col items-center justify-center p-3 bg-surface-container-low rounded-xl ring-1 ring-secondary/20 transition-all">
+              <span class="material-symbols-outlined text-2xl text-secondary mb-1">watch</span>
+              <span class="text-[10px] font-bold text-on-surface-variant text-center">Fitbit</span>
+            </button>
+            <button type="button" onclick="toggleWearable(this)" class="wearable-btn flex flex-col items-center justify-center p-3 bg-surface-container-low rounded-xl ring-1 ring-transparent hover:ring-secondary/20 transition-all">
+              <span class="material-symbols-outlined text-2xl text-primary mb-1">directions_run</span>
+              <span class="text-[10px] font-bold text-on-surface-variant text-center">Garmin</span>
+            </button>
+            <button type="button" onclick="toggleWearable(this)" class="wearable-btn flex flex-col items-center justify-center p-3 bg-surface-container-low rounded-xl ring-1 ring-transparent hover:ring-secondary/20 transition-all">
+              <span class="material-symbols-outlined text-2xl text-secondary mb-1">phone_android</span>
+              <span class="text-[10px] font-bold text-on-surface-variant text-center">Samsung Health</span>
+            </button>
+            <button type="button" onclick="toggleWearable(this)" class="wearable-btn flex flex-col items-center justify-center p-3 bg-surface-container-low rounded-xl ring-1 ring-transparent hover:ring-secondary/20 transition-all">
+              <span class="material-symbols-outlined text-2xl text-error mb-1">fitness_center</span>
+              <span class="text-[10px] font-bold text-on-surface-variant text-center">Google Fit</span>
+            </button>
+          </div>
+          <p class="text-xs text-on-surface-variant italic px-1">Enabling sync allows BioSync to provide real-time wellness insights.</p>
+        </div>
+
+        <button type="button" onclick="goToStep(2)"
+          class="w-full bg-gradient-to-br from-primary to-primary-container text-white py-5 rounded-full font-bold text-lg shadow-xl hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-3">
+          Continue to Personal Details <span class="material-symbols-outlined">chevron_right</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── STEP 2 ── -->
+    <div id="step-2" class="hidden">
+      <div class="space-y-2 mb-8">
+        <h2 class="text-3xl font-extrabold text-on-surface tracking-tight">Personal Health Details</h2>
+        <p class="text-on-surface-variant text-lg">Help us personalize your BioSync experience.</p>
+      </div>
+      <div class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-2">
+            <label class="text-sm font-bold text-primary uppercase tracking-wider ml-1">First Name</label>
+            <input id="first_name" type="text" placeholder="e.g. Elena"
+              class="w-full bg-surface-container-low border-none rounded-lg px-4 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-outline-variant"/>
+          </div>
+          <div class="space-y-2">
+            <label class="text-sm font-bold text-primary uppercase tracking-wider ml-1">Last Name</label>
+            <input id="last_name" type="text" placeholder="e.g. Henderson"
+              class="w-full bg-surface-container-low border-none rounded-lg px-4 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-outline-variant"/>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-2">
+            <label class="text-sm font-bold text-primary uppercase tracking-wider ml-1">Date of Birth</label>
+            <div class="relative flex items-center">
+              <span class="material-symbols-outlined absolute left-4 text-on-surface-variant">calendar_today</span>
+              <input id="dob" type="date" class="w-full bg-surface-container-low border-none rounded-lg pl-12 pr-4 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all"/>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <label class="text-sm font-bold text-primary uppercase tracking-wider ml-1">Biological Sex</label>
+            <div class="relative flex items-center">
+              <span class="material-symbols-outlined absolute left-4 text-on-surface-variant pointer-events-none">person</span>
+              <select id="sex" class="w-full bg-surface-container-low border-none rounded-lg pl-12 pr-10 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all cursor-pointer">
+                <option disabled selected value="">Select</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="prefer_not">Prefer not to say</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-2">
+            <label class="text-sm font-bold text-primary uppercase tracking-wider ml-1">Height</label>
+            <div class="flex gap-2">
+              <input id="height_ft" type="number" min="1" max="8" placeholder="ft"
+                class="w-1/2 bg-surface-container-low border-none rounded-lg px-4 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-outline-variant"/>
+              <input id="height_in" type="number" min="0" max="11" placeholder="in"
+                class="w-1/2 bg-surface-container-low border-none rounded-lg px-4 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-outline-variant"/>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <label class="text-sm font-bold text-primary uppercase tracking-wider ml-1">Weight</label>
+            <div class="flex gap-2">
+              <input id="weight" type="number" min="1" placeholder="amount"
+                class="flex-1 bg-surface-container-low border-none rounded-lg px-4 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-outline-variant"/>
+              <select id="weight_unit" class="w-20 bg-surface-container-low border-none rounded-lg px-2 py-4 text-on-surface cursor-pointer">
+                <option value="lbs">lbs</option><option value="kg">kg</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <label class="text-sm font-bold text-primary uppercase tracking-wider ml-1">Blood Type</label>
+          <div class="relative flex items-center">
+            <span class="material-symbols-outlined absolute left-4 text-on-surface-variant pointer-events-none">water_drop</span>
+            <select id="blood_type" class="w-full bg-surface-container-low border-none rounded-lg pl-12 pr-10 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all cursor-pointer">
+              <option disabled selected value="">Select blood type</option>
+              <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+              <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option><option>Unknown</option>
+            </select>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <label class="text-sm font-bold text-primary uppercase tracking-wider ml-1">Primary Health Goal</label>
+          <div class="relative flex items-center">
+            <span class="material-symbols-outlined absolute left-4 text-on-surface-variant pointer-events-none">flag</span>
+            <select id="health_goal" class="w-full bg-surface-container-low border-none rounded-lg pl-12 pr-10 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all cursor-pointer">
+              <option disabled selected value="">Select your goal</option>
+              <option value="wellness">General wellness</option>
+              <option value="weight">Weight management</option>
+              <option value="heart">Heart health</option>
+              <option value="chronic">Chronic condition management</option>
+              <option value="recovery">Recovery tracking</option>
+            </select>
+          </div>
+        </div>
+        <div class="flex gap-4 pt-2">
+          <button type="button" onclick="goToStep(1)" class="w-1/3 border border-outline-variant text-primary py-5 rounded-full font-bold text-lg hover:bg-surface-container transition-all flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined">chevron_left</span> Back
+          </button>
+          <button type="button" onclick="goToStep(3)" class="flex-1 bg-gradient-to-br from-primary to-primary-container text-white py-5 rounded-full font-bold text-lg shadow-xl hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-3">
+            Continue to Medical History <span class="material-symbols-outlined">chevron_right</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STEP 3 ── -->
+    <div id="step-3" class="hidden">
+      <div class="space-y-2 mb-8">
+        <h2 class="text-3xl font-extrabold text-on-surface tracking-tight">Medical History</h2>
+        <p class="text-on-surface-variant text-lg">This helps BioSync provide accurate health insights.</p>
+      </div>
+      <div class="space-y-8">
+
+        <!-- Chronic Conditions -->
+        <div class="space-y-3">
+          <label class="text-sm font-bold text-primary uppercase tracking-wider ml-1">Chronic Conditions</label>
+          <p class="text-xs text-on-surface-variant ml-1">Select all that apply</p>
+          <div class="grid grid-cols-2 gap-3">
+            <label class="flex items-center gap-3 p-4 bg-surface-container-low rounded-xl cursor-pointer hover:bg-surface-container transition-all">
+              <input type="checkbox" name="conditions" value="diabetes" class="w-4 h-4 accent-primary"/>
+              <span class="text-sm font-medium text-on-surface">Diabetes</span>
+            </label>
+            <label class="flex items-center gap-3 p-4 bg-surface-container-low rounded-xl cursor-pointer hover:bg-surface-container transition-all">
+              <input type="checkbox" name="conditions" value="hypertension" class="w-4 h-4 accent-primary"/>
+              <span class="text-sm font-medium text-on-surface">Hypertension</span>
+            </label>
+            <label class="flex items-center gap-3 p-4 bg-surface-container-low rounded-xl cursor-pointer hover:bg-surface-container transition-all">
+              <input type="checkbox" name="conditions" value="heart_disease" class="w-4 h-4 accent-primary"/>
+              <span class="text-sm font-medium text-on-surface">Heart Disease</span>
+            </label>
+            <label class="flex items-center gap-3 p-4 bg-surface-container-low rounded-xl cursor-pointer hover:bg-surface-container transition-all">
+              <input type="checkbox" name="conditions" value="asthma" class="w-4 h-4 accent-primary"/>
+              <span class="text-sm font-medium text-on-surface">Asthma</span>
+            </label>
+            <label class="flex items-center gap-3 p-4 bg-surface-container-low rounded-xl cursor-pointer hover:bg-surface-container transition-all">
+              <input type="checkbox" name="conditions" value="arthritis" class="w-4 h-4 accent-primary"/>
+              <span class="text-sm font-medium text-on-surface">Arthritis</span>
+            </label>
+            <label class="flex items-center gap-3 p-4 bg-surface-container-low rounded-xl cursor-pointer hover:bg-surface-container transition-all">
+              <input type="checkbox" name="conditions" value="none" class="w-4 h-4 accent-primary"/>
+              <span class="text-sm font-medium text-on-surface">None</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Current Medications -->
+        <div class="space-y-3">
+          <label class="text-sm font-bold text-primary uppercase tracking-wider ml-1">Current Medications</label>
+          <div class="flex gap-3">
+            <button type="button" onclick="toggleYesNo('meds', true)" id="meds-yes" class="toggle-btn flex-1 py-3 rounded-full border border-outline-variant text-on-surface font-semibold text-sm">Yes</button>
+            <button type="button" onclick="toggleYesNo('meds', false)" id="meds-no" class="toggle-btn active flex-1 py-3 rounded-full border border-outline-variant text-on-surface font-semibold text-sm">No</button>
+          </div>
+          <div id="meds-detail" class="hidden">
+            <textarea id="medications" rows="3" placeholder="List your current medications and dosages"
+              class="w-full bg-surface-container-low border-none rounded-lg px-4 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-outline-variant resize-none"></textarea>
+          </div>
+        </div>
+
+        <!-- Major Surgeries -->
+        <div class="space-y-3">
+          <label class="text-sm font-bold text-primary uppercase tracking-wider ml-1">Major Surgeries</label>
+          <div class="flex gap-3">
+            <button type="button" onclick="toggleYesNo('surgery', true)" id="surgery-yes" class="toggle-btn flex-1 py-3 rounded-full border border-outline-variant text-on-surface font-semibold text-sm">Yes</button>
+            <button type="button" onclick="toggleYesNo('surgery', false)" id="surgery-no" class="toggle-btn active flex-1 py-3 rounded-full border border-outline-variant text-on-surface font-semibold text-sm">No</button>
+          </div>
+          <div id="surgery-detail" class="hidden">
+            <textarea id="surgeries" rows="3" placeholder="List any major surgeries and approximate dates"
+              class="w-full bg-surface-container-low border-none rounded-lg px-4 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-outline-variant resize-none"></textarea>
+          </div>
+        </div>
+
+        <!-- Family History -->
+        <div class="space-y-3">
+          <label class="text-sm font-bold text-primary uppercase tracking-wider ml-1">Family History</label>
+          <p class="text-xs text-on-surface-variant ml-1">Check any conditions and select which family member</p>
+          <div class="space-y-3">
+            <!-- Heart Disease -->
+            <div class="p-4 bg-surface-container-low rounded-xl space-y-3">
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" name="family_history" value="heart_disease" class="w-4 h-4 accent-primary" onchange="toggleFamilyMember('fh-heart', this.checked)"/>
+                <span class="text-sm font-medium text-on-surface">Heart Disease</span>
+              </label>
+              <select id="fh-heart" disabled class="w-full bg-surface-container border-none rounded-lg px-4 py-3 text-on-surface text-sm cursor-pointer disabled:opacity-40">
+                <option disabled selected value="">Which family member?</option>
+                <option>Parent</option><option>Sibling</option><option>Grandparent</option><option>Other</option>
+              </select>
+            </div>
+            <!-- Diabetes -->
+            <div class="p-4 bg-surface-container-low rounded-xl space-y-3">
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" name="family_history" value="diabetes" class="w-4 h-4 accent-primary" onchange="toggleFamilyMember('fh-diabetes', this.checked)"/>
+                <span class="text-sm font-medium text-on-surface">Diabetes</span>
+              </label>
+              <select id="fh-diabetes" disabled class="w-full bg-surface-container border-none rounded-lg px-4 py-3 text-on-surface text-sm cursor-pointer disabled:opacity-40">
+                <option disabled selected value="">Which family member?</option>
+                <option>Parent</option><option>Sibling</option><option>Grandparent</option><option>Other</option>
+              </select>
+            </div>
+            <!-- Cancer -->
+            <div class="p-4 bg-surface-container-low rounded-xl space-y-3">
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" name="family_history" value="cancer" class="w-4 h-4 accent-primary" onchange="toggleFamilyMember('fh-cancer', this.checked)"/>
+                <span class="text-sm font-medium text-on-surface">Cancer (any type)</span>
+              </label>
+              <select id="fh-cancer" disabled class="w-full bg-surface-container border-none rounded-lg px-4 py-3 text-on-surface text-sm cursor-pointer disabled:opacity-40">
+                <option disabled selected value="">Which family member?</option>
+                <option>Parent</option><option>Sibling</option><option>Grandparent</option><option>Other</option>
+              </select>
+            </div>
+            <!-- Stroke -->
+            <div class="p-4 bg-surface-container-low rounded-xl space-y-3">
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" name="family_history" value="stroke" class="w-4 h-4 accent-primary" onchange="toggleFamilyMember('fh-stroke', this.checked)"/>
+                <span class="text-sm font-medium text-on-surface">Stroke</span>
+              </label>
+              <select id="fh-stroke" disabled class="w-full bg-surface-container border-none rounded-lg px-4 py-3 text-on-surface text-sm cursor-pointer disabled:opacity-40">
+                <option disabled selected value="">Which family member?</option>
+                <option>Parent</option><option>Sibling</option><option>Grandparent</option><option>Other</option>
+              </select>
+            </div>
+            <!-- High Cholesterol -->
+            <div class="p-4 bg-surface-container-low rounded-xl space-y-3">
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" name="family_history" value="cholesterol" class="w-4 h-4 accent-primary" onchange="toggleFamilyMember('fh-cholesterol', this.checked)"/>
+                <span class="text-sm font-medium text-on-surface">High Cholesterol</span>
+              </label>
+              <select id="fh-cholesterol" disabled class="w-full bg-surface-container border-none rounded-lg px-4 py-3 text-on-surface text-sm cursor-pointer disabled:opacity-40">
+                <option disabled selected value="">Which family member?</option>
+                <option>Parent</option><option>Sibling</option><option>Grandparent</option><option>Other</option>
+              </select>
+            </div>
+            <!-- Kidney Disease -->
+            <div class="p-4 bg-surface-container-low rounded-xl space-y-3">
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" name="family_history" value="kidney" class="w-4 h-4 accent-primary" onchange="toggleFamilyMember('fh-kidney', this.checked)"/>
+                <span class="text-sm font-medium text-on-surface">Kidney Disease</span>
+              </label>
+              <select id="fh-kidney" disabled class="w-full bg-surface-container border-none rounded-lg px-4 py-3 text-on-surface text-sm cursor-pointer disabled:opacity-40">
+                <option disabled selected value="">Which family member?</option>
+                <option>Parent</option><option>Sibling</option><option>Grandparent</option><option>Other</option>
+              </select>
+            </div>
+            <!-- Alzheimer's -->
+            <div class="p-4 bg-surface-container-low rounded-xl space-y-3">
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" name="family_history" value="alzheimers" class="w-4 h-4 accent-primary" onchange="toggleFamilyMember('fh-alzheimers', this.checked)"/>
+                <span class="text-sm font-medium text-on-surface">Alzheimer's or Dementia</span>
+              </label>
+              <select id="fh-alzheimers" disabled class="w-full bg-surface-container border-none rounded-lg px-4 py-3 text-on-surface text-sm cursor-pointer disabled:opacity-40">
+                <option disabled selected value="">Which family member?</option>
+                <option>Parent</option><option>Sibling</option><option>Grandparent</option><option>Other</option>
+              </select>
+            </div>
+            <!-- Osteoporosis -->
+            <div class="p-4 bg-surface-container-low rounded-xl space-y-3">
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" name="family_history" value="osteoporosis" class="w-4 h-4 accent-primary" onchange="toggleFamilyMember('fh-osteoporosis', this.checked)"/>
+                <span class="text-sm font-medium text-on-surface">Osteoporosis</span>
+              </label>
+              <select id="fh-osteoporosis" disabled class="w-full bg-surface-container border-none rounded-lg px-4 py-3 text-on-surface text-sm cursor-pointer disabled:opacity-40">
+                <option disabled selected value="">Which family member?</option>
+                <option>Parent</option><option>Sibling</option><option>Grandparent</option><option>Other</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lifestyle -->
+        <div class="space-y-4">
+          <label class="text-sm font-bold text-primary uppercase tracking-wider ml-1">Lifestyle</label>
+
+          <!-- Smoking -->
+          <div class="space-y-2">
+            <p class="text-xs font-semibold text-on-surface-variant ml-1">Smoking Status</p>
+            <div class="relative flex items-center">
+              <span class="material-symbols-outlined absolute left-4 text-on-surface-variant pointer-events-none">smoking_rooms</span>
+              <select id="smoking" onchange="handleSmoking(this.value)"
+                class="w-full bg-surface-container-low border-none rounded-lg pl-12 pr-10 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all cursor-pointer">
+                <option disabled selected value="">Select</option>
+                <option value="never">Never smoked</option>
+                <option value="former">Former smoker</option>
+                <option value="current">Current smoker</option>
+              </select>
+            </div>
+            <div id="smoking-former" class="hidden space-y-2 pt-1">
+              <label class="text-xs font-semibold text-on-surface-variant ml-1">When did you quit?</label>
+              <div class="relative flex items-center">
+                <span class="material-symbols-outlined absolute left-4 text-on-surface-variant">calendar_today</span>
+                <input id="quit_date" type="date" class="w-full bg-surface-container-low border-none rounded-lg pl-12 pr-4 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all"/>
+              </div>
+            </div>
+            <div id="smoking-current" class="hidden space-y-2 pt-1">
+              <label class="text-xs font-semibold text-on-surface-variant ml-1">How many years have you been smoking?</label>
+              <div class="relative flex items-center">
+                <span class="material-symbols-outlined absolute left-4 text-on-surface-variant">schedule</span>
+                <input id="years_smoked" type="number" min="0" max="80" placeholder="e.g. 5"
+                  class="w-full bg-surface-container-low border-none rounded-lg pl-12 pr-4 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-outline-variant"/>
+              </div>
+            </div>
+          </div>
+
+          <!-- Alcohol -->
+          <div class="space-y-2">
+            <p class="text-xs font-semibold text-on-surface-variant ml-1">Alcohol Consumption</p>
+            <div class="relative flex items-center">
+              <span class="material-symbols-outlined absolute left-4 text-on-surface-variant pointer-events-none">local_bar</span>
+              <select id="alcohol" class="w-full bg-surface-container-low border-none rounded-lg pl-12 pr-10 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all cursor-pointer">
+                <option disabled selected value="">Select</option>
+                <option value="none">None</option>
+                <option value="occasional">Occasional</option>
+                <option value="moderate">Moderate</option>
+                <option value="regular">Regular</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Exercise -->
+          <div class="space-y-2">
+            <p class="text-xs font-semibold text-on-surface-variant ml-1">Exercise Frequency</p>
+            <div class="relative flex items-center">
+              <span class="material-symbols-outlined absolute left-4 text-on-surface-variant pointer-events-none">fitness_center</span>
+              <select id="exercise" class="w-full bg-surface-container-low border-none rounded-lg pl-12 pr-10 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all cursor-pointer">
+                <option disabled selected value="">Select</option>
+                <option value="sedentary">Sedentary (little to no exercise)</option>
+                <option value="light">Light (1-2 days/week)</option>
+                <option value="moderate">Moderate (3-4 days/week)</option>
+                <option value="active">Active (5-6 days/week)</option>
+                <option value="very_active">Very Active (daily)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Sleep -->
+          <div class="space-y-2">
+            <p class="text-xs font-semibold text-on-surface-variant ml-1">Sleep Quality</p>
+            <div class="relative flex items-center">
+              <span class="material-symbols-outlined absolute left-4 text-on-surface-variant pointer-events-none">bedtime</span>
+              <select id="sleep" class="w-full bg-surface-container-low border-none rounded-lg pl-12 pr-10 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all cursor-pointer">
+                <option disabled selected value="">Select</option>
+                <option value="poor">Poor (less than 5 hours)</option>
+                <option value="fair">Fair (5-6 hours)</option>
+                <option value="good">Good (7-8 hours)</option>
+                <option value="excellent">Excellent (8+ hours)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Stress -->
+          <div class="space-y-2">
+            <p class="text-xs font-semibold text-on-surface-variant ml-1">Stress Level</p>
+            <div class="relative flex items-center">
+              <span class="material-symbols-outlined absolute left-4 text-on-surface-variant pointer-events-none">psychology</span>
+              <select id="stress" class="w-full bg-surface-container-low border-none rounded-lg pl-12 pr-10 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all cursor-pointer">
+                <option disabled selected value="">Select</option>
+                <option value="low">Low</option>
+                <option value="moderate">Moderate</option>
+                <option value="high">High</option>
+                <option value="very_high">Very High</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Known Allergies -->
+        <div class="space-y-2">
+          <label class="text-sm font-bold text-primary uppercase tracking-wider ml-1">Known Allergies</label>
+          <textarea id="allergies" rows="3" placeholder="e.g. Penicillin, peanuts — leave blank if none"
+            class="w-full bg-surface-container-low border-none rounded-lg px-4 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-outline-variant resize-none"></textarea>
+        </div>
+
+        <!-- Emergency Contact -->
+        <div class="space-y-3">
+          <label class="text-sm font-bold text-primary uppercase tracking-wider ml-1">Emergency Contact</label>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input id="emergency_name" type="text" placeholder="Full name"
+              class="w-full bg-surface-container-low border-none rounded-lg px-4 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-outline-variant"/>
+            <input id="emergency_phone" type="tel" placeholder="Phone number"
+              class="w-full bg-surface-container-low border-none rounded-lg px-4 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-outline-variant"/>
+          </div>
+        </div>
+
+        <!-- Primary Care Doctor -->
+        <div class="space-y-2">
+          <label class="text-sm font-bold text-primary uppercase tracking-wider ml-1">Primary Care Doctor</label>
+          <div class="relative flex items-center">
+            <span class="material-symbols-outlined absolute left-4 text-on-surface-variant">stethoscope</span>
+            <input id="doctor_name" type="text" placeholder="Dr. Name (optional)"
+              class="w-full bg-surface-container-low border-none rounded-lg pl-12 pr-4 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-outline-variant"/>
+          </div>
+        </div>
+
+        <!-- Insurance -->
+        <div class="space-y-2">
+          <label class="text-sm font-bold text-primary uppercase tracking-wider ml-1">Insurance Provider</label>
+          <div class="relative flex items-center">
+            <span class="material-symbols-outlined absolute left-4 text-on-surface-variant">health_and_safety</span>
+            <input id="insurance" type="text" placeholder="Insurance provider name (optional)"
+              class="w-full bg-surface-container-low border-none rounded-lg pl-12 pr-4 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-outline-variant"/>
+          </div>
+        </div>
+
+        <div class="flex gap-4 pt-2">
+          <button type="button" onclick="goToStep(2)" class="w-1/3 border border-outline-variant text-primary py-5 rounded-full font-bold text-lg hover:bg-surface-container transition-all flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined">chevron_left</span> Back
+          </button>
+          <button type="button" onclick="submitForm()" class="flex-1 bg-gradient-to-br from-primary to-primary-container text-white py-5 rounded-full font-bold text-lg shadow-xl hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-3">
+            Complete Registration <span class="material-symbols-outlined">check_circle</span>
+          </button>
+        </div>
+
+        <div class="flex items-center gap-3 justify-center text-sm text-on-surface-variant">
+          <span class="material-symbols-outlined text-outline-variant text-lg">lock</span>
+          Your health data is processed in accordance with HIPAA standards.
+        </div>
+      </div>
+    </div>
+
+    <!-- Hidden form -->
+    <form id="main-form" method="post" class="hidden">
+      <input type="hidden" name="account_type" value="individual"/>
+      <input type="hidden" name="username" id="f-username"/>
+      <input type="hidden" name="password" id="f-password"/>
+      <input type="hidden" name="first_name" id="f-first_name"/>
+      <input type="hidden" name="last_name" id="f-last_name"/>
+      <input type="hidden" name="dob" id="f-dob"/>
+      <input type="hidden" name="sex" id="f-sex"/>
+      <input type="hidden" name="height_ft" id="f-height_ft"/>
+      <input type="hidden" name="height_in" id="f-height_in"/>
+      <input type="hidden" name="weight" id="f-weight"/>
+      <input type="hidden" name="weight_unit" id="f-weight_unit"/>
+      <input type="hidden" name="blood_type" id="f-blood_type"/>
+      <input type="hidden" name="health_goal" id="f-health_goal"/>
+      <input type="hidden" name="medications" id="f-medications"/>
+      <input type="hidden" name="surgeries" id="f-surgeries"/>
+      <input type="hidden" name="smoking" id="f-smoking"/>
+      <input type="hidden" name="quit_date" id="f-quit_date"/>
+      <input type="hidden" name="years_smoked" id="f-years_smoked"/>
+      <input type="hidden" name="alcohol" id="f-alcohol"/>
+      <input type="hidden" name="exercise" id="f-exercise"/>
+      <input type="hidden" name="sleep" id="f-sleep"/>
+      <input type="hidden" name="stress" id="f-stress"/>
+      <input type="hidden" name="allergies" id="f-allergies"/>
+      <input type="hidden" name="emergency_name" id="f-emergency_name"/>
+      <input type="hidden" name="emergency_phone" id="f-emergency_phone"/>
+      <input type="hidden" name="doctor_name" id="f-doctor_name"/>
+      <input type="hidden" name="insurance" id="f-insurance"/>
+    </form>
+
+    <div class="mt-10 pt-8 border-t border-surface-container flex flex-col md:flex-row items-center justify-between gap-4">
+      <span class="text-on-surface-variant text-sm">Already have an account?</span>
+      <a class="px-6 py-2 rounded-full border border-outline-variant text-primary font-bold text-sm hover:bg-surface-container-low transition-colors" href="{{ url_for('auth.login') }}">Sign In to BioSync</a>
+    </div>
+
+    <div class="mt-12 w-full flex justify-between items-center opacity-40 grayscale hover:grayscale-0 transition-all duration-500">
+      <div class="flex items-center gap-2"><span class="material-symbols-outlined text-3xl">health_and_safety</span><span class="font-bold text-sm tracking-widest uppercase">SafeGuard</span></div>
+      <div class="flex items-center gap-2"><span class="material-symbols-outlined text-3xl">shield_with_heart</span><span class="font-bold text-sm tracking-widest uppercase">MediTrust</span></div>
+      <div class="flex items-center gap-2"><span class="material-symbols-outlined text-3xl">database</span><span class="font-bold text-sm tracking-widest uppercase">BioCloud</span></div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  function goToStep(step) {
+    if (step === 2) {
+      const u = document.getElementById('username').value;
+      const p = document.getElementById('password').value;
+      if (!u || !p) { alert('Please enter a username and password first.'); return; }
     }
-  </script>
-{% endblock %}
+    document.getElementById('step-1').classList.toggle('hidden', step !== 1);
+    document.getElementById('step-2').classList.toggle('hidden', step !== 2);
+    document.getElementById('step-3').classList.toggle('hidden', step !== 3);
+    const s1 = document.getElementById('step1-circle');
+    const s2 = document.getElementById('step2-circle');
+    const s3 = document.getElementById('step3-circle');
+    const b1 = document.getElementById('progress-bar-1');
+    const b2 = document.getElementById('progress-bar-2');
+    const done = 'w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-white text-sm font-bold shadow-md transition-all';
+    const active = 'w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white text-sm font-bold shadow-md transition-all';
+    const inactive = 'w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant text-sm font-medium transition-all';
+    if (step === 1) {
+      s1.className = active; s1.innerHTML = '1';
+      s2.className = inactive; s2.innerHTML = '2';
+      s3.className = inactive; s3.innerHTML = '3';
+      b1.style.width = '0%'; b2.style.width = '0%';
+    } else if (step === 2) {
+      s1.className = done; s1.innerHTML = '<span class="material-symbols-outlined text-sm">check</span>';
+      s2.className = active; s2.innerHTML = '2';
+      s3.className = inactive; s3.innerHTML = '3';
+      b1.style.width = '100%'; b2.style.width = '0%';
+    } else {
+      s1.className = done; s1.innerHTML = '<span class="material-symbols-outlined text-sm">check</span>';
+      s2.className = done; s2.innerHTML = '<span class="material-symbols-outlined text-sm">check</span>';
+      s3.className = active; s3.innerHTML = '3';
+      b1.style.width = '100%'; b2.style.width = '100%';
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function toggleWearable(btn) {
+    btn.classList.toggle('ring-secondary');
+    btn.classList.toggle('bg-secondary/5');
+  }
+
+  function toggleYesNo(field, isYes) {
+    document.getElementById(field + '-yes').classList.toggle('active', isYes);
+    document.getElementById(field + '-no').classList.toggle('active', !isYes);
+    document.getElementById(field + '-detail').classList.toggle('hidden', !isYes);
+  }
+
+  function handleSmoking(value) {
+    document.getElementById('smoking-former').classList.toggle('hidden', value !== 'former');
+    document.getElementById('smoking-current').classList.toggle('hidden', value !== 'current');
+  }
+
+  function toggleFamilyMember(id, checked) {
+    const select = document.getElementById(id);
+    select.disabled = !checked;
+    select.classList.toggle('opacity-40', !checked);
+  }
+
+  function submitForm() {
+    const simple = ['username','password','first_name','last_name','dob','sex',
+      'height_ft','height_in','weight','weight_unit','blood_type','health_goal',
+      'medications','surgeries','smoking','quit_date','years_smoked',
+      'alcohol','exercise','sleep','stress','allergies',
+      'emergency_name','emergency_phone','doctor_name','insurance'];
+    simple.forEach(f => {
+      const el = document.getElementById(f);
+      if (el) document.getElementById('f-' + f).value = el.value;
+    });
+    document.getElementById('main-form').submit();
+  }
+</script>
+
+</body>
+</html>
