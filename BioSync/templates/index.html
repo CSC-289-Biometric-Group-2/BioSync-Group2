@@ -101,7 +101,7 @@
     </div>
     <div class="flex items-center gap-4">
         {% if g.user %}
-            <a href="{{ url_for('main.profile') }}" class="text-on-surface-variant hover:text-primary font-semibold transition-colors">My Profile</a>
+            <a href="{{ url_for('main.individual_profile') }}" class="text-on-surface-variant hover:text-primary font-semibold transition-colors">My Profile</a>
             <a href="{{ url_for('main.upload') }}" class="text-on-surface-variant hover:text-primary font-semibold transition-colors">Upload</a>
             <a href="{{ url_for('auth.logout') }}" class="hidden md:block px-6 py-2 bg-gradient-to-br from-primary to-primary-container text-white rounded-full font-semibold active:scale-95 duration-150">Log Out</a>
         {% else %}
@@ -134,7 +134,7 @@
                 </p>
                 <div class="flex flex-wrap gap-4">
                     <a href="{{ url_for('auth.register') }}" class="px-8 py-4 bg-gradient-to-br from-primary to-primary-container text-white rounded-full font-bold text-lg shadow-lg shadow-primary/20 active:scale-95 transition-all">
-                        Start Free Trial
+                        Register Now
                     </a>
                     <a href="{{ url_for('auth.login') }}" class="px-8 py-4 bg-surface-container-lowest text-primary rounded-full font-bold text-lg border border-outline-variant/20 hover:bg-surface-container-low transition-all">
                         Log In
@@ -249,7 +249,7 @@
                         <h3 class="text-2xl font-headline font-bold">Care Network</h3>
                         <p class="opacity-80">Grant granular access to family members or specialists. Total control over who sees your health story.</p>
                     </div>
-                    <a href="{{ url_for('main.profile') }}" class="flex items-center gap-2 font-bold text-sm">
+                    <a href="{{ url_for('main.individual_profile') }}" class="flex items-center gap-2 font-bold text-sm">
                         Manage Permissions <span class="material-symbols-outlined text-sm">settings</span>
                     </a>
                 </div>
