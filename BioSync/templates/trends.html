@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ metric | replace('_', ' ') | title }} Trends{% endblock %}
+
+{% block header %}
+  <h1>{{ metric | replace('_', ' ') | title }}</h1>
+{% endblock %}
+
+{% block content %}
+  {% if trend %}
+    <h2>Summary</h2>
+    <p>Average: <strong>{{ trend.average }}</strong></p>
+    <p>Min: <strong>{{ trend.min }}</strong></p>
+    <p>Max: <strong>{{ trend.max }}</strong></p>
+    <p>Total Readings: <strong>{{ trend.count }}</strong></p>
+    <p>Trend: <strong>{{ trend.trend }}</strong> 
+       ({{ trend.change_pct }}% change)</p>
+
+    {% if comparison %}
+      <hr>
+      <h2>Baseline Comparison</h2>
+      <p>Baseline Average: <strong>{{ comparison.baseline_avg }}</strong></p>
+      <p>Recent Average: <strong>{{ comparison.recent_avg }}</strong></p>
+      <p>Change: <strong>{{ comparison.delta }}</strong> 
+         ({{ comparison.direction }})</p>
+    {% endif %}
+
+    <hr>
+    <h2>All Readings</h2>
+    <ul>
+      {% for i in range(trend.values | length) %}
+        <li>{{ trend.dates[i] }}: <strong>{{ trend.values[i] }}</strong></li>
+      {% endfor %}
+    </ul>
+
+  {% else %}
+    <p>Not enough data yet for this metric.</p>
+    <p><a href="{{ url_for('main.upload') }}">Upload a document</a> 
+       to add readings.</p>
+  {% endif %}
+
+  <hr>
+  <a href="{{ url_for('main.individual_profile') }}">← Back to Profile</a>
+  &nbsp;|&nbsp;
+  <a href="{{ url_for('main.index') }}">← Back to Home</a>
+{% endblock %}

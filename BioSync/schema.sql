@@ -6,7 +6,8 @@ DROP TABLE IF EXISTS biometric_reading;
 CREATE TABLE user (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   username TEXT UNIQUE NOT NULL,
-  password TEXT NOT NULL
+  password TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 -- Stores uploaded medical documents linked to a user
 CREATE TABLE medical_document (

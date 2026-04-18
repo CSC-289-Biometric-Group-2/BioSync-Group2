@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BioSync - Document Hub</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "surface-container-highest": "#e0e3e6",
+          "outline-variant": "#c5c6cf",
+          "outline": "#75777f",
+          "error-container": "#ffdad6",
+          "secondary": "#006398",
+          "surface-bright": "#f7f9fc",
+          "secondary-container": "#6cbdfe",
+          "on-surface": "#191c1e",
+          "on-secondary": "#ffffff",
+          "on-primary": "#ffffff",
+          "background": "#f7f9fc",
+          "on-tertiary-fixed-variant": "#930005",
+          "tertiary-container": "#640002",
+          "surface-container-lowest": "#ffffff",
+          "on-tertiary-container": "#ff6050",
+          "tertiary": "#3d0001",
+          "on-tertiary": "#ffffff",
+          "on-primary-container": "#8495bd",
+          "surface-container-high": "#e6e8eb",
+          "surface-container": "#eceef1",
+          "surface": "#f7f9fc",
+          "primary-fixed-dim": "#b6c6f1",
+          "error": "#ba1a1a",
+          "on-error": "#ffffff",
+          "on-secondary-container": "#004b75",
+          "surface-container-low": "#f2f4f7",
+          "on-surface-variant": "#44474e",
+          "primary": "#041839",
+          "primary-container": "#1c2d4f",
+        },
+        "borderRadius": {
+          "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"
+        },
+        "fontFamily": {
+          "headline": ["Manrope"], "body": ["Inter"], "label": ["Inter"]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  .glass-panel { background: rgba(255,255,255,0.8); backdrop-filter: blur(12px); }
+  .nav-active { color: #006398; background: white; border-left: 4px solid #006398; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(4,24,57,0.05); }
+</style>
+</head>
+<body class="bg-surface font-body text-on-surface">
+
+<!-- Sidebar Navigation -->
+<aside class="h-screen w-64 fixed left-0 top-0 flex flex-col bg-surface-container-low border-r border-outline-variant/10 font-body text-sm z-50">
+  <div class="px-4 py-6">
+    <a href="{{ url_for('main.index') }}">
+  <img src="{{ url_for('static', filename='BioSync.png') }}" alt="BioSync" class="h-10 w-auto mb-2"/>
+    </a>
+    <p class="text-xs text-on-surface-variant font-medium mt-1">Clinical Workspace</p>
+    <p class="text-[10px] text-on-surface-variant/70 uppercase tracking-widest mt-0.5">{{ g.user['username'] }}</p>
+  </div>
+  <nav class="flex-1 px-4 space-y-1">
+    <a href="{{ url_for('main.dashboard') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">dashboard</span> Overview
+    </a>
+    <a href="{{ url_for('main.doc_hub') }}" class="flex items-center gap-3 px-4 py-3 nav-active transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">description</span> Documents
+    </a>
+    <a href="{{ url_for('main.dashboard') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">trending_up</span> Trends
+    </a>
+    <a href="{{ url_for('main.individual_profile') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">person</span> My Profile
+    </a>
+  </nav>
+  <div class="px-6 mb-8">
+    <a href="{{ url_for('main.doc_hub') }}"
+      class="w-full py-3 bg-gradient-to-br from-primary to-primary-container text-white rounded-full font-semibold shadow-md flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+      <span class="material-symbols-outlined text-sm">upload_file</span>
+      Upload Document
+    </a>
+  </div>
+  <div class="px-4 py-6 border-t border-outline-variant/10 space-y-1">
+    <a href="#" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-primary transition-colors">
+      <span class="material-symbols-outlined">help_outline</span>
+      <span>Support</span>
+    </a>
+    <a href="{{ url_for('auth.logout') }}" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-primary transition-colors">
+      <span class="material-symbols-outlined">logout</span>
+      <span>Sign Out</span>
+    </a>
+  </div>
+</aside>
+
+<!-- Main Canvas -->
+<main class="ml-64 min-h-screen">
+
+  <!-- Top Nav Bar -->
+  <header class="sticky top-0 z-40 bg-surface/80 backdrop-blur-xl flex justify-between items-center w-full px-8 py-4 shadow-sm">
+    <h2 class="font-headline font-extrabold text-2xl tracking-tighter text-primary">Document Hub</h2>
+    <div class="flex items-center gap-6">
+      <div class="relative hidden lg:block">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+        <input class="pl-10 pr-4 py-2 bg-surface-container-low rounded-full border-none focus:ring-2 focus:ring-secondary/20 w-64 text-sm" placeholder="Search clinical records..." type="text"/>
+      </div>
+      <div class="flex items-center gap-3">
+        <button class="p-2 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors relative">
+          <span class="material-symbols-outlined">notifications</span>
+          <span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-surface"></span>
+        </button>
+        <button class="p-2 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors">
+          <span class="material-symbols-outlined">settings</span>
+        </button>
+        <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-white font-bold text-sm">
+          {{ g.user['username'][0].upper() }}
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div class="px-8 pt-4">
+        {% for message in messages %}
+          <div class="bg-green-50 text-green-700 border border-green-200 rounded-xl px-4 py-3 text-sm font-medium mb-2">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- Content Grid -->
+  <div class="p-8 max-w-[1440px] mx-auto grid grid-cols-12 gap-8">
+
+    <!-- Left Column -->
+    <div class="col-span-12 lg:col-span-8 space-y-8">
+
+      <!-- Upload Zone -->
+      <form method="POST" enctype="multipart/form-data" id="uploadForm">
+        <div class="bg-surface-container-lowest rounded-xl p-10 flex flex-col items-center justify-center border-2 border-dashed border-outline-variant/30 hover:border-secondary transition-colors group cursor-pointer"
+          onclick="document.getElementById('fileInput').click()">
+          <div class="w-16 h-16 rounded-full bg-secondary/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <span class="material-symbols-outlined text-4xl text-secondary">cloud_upload</span>
+          </div>
+          <h3 class="text-xl font-headline font-bold text-primary mb-2">Drop clinical files here</h3>
+          <p class="text-on-surface-variant mb-6 max-w-md text-center">PDF, DOCX, TXT, or CSV. Click anywhere to browse.</p>
+          <input type="file" name="document" id="fileInput" class="hidden" onchange="document.getElementById('uploadForm').submit()"/>
+          <button type="button" onclick="event.stopPropagation(); document.getElementById('fileInput').click()"
+            class="px-8 py-3 bg-primary text-white rounded-full font-semibold hover:bg-primary-container transition-colors shadow-lg shadow-primary/10">
+            Browse Local Storage
+          </button>
+        </div>
+      </form>
+
+      <!-- Category Cards -->
+      <div class="grid grid-cols-3 gap-6">
+
+        <!-- Lab Results -->
+        <div class="col-span-3 md:col-span-1 bg-surface-container-lowest rounded-xl p-6 shadow-sm border-l-4 border-secondary hover:shadow-md transition-shadow">
+          <div class="flex justify-between items-start mb-4">
+            <span class="material-symbols-outlined text-secondary bg-secondary/10 p-2 rounded-lg">biotech</span>
+            {% if lab_count > 0 %}
+              <span class="text-xs font-bold text-secondary uppercase tracking-wider">New Data</span>
+            {% endif %}
+          </div>
+          <h4 class="font-headline font-bold text-lg mb-1">Lab Results</h4>
+          <p class="text-xs text-on-surface-variant mb-4">PDF, CSV, TXT files</p>
+          <div class="flex items-baseline gap-1">
+            <span class="text-2xl font-black text-primary">{{ '%02d' % lab_count }}</span>
+            <span class="text-xs text-on-surface-variant">files total</span>
+          </div>
+        </div>
+
+        <!-- Imaging -->
+        <div class="col-span-3 md:col-span-1 bg-surface-container-lowest rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+          <div class="flex justify-between items-start mb-4">
+            <span class="material-symbols-outlined text-on-surface-variant bg-surface-container-low p-2 rounded-lg">radiology</span>
+          </div>
+          <h4 class="font-headline font-bold text-lg mb-1">Imaging</h4>
+          <p class="text-xs text-on-surface-variant mb-4">DICOM, JPG, PNG files</p>
+          <div class="flex items-baseline gap-1">
+            <span class="text-2xl font-black text-primary">{{ '%02d' % imaging_count }}</span>
+            <span class="text-xs text-on-surface-variant">scans total</span>
+          </div>
+        </div>
+
+        <!-- Prescriptions -->
+        <div class="col-span-3 md:col-span-1 bg-surface-container-lowest rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+          <div class="flex justify-between items-start mb-4">
+            <span class="material-symbols-outlined text-on-surface-variant bg-surface-container-low p-2 rounded-lg">prescriptions</span>
+          </div>
+          <h4 class="font-headline font-bold text-lg mb-1">Prescriptions</h4>
+          <p class="text-xs text-on-surface-variant mb-4">DOCX files</p>
+          <div class="flex items-baseline gap-1">
+            <span class="text-2xl font-black text-primary">{{ '%02d' % prescription_count }}</span>
+            <span class="text-xs text-on-surface-variant">active</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Recent Documents Table -->
+      <div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm">
+        <div class="px-6 py-4 border-b border-outline-variant/10 flex justify-between items-center">
+          <h3 class="font-headline font-bold text-primary">Recent Patient Records</h3>
+          <span class="text-on-surface-variant text-xs">{{ all_docs | length }} total</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left">
+            <thead class="bg-surface-container-low text-xs uppercase tracking-widest text-on-surface-variant">
+              <tr>
+                <th class="px-6 py-3 font-medium">Document Name</th>
+                <th class="px-6 py-3 font-medium">Status</th>
+                <th class="px-6 py-3 font-medium">Date</th>
+                <th class="px-6 py-3 font-medium text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-outline-variant/5">
+              {% if recent_docs %}
+                {% for doc in recent_docs %}
+                <tr class="hover:bg-surface-container-low transition-colors">
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                      <span class="material-symbols-outlined text-on-surface-variant">
+                        {% if doc['filename'].endswith('.pdf') %}picture_as_pdf
+                        {% elif doc['filename'].endswith('.docx') %}description
+                        {% elif doc['filename'].endswith('.csv') %}table_chart
+                        {% else %}insert_drive_file{% endif %}
+                      </span>
+                      <span class="font-medium text-sm">{{ doc['filename'] }}</span>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4">
+                    {% if doc['processed'] %}
+                      <span class="text-[10px] bg-green-50 text-green-700 px-2 py-0.5 rounded-full uppercase font-bold">Verified</span>
+                    {% else %}
+                      <span class="text-[10px] bg-surface-container-high text-on-surface-variant px-2 py-0.5 rounded-full uppercase font-bold">Pending</span>
+                    {% endif %}
+                  </td>
+                  <td class="px-6 py-4 text-sm text-on-surface-variant">{{ doc['uploaded_at'] }}</td>
+                  <td class="px-6 py-4 text-right">
+                    <button class="text-on-surface-variant hover:text-primary">
+                      <span class="material-symbols-outlined">more_vert</span>
+                    </button>
+                  </td>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="4" class="px-6 py-12 text-center text-on-surface-variant text-sm">
+                    <span class="material-symbols-outlined text-4xl block mb-2 opacity-30">folder_open</span>
+                    No documents uploaded yet. Use the upload zone above to get started.
+                  </td>
+                </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Column -->
+    <div class="col-span-12 lg:col-span-4 space-y-6">
+
+      <!-- Processing Queue -->
+      <div class="bg-surface-container-low rounded-xl p-6">
+        <h3 class="font-headline font-bold text-primary mb-6 flex items-center gap-2">
+          <span class="material-symbols-outlined">analytics</span>
+          Processing Queue
+        </h3>
+        <div class="space-y-4">
+
+          <!-- Pending/unprocessed docs -->
+          {% if queue_docs %}
+            {% for doc in queue_docs %}
+            <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm flex gap-4">
+              <div class="flex-shrink-0">
+                <div class="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center">
+                  <span class="material-symbols-outlined text-secondary animate-pulse">sync</span>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex justify-between items-start">
+                  <p class="text-sm font-bold text-primary truncate">{{ doc['filename'] }}</p>
+                  <span class="text-[10px] bg-secondary/10 text-secondary px-2 py-0.5 rounded-full uppercase font-bold flex-shrink-0 ml-2">Pending</span>
+                </div>
+                <p class="text-xs text-on-surface-variant mt-1">Awaiting processing</p>
+              </div>
+            </div>
+            {% endfor %}
+          {% endif %}
+
+          <!-- Verified docs -->
+          {% if verified_docs %}
+            {% for doc in verified_docs %}
+            <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm flex gap-4">
+              <div class="flex-shrink-0">
+                <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                  <span class="material-symbols-outlined text-green-600">verified</span>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex justify-between items-start">
+                  <p class="text-sm font-bold text-primary truncate">{{ doc['filename'] }}</p>
+                  <span class="text-[10px] bg-green-50 text-green-700 px-2 py-0.5 rounded-full uppercase font-bold flex-shrink-0 ml-2">Verified</span>
+                </div>
+                <p class="text-xs text-on-surface-variant mt-1">Ready for review</p>
+              </div>
+            </div>
+            {% endfor %}
+          {% endif %}
+
+          {% if not queue_docs and not verified_docs %}
+            <div class="text-center py-8">
+              <span class="material-symbols-outlined text-4xl text-on-surface-variant/30 mb-2 block">inbox</span>
+              <p class="text-on-surface-variant text-sm">No documents in queue yet.</p>
+            </div>
+          {% endif %}
+
+        </div>
+
+        {% if verified_docs %}
+        <button class="w-full mt-6 py-2 text-sm font-bold text-primary border border-primary/10 rounded-lg hover:bg-surface-container-highest transition-colors">
+          Clear Completed Tasks
+        </button>
+        {% endif %}
+      </div>
+
+      <!-- Security Notice -->
+      <div class="bg-primary-container rounded-xl p-6 text-white relative overflow-hidden">
+        <div class="absolute -right-10 -bottom-10 opacity-10">
+          <span class="material-symbols-outlined text-[120px]">shield</span>
+        </div>
+        <div class="relative z-10">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="material-symbols-outlined text-secondary-container">verified_user</span>
+            <span class="text-xs font-bold uppercase tracking-widest text-secondary-container">HIPAA Compliant</span>
+          </div>
+          <h4 class="text-lg font-headline font-bold mb-2">Military-Grade Encryption</h4>
+          <p class="text-xs text-on-primary-container leading-relaxed">
+            All patient files are encrypted using AES-256 at rest and TLS 1.3 in transit. Document access is logged per medical audit standards.
+          </p>
+          <div class="mt-4 pt-4 border-t border-white/10 flex items-center justify-between">
+            <span class="text-[10px] opacity-60">{{ all_docs | length }} documents stored</span>
+            <button class="text-[10px] font-bold text-secondary-container hover:underline">View Policy</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="w-full py-12 px-8 border-t border-outline-variant/15 mt-12 bg-surface">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+      <p class="text-xs uppercase tracking-widest text-on-surface-variant">
+        © 2024 BioSync. All medical data encrypted.
+      </p>
+      <div class="flex gap-8">
+        <a href="#" class="text-xs uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors">Privacy Policy</a>
+        <a href="#" class="text-xs uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors">Terms of Service</a>
+        <a href="#" class="text-xs uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors underline decoration-secondary">HIPAA Compliance</a>
+        <a href="#" class="text-xs uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors">Contact Support</a>
+      </div>
+    </div>
+  </footer>
+
+</main>
+</body>
+</html>
