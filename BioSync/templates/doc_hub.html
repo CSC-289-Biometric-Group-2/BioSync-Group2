@@ -77,7 +77,7 @@
     <a href="{{ url_for('main.doc_hub') }}" class="flex items-center gap-3 px-4 py-3 nav-active transition-all duration-200 text-sm font-medium rounded-lg">
       <span class="material-symbols-outlined">description</span> Documents
     </a>
-    <a href="{{ url_for('main.dashboard') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
+    <a href="{{ url_for('main.trends_overview') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
       <span class="material-symbols-outlined">trending_up</span> Trends
     </a>
     <a href="{{ url_for('main.individual_profile') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
@@ -115,10 +115,10 @@
         <input class="pl-10 pr-4 py-2 bg-surface-container-low rounded-full border-none focus:ring-2 focus:ring-secondary/20 w-64 text-sm" placeholder="Search clinical records..." type="text"/>
       </div>
       <div class="flex items-center gap-3">
-        <button class="p-2 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors relative">
+        <a href="{{ url_for('main.notifications') }}" class="p-2 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors relative">
           <span class="material-symbols-outlined">notifications</span>
-          <span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-surface"></span>
-        </button>
+          <span id="notif-badge" class="hidden absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-surface"></span>
+        </a>
         <button class="p-2 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors">
           <span class="material-symbols-outlined">settings</span>
         </button>
@@ -380,5 +380,15 @@
   </footer>
 
 </main>
+<script>
+  fetch("/api/notifications/unread-count")
+    .then(r => r.json())
+    .then(data => {
+      if (data.count > 0) {
+        const badge = document.getElementById("notif-badge");
+        if (badge) badge.classList.remove("hidden");
+      }
+    });
+</script>
 </body>
 </html>

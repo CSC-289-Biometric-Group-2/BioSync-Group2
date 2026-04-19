@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Notifications — BioSync</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "primary": "#041839", "primary-container": "#1c2d4f",
+          "on-primary": "#ffffff", "primary-fixed-dim": "#b6c6f1",
+          "secondary": "#006398", "secondary-container": "#6cbdfe",
+          "on-secondary": "#ffffff",
+          "tertiary": "#3d0001", "tertiary-container": "#640002",
+          "error": "#ba1a1a", "error-container": "#ffdad6",
+          "surface": "#f7f9fc", "surface-container-lowest": "#ffffff",
+          "surface-container-low": "#f2f4f7", "surface-container": "#eceef1",
+          "surface-container-high": "#e6e8eb", "surface-container-highest": "#e0e3e6",
+          "on-surface": "#191c1e", "on-surface-variant": "#44474e",
+          "outline": "#75777f", "outline-variant": "#c5c6cf",
+          "on-primary-container": "#8495bd",
+        },
+        "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+        "fontFamily": { "headline": ["Manrope"], "body": ["Inter"], "label": ["Inter"] }
+      }
+    }
+  }
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  .nav-active { color: #006398; background: white; border-left: 4px solid #006398; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(4,24,57,0.05); }
+  body { font-family: 'Inter', sans-serif; background-color: #f7f9fc; }
+  h1, h2, h3, h4 { font-family: 'Manrope', sans-serif; }
+</style>
+</head>
+<body class="bg-surface text-on-surface">
+
+<!-- Sidebar -->
+<aside class="h-screen w-64 fixed left-0 top-0 flex flex-col bg-surface-container-low border-r border-outline-variant/10 text-sm z-50">
+  <div class="px-4 py-6">
+    <a href="{{ url_for('main.index') }}">
+      <img src="{{ url_for('static', filename='BioSync.png') }}" alt="BioSync" class="h-10 w-auto mb-2"/>
+    </a>
+    <p class="text-xs text-on-surface-variant font-medium mt-1">Clinical Workspace</p>
+    <p class="text-[10px] text-on-surface-variant/70 uppercase tracking-widest mt-0.5">{{ g.user['username'] }}</p>
+  </div>
+  <nav class="flex-1 px-4 space-y-1">
+    <a href="{{ url_for('main.dashboard') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">dashboard</span> Overview
+    </a>
+    <a href="{{ url_for('main.doc_hub') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">description</span> Documents
+    </a>
+    <a href="{{ url_for('main.trends_overview') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">trending_up</span> Trends
+    </a>
+    <a href="{{ url_for('main.individual_profile') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">person</span> My Profile
+    </a>
+  </nav>
+  <div class="px-6 mb-8">
+    <a href="{{ url_for('main.doc_hub') }}" class="w-full py-3 bg-gradient-to-br from-primary to-primary-container text-white rounded-full font-semibold shadow-md flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+      <span class="material-symbols-outlined text-sm">upload_file</span> Upload Document
+    </a>
+  </div>
+  <div class="px-4 py-6 border-t border-outline-variant/10 space-y-1">
+    <a href="#" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-primary transition-colors">
+      <span class="material-symbols-outlined">help_outline</span> Support
+    </a>
+    <a href="{{ url_for('auth.logout') }}" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-primary transition-colors">
+      <span class="material-symbols-outlined">logout</span> Sign Out
+    </a>
+  </div>
+</aside>
+
+<!-- Main -->
+<main class="ml-64 min-h-screen">
+
+  <!-- Top Bar -->
+  <header class="sticky top-0 z-40 flex justify-between items-center w-full px-8 h-16 bg-white/80 backdrop-blur-xl shadow-sm">
+    <div class="flex items-center gap-6">
+      <h2 class="font-headline font-bold text-primary text-lg">Notifications</h2>
+    </div>
+    <div class="flex items-center gap-4">
+      <a href="{{ url_for('main.notifications') }}" class="p-2 rounded-full bg-surface-container-low text-secondary transition-colors">
+        <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">notifications</span>
+      </a>
+      <button class="p-2 rounded-full hover:bg-surface-container-low transition-colors text-on-surface-variant">
+        <span class="material-symbols-outlined">settings</span>
+      </button>
+      <div class="w-9 h-9 rounded-full bg-primary-container flex items-center justify-center text-white font-bold text-sm">
+        {{ g.user['username'][0].upper() }}
+      </div>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <div class="p-8 max-w-3xl mx-auto">
+
+    <!-- Page Header -->
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <p class="text-xs font-bold text-secondary uppercase tracking-widest mb-1">Health Alerts</p>
+        <h1 class="font-headline text-3xl font-extrabold text-primary">Notifications</h1>
+        <p class="text-on-surface-variant text-sm mt-1">{{ notifications | length }} total alert{{ 's' if notifications | length != 1 }}</p>
+      </div>
+      {% if notifications %}
+      <form method="POST" action="{{ url_for('main.clear_notifications') }}">
+        <button type="submit"
+          class="px-5 py-2.5 rounded-full border border-outline-variant text-on-surface-variant font-medium text-sm hover:bg-surface-container transition-colors flex items-center gap-2">
+          <span class="material-symbols-outlined text-sm">delete_sweep</span> Clear All
+        </button>
+      </form>
+      {% endif %}
+    </div>
+
+    <!-- Notifications List -->
+    {% if notifications %}
+      <div class="space-y-3">
+        {% for notif in notifications %}
+        <div class="bg-surface-container-lowest rounded-xl p-5 shadow-sm flex items-start gap-4
+          {% if notif['is_read'] == 0 %}border-l-4
+            {% if notif['status'] == 'danger' %}border-error
+            {% elif notif['status'] == 'warning' %}border-red-400
+            {% elif notif['status'] == 'caution' %}border-yellow-400
+            {% else %}border-secondary{% endif %}
+          {% endif %}">
+
+          <!-- Icon -->
+          <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center
+            {% if notif['status'] == 'danger' %}bg-error-container
+            {% elif notif['status'] == 'warning' %}bg-red-50
+            {% elif notif['status'] == 'caution' %}bg-yellow-50
+            {% else %}bg-secondary/10{% endif %}">
+            <span class="material-symbols-outlined text-sm
+              {% if notif['status'] == 'danger' %}text-error
+              {% elif notif['status'] == 'warning' %}text-red-600
+              {% elif notif['status'] == 'caution' %}text-yellow-600
+              {% else %}text-secondary{% endif %}"
+              style="font-variation-settings:'FILL' 1;">
+              {% if notif['status'] == 'danger' %}emergency
+              {% elif notif['status'] == 'warning' %}warning
+              {% elif notif['status'] == 'caution' %}info
+              {% else %}notifications{% endif %}
+            </span>
+          </div>
+
+          <!-- Content -->
+          <div class="flex-grow min-w-0">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p class="text-xs font-bold uppercase tracking-widest mb-1
+                  {% if notif['status'] == 'danger' %}text-error
+                  {% elif notif['status'] == 'warning' %}text-red-600
+                  {% elif notif['status'] == 'caution' %}text-yellow-600
+                  {% else %}text-secondary{% endif %}">
+                  {{ notif['metric'].replace('_', ' ').title() }}
+                  {% if notif['is_read'] == 0 %}
+                    <span class="ml-2 inline-block w-1.5 h-1.5 rounded-full bg-secondary align-middle"></span>
+                  {% endif %}
+                </p>
+                <p class="text-sm font-medium text-on-surface leading-relaxed">{{ notif['message'] }}</p>
+              </div>
+              <!-- Severity badge -->
+              <span class="flex-shrink-0 text-[10px] font-bold uppercase px-2 py-1 rounded-full
+                {% if notif['status'] == 'danger' %}bg-error-container text-error
+                {% elif notif['status'] == 'warning' %}bg-red-50 text-red-700
+                {% elif notif['status'] == 'caution' %}bg-yellow-50 text-yellow-700
+                {% else %}bg-secondary/10 text-secondary{% endif %}">
+                {% if notif['status'] == 'danger' %}Emergency
+                {% elif notif['status'] == 'warning' %}Warning
+                {% elif notif['status'] == 'caution' %}Caution
+                {% else %}Info{% endif %}
+              </span>
+            </div>
+            <p class="text-[10px] text-on-surface-variant mt-2">{{ notif['created_at'] }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+    {% else %}
+      <!-- Empty State -->
+      <div class="bg-surface-container-lowest rounded-xl p-16 text-center shadow-sm">
+        <span class="material-symbols-outlined text-6xl text-on-surface-variant/30 mb-4 block"
+          style="font-variation-settings:'FILL' 1;">notifications</span>
+        <h3 class="font-headline font-bold text-xl text-primary mb-2">All clear!</h3>
+        <p class="text-on-surface-variant text-sm mb-6">No health alerts at this time. Keep logging your biometrics to stay on top of your health.</p>
+        <a href="{{ url_for('main.add_reading') }}"
+          class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-primary to-primary-container text-white font-bold text-sm rounded-full shadow-lg hover:shadow-xl transition-all">
+          <span class="material-symbols-outlined text-sm">add_circle</span> Log a Reading
+        </a>
+      </div>
+    {% endif %}
+
+  </div>
+</main>
+
+</body>
+</html>

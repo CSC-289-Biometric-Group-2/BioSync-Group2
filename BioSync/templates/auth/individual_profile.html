@@ -58,7 +58,7 @@
       <span class="material-symbols-outlined group-hover:translate-x-1 duration-150">description</span>
       <span>Documents</span>
     </a>
-    <a href="/dashboard" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-white/50 transition-all rounded-lg group">
+    <a href="/trends-overview" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-white/50 transition-all rounded-lg group">
       <span class="material-symbols-outlined group-hover:translate-x-1 duration-150">trending_up</span>
       <span>Trends</span>
     </a>
@@ -97,10 +97,10 @@
         <input class="pl-10 pr-4 py-2 bg-surface-container-low rounded-full border-none focus:ring-2 focus:ring-secondary/20 w-64 text-sm" placeholder="Search clinical records..." type="text"/>
       </div>
       <div class="flex items-center gap-3">
-        <button class="p-2 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors relative">
+        <a href="{{ url_for('main.notifications') }}" class="p-2 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors relative">
           <span class="material-symbols-outlined">notifications</span>
-          <span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-surface"></span>
-        </button>
+          <span id="notif-badge" class="hidden absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-surface"></span>
+        </a>
         <button class="p-2 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors">
           <span class="material-symbols-outlined">settings</span>
         </button>
@@ -136,6 +136,10 @@
         <a href="{{ url_for('main.individual_profile') }}"
           class="px-5 py-2.5 rounded-full border border-outline-variant text-primary font-bold text-sm hover:bg-surface-container transition-colors">
           Edit Details
+        </a>
+        <a href="{{ url_for('main.add_reading') }}"
+          class="px-5 py-2.5 rounded-full border border-secondary text-secondary font-bold text-sm hover:bg-secondary/5 transition-colors flex items-center gap-2">
+          <span class="material-symbols-outlined text-sm">add_circle</span> Log Reading
         </a>
         <button class="px-5 py-2.5 rounded-full bg-gradient-to-br from-primary to-primary-container text-white font-bold text-sm shadow-lg hover:shadow-xl active:scale-[0.99] transition-all flex items-center gap-2">
           <span class="material-symbols-outlined text-sm">download</span> Download Report
@@ -399,5 +403,15 @@
   {% endif %}
 </script>
 
+<script>
+  fetch("/api/notifications/unread-count")
+    .then(r => r.json())
+    .then(data => {
+      if (data.count > 0) {
+        const badge = document.getElementById("notif-badge");
+        if (badge) badge.classList.remove("hidden");
+      }
+    });
+</script>
 </body>
 </html>
