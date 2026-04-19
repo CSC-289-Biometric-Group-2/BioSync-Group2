@@ -150,17 +150,26 @@
 
       <!-- Upload Zone -->
       <form method="POST" enctype="multipart/form-data" id="uploadForm">
-        <div class="bg-surface-container-lowest rounded-xl p-10 flex flex-col items-center justify-center border-2 border-dashed border-outline-variant/30 hover:border-secondary transition-colors group cursor-pointer"
+        <div id="dropZone"
+          class="bg-surface-container-lowest rounded-xl p-10 flex flex-col items-center justify-center border-2 border-dashed border-outline-variant/30 hover:border-secondary transition-colors group cursor-pointer"
           onclick="document.getElementById('fileInput').click()">
           <div class="w-16 h-16 rounded-full bg-secondary/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
             <span class="material-symbols-outlined text-4xl text-secondary">cloud_upload</span>
           </div>
           <h3 class="text-xl font-headline font-bold text-primary mb-2">Drop clinical files here</h3>
-          <p class="text-on-surface-variant mb-6 max-w-md text-center">PDF, DOCX, TXT, or CSV. Click anywhere to browse.</p>
-          <input type="file" name="document" id="fileInput" class="hidden" onchange="document.getElementById('uploadForm').submit()"/>
+          <p class="text-on-surface-variant mb-2 max-w-md text-center">PDF, DOCX, TXT, or CSV. Multiple files supported.</p>
+          <p id="fileNames" class="text-secondary text-sm font-bold mb-4 text-center"></p>
+          <input type="file" name="documents" id="fileInput" class="hidden"
+            accept=".pdf,.docx,.txt,.csv"
+            multiple
+            onchange="handleFileSelect(this)"/>
           <button type="button" onclick="event.stopPropagation(); document.getElementById('fileInput').click()"
             class="px-8 py-3 bg-primary text-white rounded-full font-semibold hover:bg-primary-container transition-colors shadow-lg shadow-primary/10">
-            Browse Local Storage
+            Browse Files
+          </button>
+          <button type="submit" id="uploadBtn"
+            class="hidden mt-3 px-8 py-3 bg-secondary text-white rounded-full font-semibold hover:opacity-90 transition-opacity shadow-lg">
+            Upload Selected Files
           </button>
         </div>
       </form>
@@ -387,6 +396,66 @@
       if (data.count > 0) {
         const badge = document.getElementById("notif-badge");
         if (badge) badge.classList.remove("hidden");
+      }
+    });
+</script>
+<script>
+  // ── FILE SELECT HANDLER ──
+  // Updates file name display and shows Upload button
+  function handleFileSelect(input) {
+    const files = Array.from(input.files);
+    const nameEl = document.getElementById('fileNames');
+    const uploadBtn = document.getElementById('uploadBtn');
+    if (files.length === 0) {
+      nameEl.textContent = '';
+      uploadBtn.classList.add('hidden');
+    } else if (files.length === 1) {
+      nameEl.textContent = files[0].name;
+      uploadBtn.classList.remove('hidden');
+    } else {
+      nameEl.textContent = `${files.length} files selected`;
+      uploadBtn.classList.remove('hidden');
+    }
+  }
+
+  // ── DRAG AND DROP HANDLERS ──
+  const dropZone = document.getElementById('dropZone');
+
+  dropZone.addEventListener('dragover', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropZone.classList.add('border-secondary', 'bg-secondary/5');
+  });
+
+  dropZone.addEventListener('dragleave', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropZone.classList.remove('border-secondary', 'bg-secondary/5');
+  });
+
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropZone.classList.remove('border-secondary', 'bg-secondary/5');
+
+    const files = e.dataTransfer.files;
+    const fileInput = document.getElementById('fileInput');
+
+    // Assign dropped files to the input
+    const dt = new DataTransfer();
+    Array.from(files).forEach(f => dt.items.add(f));
+    fileInput.files = dt.files;
+
+    handleFileSelect(fileInput);
+  });
+
+  // ── NOTIFICATION BADGE ──
+  fetch('/api/notifications/unread-count')
+    .then(r => r.json())
+    .then(data => {
+      if (data.count > 0) {
+        const badge = document.getElementById('notif-badge');
+        if (badge) badge.classList.remove('hidden');
       }
     });
 </script>

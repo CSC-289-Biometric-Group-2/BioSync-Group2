@@ -97,10 +97,10 @@
         <input class="pl-10 pr-4 py-2 bg-surface-container-low rounded-full border-none focus:ring-2 focus:ring-secondary/20 w-64 text-sm" placeholder="Search clinical records..." type="text"/>
       </div>
       <div class="flex items-center gap-3">
-        <a href="{{ url_for('main.notifications') }}" class="p-2 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors relative">
+        <button class="p-2 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors relative">
           <span class="material-symbols-outlined">notifications</span>
-          <span id="notif-badge" class="hidden absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-surface"></span>
-        </a>
+          <span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-surface"></span>
+        </button>
         <button class="p-2 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors">
           <span class="material-symbols-outlined">settings</span>
         </button>
@@ -150,17 +150,35 @@
     <!-- Biometric Cards Row -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
       {% if latest %}
+        {% set shown_bp = [] %}
         {% for reading in latest %}
-        <div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
-          <p class="text-xs text-on-surface-variant font-medium uppercase tracking-wider mb-1">
-            {{ reading['metric_name'].replace('_', ' ').title() }}
-          </p>
-          <p class="text-2xl font-black text-primary">
-            {{ reading['value'] }}
-            <span class="text-sm font-normal text-on-surface-variant">{{ reading['unit'] if reading['unit'] else '' }}</span>
-          </p>
-          <p class="text-[10px] text-on-surface-variant mt-1">{{ reading['recorded_date'] }}</p>
-        </div>
+          {# Skip blood_pressure_dia — it's shown combined with sys #}
+          {% if reading['metric_name'] == 'blood_pressure_dia' %}
+            {# skip #}
+          {% elif reading['metric_name'] == 'blood_pressure_sys' %}
+            {% if shown_bp | length == 0 %}
+              {% set _ = shown_bp.append(1) %}
+              <div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                <p class="text-xs text-on-surface-variant font-medium uppercase tracking-wider mb-1">Blood Pressure</p>
+                <p class="text-2xl font-black text-primary">
+                  {% if bp_sys and bp_dia %}{{ bp_sys }}/{{ bp_dia }}{% else %}{{ reading['value'] | int }}/—{% endif %}
+                  <span class="text-sm font-normal text-on-surface-variant">mmHg</span>
+                </p>
+                <p class="text-[10px] text-on-surface-variant mt-1">{{ reading['recorded_date'] }}</p>
+              </div>
+            {% endif %}
+          {% else %}
+            <div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+              <p class="text-xs text-on-surface-variant font-medium uppercase tracking-wider mb-1">
+                {{ reading['metric_name'].replace('_', ' ').title() }}
+              </p>
+              <p class="text-2xl font-black text-primary">
+                {{ reading['value'] }}
+                <span class="text-sm font-normal text-on-surface-variant">{{ reading['unit'] if reading['unit'] else '' }}</span>
+              </p>
+              <p class="text-[10px] text-on-surface-variant mt-1">{{ reading['recorded_date'] }}</p>
+            </div>
+          {% endif %}
         {% endfor %}
       {% else %}
         <div class="col-span-4 bg-surface-container-lowest rounded-xl p-8 text-center">
@@ -205,17 +223,25 @@
         </p>
 
         {% if bp_sys and bp_dia %}
-          {% if bp_sys < 120 and bp_dia < 80 %}
-            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full mb-4">
-              <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span> OPTIMAL RANGE
+          {% if bp_sys > 180 or bp_dia > 120 %}
+            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-white bg-error px-2 py-1 rounded-full mb-4">
+              <span class="w-1.5 h-1.5 bg-white rounded-full"></span> ⚠ CRISIS
             </span>
-          {% elif bp_sys < 130 and bp_dia < 80 %}
+          {% elif bp_sys >= 140 or bp_dia >= 90 %}
+            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full mb-4">
+              <span class="w-1.5 h-1.5 bg-red-500 rounded-full"></span> STAGE 2
+            </span>
+          {% elif bp_sys >= 130 or bp_dia >= 80 %}
+            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-orange-700 bg-orange-50 px-2 py-1 rounded-full mb-4">
+              <span class="w-1.5 h-1.5 bg-orange-500 rounded-full"></span> STAGE 1
+            </span>
+          {% elif bp_sys >= 120 and bp_dia < 80 %}
             <span class="inline-flex items-center gap-1 text-[10px] font-bold text-yellow-700 bg-yellow-50 px-2 py-1 rounded-full mb-4">
               <span class="w-1.5 h-1.5 bg-yellow-500 rounded-full"></span> ELEVATED
             </span>
           {% else %}
-            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full mb-4">
-              <span class="w-1.5 h-1.5 bg-red-500 rounded-full"></span> HIGH
+            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full mb-4">
+              <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span> NORMAL
             </span>
           {% endif %}
         {% else %}
@@ -403,15 +429,5 @@
   {% endif %}
 </script>
 
-<script>
-  fetch("/api/notifications/unread-count")
-    .then(r => r.json())
-    .then(data => {
-      if (data.count > 0) {
-        const badge = document.getElementById("notif-badge");
-        if (badge) badge.classList.remove("hidden");
-      }
-    });
-</script>
 </body>
 </html>

@@ -21,7 +21,6 @@
       extend: {
         "colors": {
           "primary": "#041839", "primary-container": "#1c2d4f",
-          "on-primary": "#ffffff", "primary-fixed-dim": "#b6c6f1",
           "secondary": "#006398", "secondary-container": "#6cbdfe",
           "on-secondary": "#ffffff",
           "tertiary": "#3d0001", "tertiary-container": "#640002",
@@ -40,166 +39,110 @@
 </head>
 <body class="bg-surface text-on-surface min-h-screen flex flex-col md:flex-row overflow-x-hidden">
 
-<!-- Floating Nav -->
-<header class="fixed top-6 left-1/2 -translate-x-1/2 w-[calc(100%-48px)] max-w-4xl glass-effect rounded-full px-8 py-3 flex items-center justify-between shadow-sm shadow-primary/5 z-50 hidden md:flex">
-  <div class="flex items-center gap-6">
-    <a href="{{ url_for('main.index') }}">
-      <img src="{{ url_for('static', filename='BioSync.png') }}" alt="BioSync" class="h-8 w-auto"/>
-    <div class="h-4 w-px bg-outline-variant/30 ml-16"></div>
-    <nav class="flex gap-6 text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant ml-4">
-      <a class="hover:text-primary transition-colors" href="{{ url_for('main.index') }}">Home</a>
-      <a class="hover:text-primary transition-colors" href="#">Security</a>
-    </nav>
-  </div>
-  <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">v1.0 Clinical</span>
-</header>
+<nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md shadow-sm shadow-blue-900/5 flex justify-between items-center px-6 py-3 font-headline tracking-tight">
+    <div class="flex items-center gap-8">
+        <a href="/" class="flex items-center gap-2">
+           <img src="/static/BioSync.png" alt="BioSync" class="h-20 w-auto">
+        </a>
+        <div class="hidden md:flex gap-6 items-center">
+            <a class="text-[#006398] font-semibold border-b-2 border-[#006398] pb-1" href="/">Home</a>
+            <a class="text-on-surface-variant hover:text-primary transition-colors" href="/dashboard">Dashboard</a>
+            <a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Resources</a>
+        </div>
+    </div>
+    <div class="flex items-center gap-4">
+            <a href="/auth/login" class="text-on-surface-variant hover:text-primary font-semibold transition-colors">Log In</a>
+            <a href="/auth/register" class="hidden md:block px-6 py-2 bg-gradient-to-br from-primary to-primary-container text-white rounded-full font-semibold active:scale-95 duration-150">Get Started</a>
+    </div>
+</nav>
 
-<!-- Left Branding -->
 <section class="hidden lg:flex w-5/12 relative bg-primary items-center justify-center p-12 overflow-hidden sticky top-0 h-screen">
   <div class="relative z-10 max-w-lg">
-    <div class="mb-12">
-      <span class="text-4xl font-extrabold text-white tracking-tight">BioSync</span>
-    </div>
-    <h1 class="text-5xl font-extrabold text-white leading-tight mb-6 tracking-tight">
-      Advanced Biometric <br/><span class="text-secondary-container">Clinical Precision.</span>
-    </h1>
-    <p class="text-primary-fixed-dim text-lg leading-relaxed mb-10 max-w-md">
-      BioSync brings all your health data into one unified workspace — analyzing your biometric trends over time to help you and your caregivers spot patterns, track progress, and make smarter health decisions together.
-    </p>
-    <div class="space-y-6">
-      <div class="flex items-start gap-4">
-        <div class="bg-white/10 p-2 rounded-lg"><span class="material-symbols-outlined text-secondary-container">verified_user</span></div>
-        <div><h3 class="text-white font-semibold">HIPAA Compliant</h3><p class="text-primary-fixed-dim text-sm">Military-grade encryption for all patient records.</p></div>
-      </div>
-      <div class="flex items-start gap-4">
-        <div class="bg-white/10 p-2 rounded-lg"><span class="material-symbols-outlined text-secondary-container">monitoring</span></div>
-        <div><h3 class="text-white font-semibold">Real-time Analytics</h3><p class="text-primary-fixed-dim text-sm">Instant synchronization across clinical devices.</p></div>
-      </div>
-    </div>
+    <div class="mb-12"><span class="text-4xl font-extrabold text-white tracking-tight">BioSync</span></div>
+    <h1 class="text-5xl font-extrabold text-white leading-tight mb-6 tracking-tight">Advanced Biometric <br/><span class="text-secondary-container">Clinical Precision.</span></h1>
+    <p class="text-white text-lg leading-relaxed mb-10 max-w-md">BioSync brings all your health data into one unified workspace — analyzing your biometric trends over time to help you and your caregivers spot patterns, track progress, and make smarter health decisions together.</p>
   </div>
 </section>
 
-<!-- Main Login Canvas -->
 <main class="flex-1 bg-surface flex flex-col items-center justify-center p-6 md:p-12 lg:p-16 overflow-y-auto pt-24 lg:pt-16">
-
-  <!-- Mobile Header -->
-  <div class="lg:hidden w-full max-w-md flex items-center justify-between mb-8">
-    <img src="{{ url_for('static', filename='BioSync.png') }}" alt="BioSync" class="h-10 w-auto"/>
-    <a class="text-sm font-semibold text-secondary" href="{{ url_for('auth.register') }}">Register</a>
-  </div>
-
   <div class="w-full max-w-md">
-
     <div class="mb-10">
       <h2 class="text-3xl font-extrabold text-on-surface tracking-tight mb-2">Welcome Back</h2>
       <p class="text-on-surface-variant">Select your workspace and enter your credentials.</p>
     </div>
 
-    {% for message in get_flashed_messages() %}
-      <div class="mb-6 px-4 py-3 bg-red-50 text-red-700 rounded-lg text-sm font-medium">{{ message }}</div>
-    {% endfor %}
-
-    <!-- Account Type Selection -->
     <div class="grid grid-cols-2 gap-4 mb-8">
       <button type="button" onclick="setType('individual')" id="btn-individual"
         class="group flex flex-col items-center gap-3 p-5 rounded-xl transition-all duration-200 border-2 border-tertiary-container/10 hover:border-tertiary-container/30 bg-surface-container-low text-on-surface-variant focus:outline-none active:scale-[0.98]">
-        <div class="w-12 h-12 rounded-full bg-tertiary-container flex items-center justify-center text-on-tertiary-container shadow-md group-hover:scale-110 transition-transform">
+        <div id="icon-individual" class="w-12 h-12 rounded-full bg-tertiary-container flex items-center justify-center text-tertiary shadow-inner group-hover:scale-110 transition-transform">
           <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
         </div>
         <span class="font-headline font-bold text-xs tracking-wider uppercase">Individual</span>
       </button>
       <button type="button" onclick="setType('caregiver')" id="btn-caregiver"
         class="group flex flex-col items-center gap-3 p-5 rounded-xl transition-all duration-200 border-2 border-primary/10 hover:border-primary/30 bg-primary-container text-white shadow-lg active:scale-[0.98]">
-        <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center text-primary shadow-inner group-hover:scale-110 transition-transform">
+        <div id="icon-caregiver" class="w-12 h-12 rounded-full bg-white flex items-center justify-center text-primary shadow-inner group-hover:scale-110 transition-transform">
           <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">medical_services</span>
         </div>
         <span class="font-bold text-xs tracking-wider uppercase">Care Giver</span>
       </button>
     </div>
 
-    <!-- Login Form -->
     <form method="post" class="space-y-4">
       <input type="hidden" name="account_type" id="account_type" value="caregiver"/>
-
       <div class="space-y-2">
         <label class="text-sm font-bold text-primary uppercase tracking-wider ml-1">Username</label>
         <div class="relative flex items-center">
           <span class="material-symbols-outlined absolute left-4 text-on-surface-variant">person</span>
-          <input name="username" type="text" required placeholder="your username"
-            class="w-full bg-surface-container-low border-none rounded-lg pl-12 pr-4 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-outline-variant"/>
+          <input name="username" type="text" required placeholder="your username" class="w-full bg-surface-container-low border-none rounded-lg pl-12 pr-4 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-outline-variant"/>
         </div>
       </div>
-
       <div class="space-y-2">
-        <div class="flex justify-between items-center px-1">
-          <label class="text-sm font-bold text-primary uppercase tracking-wider">Password</label>
-          <a class="text-[10px] font-bold text-secondary uppercase tracking-widest hover:text-primary transition-colors" href="#">Forgot Access?</a>
-        </div>
+        <label class="text-sm font-bold text-primary uppercase tracking-wider">Password</label>
         <div class="relative flex items-center">
           <span class="material-symbols-outlined absolute left-4 text-on-surface-variant">lock</span>
-          <input name="password" type="password" required placeholder="••••••••"
-            class="w-full bg-surface-container-low border-none rounded-lg pl-12 pr-4 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-outline-variant"/>
+          <input name="password" type="password" required placeholder="••••••••" class="w-full bg-surface-container-low border-none rounded-lg pl-12 pr-4 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-outline-variant"/>
         </div>
       </div>
-
-      <!-- Caregiver ID -->
-      <div id="caregiver-id-field" class="space-y-2">
-        <label class="text-sm font-bold text-primary uppercase tracking-wider ml-1">Caregiver ID</label>
-        <div class="relative flex items-center">
-          <span class="material-symbols-outlined absolute left-4 text-on-surface-variant">badge</span>
-          <input name="caregiver_id" type="text" placeholder="your caregiver ID"
-            class="w-full bg-surface-container-low border-none rounded-lg pl-12 pr-4 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-outline-variant"/>
-        </div>
-      </div>
-
-      <button type="submit"
-        class="w-full py-4 px-6 bg-gradient-to-br from-primary to-primary-container text-white font-bold text-lg rounded-full shadow-lg shadow-primary/20 hover:shadow-xl active:scale-[0.99] transition-all flex items-center justify-center gap-2 group mt-4">
+      
+      <button type="submit" class="w-full py-4 px-6 bg-gradient-to-br from-primary to-primary-container text-white font-bold text-lg rounded-full shadow-lg shadow-primary/20 hover:shadow-xl active:scale-[0.99] transition-all flex items-center justify-center gap-2 group mt-4">
         Authorize Access
-        <span class="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
       </button>
     </form>
-
-    <!-- Register link -->
-    <div class="mt-8 text-center">
-      <p class="text-on-surface-variant text-xs mb-3">New to the BioSync Clinical Network?</p>
-      <a href="{{ url_for('auth.register') }}"
-        class="px-6 py-2 rounded-full border border-outline-variant text-on-surface font-bold text-xs hover:bg-surface-container transition-colors">
-        Request Institutional Access
-      </a>
-    </div>
-
-    <!-- HIPAA button -->
-    <div class="mt-4 text-center">
-      <a href="#" class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-outline-variant/30 text-on-surface-variant text-xs font-semibold hover:bg-surface-container transition-colors">
-        <span class="material-symbols-outlined text-sm">verified_user</span>
-        HIPAA Compliant — Learn More
-      </a>
-    </div>
-
-    <!-- Admin backdoor -->
-    <div class="mt-4 text-center">
-      <a href="/admin" class="text-[10px] text-outline/40 hover:text-outline transition-colors">Admin Access</a>
-    </div>
-
   </div>
 </main>
 
 <script>
   function setType(type) {
     document.getElementById('account_type').value = type;
-    const caregiverField = document.getElementById('caregiver-id-field');
+    
+    // Elements
     const btnIndividual = document.getElementById('btn-individual');
     const btnCaregiver = document.getElementById('btn-caregiver');
+    const iconIndividual = document.getElementById('icon-individual');
+    const iconCaregiver = document.getElementById('icon-caregiver');
+
+    // Layout/Transition/Border classes
+    const layoutClasses = "group flex flex-col items-center gap-3 p-5 rounded-xl transition-all duration-200 border-2 focus:outline-none active:scale-[0.98]";
+    const baseIconClasses = "w-12 h-12 rounded-full flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform";
+
     if (type === 'individual') {
-      caregiverField.style.display = 'none';
-      btnIndividual.classList.add('bg-surface-container', 'border-tertiary-container/50');
-      btnCaregiver.classList.remove('bg-primary-container', 'text-white');
-      btnCaregiver.classList.add('bg-surface-container-low', 'text-on-surface-variant');
+      // --- INDIVIDUAL ACTIVE (Red bg, White logo) ---
+      btnIndividual.className = layoutClasses + " border-tertiary-container/30 bg-tertiary-container text-on-tertiary-container";
+      iconIndividual.className = baseIconClasses + " bg-white text-tertiary"; 
+
+      // --- CAREGIVER INACTIVE (Blue bg, Dark Blue logo) ---
+      btnCaregiver.className = layoutClasses + " border-primary/10 bg-surface-container-low text-on-surface-variant";
+      iconCaregiver.className = baseIconClasses + " bg-primary-container text-primary"; 
+
     } else {
-      caregiverField.style.display = 'block';
-      btnCaregiver.classList.add('bg-primary-container', 'text-white');
-      btnCaregiver.classList.remove('bg-surface-container-low', 'text-on-surface-variant');
-      btnIndividual.classList.remove('bg-surface-container', 'border-tertiary-container/50');
+      // --- INDIVIDUAL INACTIVE (Red bg, Red logo) ---
+      btnIndividual.className = layoutClasses + " border-tertiary-container/10 bg-surface-container-low text-on-surface-variant";
+      iconIndividual.className = baseIconClasses + " bg-tertiary-container text-tertiary"; 
+
+      // --- CAREGIVER ACTIVE (Blue bg, White logo) ---
+      btnCaregiver.className = layoutClasses + " border-primary/10 bg-primary-container text-white";
+      iconCaregiver.className = baseIconClasses + " bg-white text-primary"; 
     }
   }
 </script>

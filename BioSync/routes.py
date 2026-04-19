@@ -244,36 +244,45 @@ def doc_hub():
     db = get_db()
 
     if request.method == 'POST':
-        file = request.files.get('document')
-        if not file or not allowed_file(file.filename):
-            flash('Please upload a PDF, DOCX, TXT, or CSV file.')
+        files = request.files.getlist('documents')
+        if not files or all(f.filename == '' for f in files):
+            flash('Please select at least one file.')
             return redirect(request.url)
 
-        filename = secure_filename(file.filename)
-        user_folder = os.path.join(current_app.instance_path, 'uploads', str(g.user['id']))
-        os.makedirs(user_folder, exist_ok=True)
-        filepath = os.path.join(user_folder, filename)
-        file.save(filepath)
+        total_readings = 0
+        uploaded_count = 0
 
-        db.execute(
-            'INSERT INTO medical_document (user_id, filename, file_path) VALUES (?, ?, ?)',
-            (g.user['id'], filename, filepath)
-        )
-        db.commit()
-        doc_id = db.execute('SELECT last_insert_rowid()').fetchone()[0]
+        for file in files:
+            if not file or not allowed_file(file.filename):
+                continue
 
-        readings = process_document(filepath)
-        for r in readings:
+            filename = secure_filename(file.filename)
+            user_folder = os.path.join(current_app.instance_path, 'uploads', str(g.user['id']))
+            os.makedirs(user_folder, exist_ok=True)
+            filepath = os.path.join(user_folder, filename)
+            file.save(filepath)
+
             db.execute(
-                '''INSERT INTO biometric_reading (user_id, document_id, metric_name, value, source)
-                   VALUES (?, ?, ?, ?, ?)''',
-                (g.user['id'], doc_id, r['metric_name'], r['value'], 'document')
+                'INSERT INTO medical_document (user_id, filename, file_path) VALUES (?, ?, ?)',
+                (g.user['id'], filename, filepath)
             )
+            db.commit()
+            doc_id = db.execute('SELECT last_insert_rowid()').fetchone()[0]
 
-        db.execute('UPDATE medical_document SET processed = 1 WHERE id = ?', (doc_id,))
-        db.commit()
+            readings = process_document(filepath)
+            for r in readings:
+                db.execute(
+                    '''INSERT INTO biometric_reading (user_id, document_id, metric_name, value, source)
+                       VALUES (?, ?, ?, ?, ?)''',
+                    (g.user['id'], doc_id, r['metric_name'], r['value'], 'document')
+                )
 
-        flash(f'Document uploaded. Found {len(readings)} biometric readings.')
+            db.execute('UPDATE medical_document SET processed = 1 WHERE id = ?', (doc_id,))
+            db.commit()
+            total_readings += len(readings)
+            uploaded_count += 1
+
+        flash(f'{uploaded_count} file{"s" if uploaded_count != 1 else ""} uploaded. Found {total_readings} biometric readings.')
         return redirect(url_for('main.doc_hub'))
 
     all_docs = db.execute(

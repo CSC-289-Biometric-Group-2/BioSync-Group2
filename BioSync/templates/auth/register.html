@@ -41,19 +41,24 @@
 <body class="bg-surface text-on-surface min-h-screen flex flex-col md:flex-row overflow-x-hidden">
 
 <!-- Floating Nav -->
-<header class="fixed top-6 left-1/2 -translate-x-1/2 w-[calc(100%-48px)] max-w-4xl glass-effect rounded-full px-8 py-3 flex items-center justify-between shadow-sm shadow-primary/5 z-50 hidden md:flex" style="background: rgba(255,255,255,0.8); backdrop-filter: blur(12px);">
-  <div class="flex items-center gap-6">
-    <a href="{{ url_for('main.index') }}">
-      <img src="{{ url_for('static', filename='BioSync.png') }}" alt="BioSync" class="h-20 w-auto absolute"/>
-    </a>
-    <div class="h-4 w-px bg-outline-variant/30 ml-16"></div>
-    <nav class="flex gap-6 text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant ml-4">
-      <a class="hover:text-primary transition-colors" href="{{ url_for('main.index') }}">Home</a>
-      <a class="hover:text-primary transition-colors" href="{{ url_for('auth.login') }}">Log In</a>
-    </nav>
-  </div>
-  <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">v1.0 Clinical</span>
-</header>
+<nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md shadow-sm shadow-blue-900/5 flex justify-between items-center px-6 py-3 font-headline tracking-tight">
+    <div class="flex items-center gap-8">
+        <a href="/" class="flex items-center gap-2">
+          <img src="/static/BioSync.png" alt="BioSync" class="h-20 w-auto">
+        </a>
+        <div class="hidden md:flex gap-6 items-center">
+            <a class="text-[#006398] font-semibold border-b-2 border-[#006398] pb-1" href="/">Home</a>
+            <a class="text-on-surface-variant hover:text-primary transition-colors" href="/dashboard">Dashboard</a>
+            <a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Resources</a>
+        </div>
+    </div>
+    <div class="flex items-center gap-4">
+        
+            <a href="/auth/login" class="text-on-surface-variant hover:text-primary font-semibold transition-colors">Log In</a>
+            <a href="/auth/register" class="hidden md:block px-6 py-2 bg-gradient-to-br from-primary to-primary-container text-white rounded-full font-semibold active:scale-95 duration-150">Get Started</a>
+        
+    </div>
+</nav>
 
 <!-- Left Branding -->
 <section class="hidden lg:flex w-5/12 relative bg-primary items-center justify-center p-12 overflow-hidden sticky top-0 h-screen">
