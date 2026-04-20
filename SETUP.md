@@ -58,7 +58,7 @@ pip install pdfplumber python-docx pandas numpy
 ```powershell
 $env:FLASK_APP = "__init__"
 flask init-db
-```
+```c
 
 **Mac / Linux:**
 ```bash

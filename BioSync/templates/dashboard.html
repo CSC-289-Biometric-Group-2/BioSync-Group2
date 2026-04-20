@@ -1,46 +1,600 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BioSync | Overview</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "on-secondary-container": "#004b75",
+          "secondary-fixed": "#cde5ff",
+          "primary": "#041839",
+          "on-error-container": "#93000a",
+          "surface-container-low": "#f2f4f7",
+          "on-secondary": "#ffffff",
+          "surface-container-high": "#e6e8eb",
+          "surface": "#f7f9fc",
+          "outline": "#75777f",
+          "on-surface-variant": "#44474e",
+          "error": "#ba1a1a",
+          "on-tertiary-container": "#ff6050",
+          "surface-container-lowest": "#ffffff",
+          "outline-variant": "#c5c6cf",
+          "secondary-container": "#6cbdfe",
+          "secondary": "#006398",
+          "on-surface": "#191c1e",
+          "surface-container": "#eceef1",
+          "surface-container-highest": "#e0e3e6",
+          "tertiary": "#3d0001",
+          "tertiary-container": "#640002",
+          "primary-container": "#1c2d4f",
+          "error-container": "#ffdad6",
+          "on-primary": "#ffffff",
+          "primary-fixed-dim": "#b6c6f1",
+          "on-primary-container": "#8495bd",
+          "on-tertiary-fixed-variant": "#930005",
+        },
+        "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+        "fontFamily": { "headline": ["Manrope"], "body": ["Inter"], "label": ["Inter"] }
+      }
+    }
+  }
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  .glass-effect { background: rgba(255,255,255,0.8); backdrop-filter: blur(12px); }
+  .nav-active { color: #006398; background: white; border-left: 4px solid #006398; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(4,24,57,0.05); }
+  body { font-family: 'Inter', sans-serif; background-color: #f7f9fc; }
+  h1, h2, h3, .headline { font-family: 'Manrope', sans-serif; }
+</style>
+</head>
+<body class="text-on-surface">
 
-{% block title %}{{ metric | replace('_', ' ') | title }} Trends{% endblock %}
+<!-- ═══════════════════════════════════════
+     SIDEBAR
+     - Logo (links to index)
+     - Nav: Overview (active), Documents,
+            Trends, My Profile
+     - Upload Document button
+     - Support / Sign Out
+═══════════════════════════════════════ -->
+<aside class="h-screen w-64 fixed left-0 top-0 flex flex-col bg-surface-container-low border-r border-outline-variant/10 font-body text-sm z-50">
+  <div class="px-4 py-6">
+    <a href="{{ url_for('main.index') }}">
+      <img src="{{ url_for('static', filename='BioSync.png') }}" alt="BioSync" class="h-20 w-auto mb-2">
+    </a>
+    <p class="text-xs text-on-surface-variant font-medium mt-1">Clinical Workspace</p>
+    <p class="text-[10px] text-on-surface-variant/70 uppercase tracking-widest mt-0.5">{{ g.user['username'] }}</p>
+  </div>
+  <nav class="flex-1 px-4 space-y-1">
+    <!-- Overview — ACTIVE -->
+    <a href="{{ url_for('main.dashboard') }}" class="flex items-center gap-3 px-4 py-3 nav-active transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">dashboard</span> Overview
+    </a>
+    <!-- Documents -->
+    <a href="{{ url_for('main.doc_hub') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">description</span> Documents
+    </a>
+    <!-- Trends -->
+    <a href="{{ url_for('main.trends_overview') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">trending_up</span> Trends
+    </a>
+    <!-- My Profile -->
+    <a href="{{ url_for('main.individual_profile') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">person</span> My Profile
+    </a>
+  </nav>
+  <!-- Upload Document CTA -->
+  <div class="px-6 mb-8">
+    <a href="{{ url_for('main.doc_hub') }}" class="w-full py-3 bg-gradient-to-br from-primary to-primary-container text-white rounded-full font-semibold shadow-md flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+      <span class="material-symbols-outlined text-sm">upload_file</span>
+      Upload Document
+    </a>
+  </div>
+  <!-- Support / Sign Out -->
+  <div class="px-4 py-6 border-t border-outline-variant/10 space-y-1">
+    <a href="#" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-primary transition-colors">
+      <span class="material-symbols-outlined">help_outline</span>
+      <span>Support</span>
+    </a>
+    <a href="{{ url_for('auth.logout') }}" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-primary transition-colors">
+      <span class="material-symbols-outlined">logout</span>
+      <span>Sign Out</span>
+    </a>
+  </div>
+</aside>
 
-{% block header %}
-  <h1>{{ metric | replace('_', ' ') | title }}</h1>
-{% endblock %}
+<!-- ═══════════════════════════════════════
+     TOP BAR
+     - Page title: Overview
+     - Search bar
+     - Notifications bell (links to /notifications,
+       red dot shown if unread count > 0)
+     - Settings
+     - User avatar + name
+═══════════════════════════════════════ -->
+<header class="sticky top-0 z-40 w-full glass-effect ml-64 flex items-center justify-between px-8 py-4" style="width: calc(100% - 16rem);">
+  <div class="flex items-center gap-8 flex-1">
+    <h1 class="text-2xl font-bold text-primary font-headline">Overview</h1>
+    <div class="relative max-w-md w-full">
+      <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+      <input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-full text-sm focus:ring-2 focus:ring-secondary/20 transition-all" placeholder="Search medical records..." type="text"/>
+    </div>
+  </div>
+  <div class="flex items-center gap-6">
+    <!-- Notifications Bell — links to /notifications -->
+    <a href="{{ url_for('main.notifications') }}" class="relative text-on-surface-variant hover:text-primary transition-colors p-2 rounded-full hover:bg-surface-container">
+      <span class="material-symbols-outlined">notifications</span>
+      <span id="notif-badge" class="hidden absolute top-0 right-0 w-2 h-2 bg-error rounded-full border-2 border-white"></span>
+    </a>
+    <button class="text-on-surface-variant hover:text-primary transition-colors">
+      <span class="material-symbols-outlined">settings</span>
+    </button>
+    <div class="flex items-center gap-3 pl-4 border-l border-outline-variant/20">
+      <div class="text-right">
+        <div class="text-sm font-bold text-primary">{{ g.user['username'] }}</div>
+        <div class="text-xs text-on-surface-variant">Patient #BS-{{ g.user['id'] }}0{{ g.user['id'] }}</div>
+      </div>
+      <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-white font-bold text-sm">
+        {{ g.user['username'][0].upper() }}
+      </div>
+    </div>
+  </div>
+</header>
 
-{% block content %}
-  {% if trend %}
-    <h2>Summary</h2>
-    <p>Average: <strong>{{ trend.average }}</strong></p>
-    <p>Min: <strong>{{ trend.min }}</strong></p>
-    <p>Max: <strong>{{ trend.max }}</strong></p>
-    <p>Total Readings: <strong>{{ trend.count }}</strong></p>
-    <p>Trend: <strong>{{ trend.trend }}</strong> 
-       ({{ trend.change_pct }}% change)</p>
+<!-- ═══════════════════════════════════════
+     MAIN CONTENT
+═══════════════════════════════════════ -->
+<main class="ml-64 p-8 space-y-8 min-h-screen">
 
-    {% if comparison %}
-      <hr>
-      <h2>Baseline Comparison</h2>
-      <p>Baseline Average: <strong>{{ comparison.baseline_avg }}</strong></p>
-      <p>Recent Average: <strong>{{ comparison.recent_avg }}</strong></p>
-      <p>Change: <strong>{{ comparison.delta }}</strong> 
-         ({{ comparison.direction }})</p>
-    {% endif %}
+  <!-- ───────────────────────────────────
+       WELCOME BANNER
+       - Username greeting
+       - Member since + doc count
+       - Log Reading + Upload Document buttons
+  ─────────────────────────────────────── -->
+  <section class="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary to-primary-container p-8 text-white shadow-lg">
+    <div class="relative z-10">
+      <div class="text-primary-fixed-dim text-sm font-bold uppercase tracking-widest mb-2">Patient Dashboard</div>
+      <h2 class="text-3xl font-extrabold font-headline mb-1">Welcome back, {{ g.user['username'] }}</h2>
+      <p class="text-blue-200/80 font-medium">
+        {% if member_since %}Member since {{ member_since }} &bull;{% endif %}
+        {% if total_docs %}{{ total_docs }} document{{ 's' if total_docs != 1 }} uploaded{% else %}No documents yet{% endif %}
+      </p>
+      <div class="flex gap-3 mt-6">
+        <a href="{{ url_for('main.add_reading') }}"
+          class="inline-flex items-center gap-2 px-5 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-sm rounded-full transition-all">
+          <span class="material-symbols-outlined text-sm">add_circle</span> Log Reading
+        </a>
+        <a href="{{ url_for('main.doc_hub') }}"
+          class="inline-flex items-center gap-2 px-5 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-sm rounded-full transition-all">
+          <span class="material-symbols-outlined text-sm">upload_file</span> Upload Document
+        </a>
+      </div>
+    </div>
+    <div class="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-secondary/20 to-transparent flex items-center justify-center opacity-50">
+      <span class="material-symbols-outlined text-9xl text-white/5" style="font-variation-settings: 'FILL' 1;">health_metrics</span>
+    </div>
+  </section>
 
-    <hr>
-    <h2>All Readings</h2>
-    <ul>
-      {% for i in range(trend.values | length) %}
-        <li>{{ trend.dates[i] }}: <strong>{{ trend.values[i] }}</strong></li>
-      {% endfor %}
-    </ul>
+  <!-- ───────────────────────────────────
+       BIOMETRIC SUMMARY CARDS
+       5 cards: Heart Rate, Blood Pressure,
+       SpO2, Weight, Glucose
+       Each shows: icon, status badge,
+       label, value, warning text
+  ─────────────────────────────────────── -->
+  <section class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
 
-  {% else %}
-    <p>Not enough data yet for this metric.</p>
-    <p><a href="{{ url_for('main.upload') }}">Upload a document</a> 
-       to add readings.</p>
-  {% endif %}
+    <!-- HEART RATE CARD
+         < 40 BPM    → ⚠ Very Low (red)
+         40–59 BPM   → Athletic (blue)
+         60–100 BPM  → Normal (green)
+         101–150 BPM → Tachycardia (yellow)
+         > 150 BPM   → ⚠ High (red)
+    -->
+    <div class="bg-surface-container-lowest p-6 rounded-lg shadow-sm border-l-2 border-secondary">
+      <div class="flex items-center justify-between mb-4">
+        <span class="material-symbols-outlined text-error p-2 bg-error-container rounded-lg">favorite</span>
+        {% if heart_rate %}
+          {% if heart_rate < 40 %}
+            <span class="text-xs font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full">⚠ Very Low</span>
+          {% elif heart_rate < 60 %}
+            <span class="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded-full">Athletic</span>
+          {% elif heart_rate <= 100 %}
+            <span class="text-xs font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full">Normal</span>
+          {% elif heart_rate <= 150 %}
+            <span class="text-xs font-bold text-yellow-700 bg-yellow-50 px-2 py-1 rounded-full">⚠ Tachycardia</span>
+          {% else %}
+            <span class="text-xs font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full">⚠ High</span>
+          {% endif %}
+        {% else %}
+          <span class="text-xs font-bold text-on-secondary-container bg-secondary-fixed px-2 py-1 rounded-full">No Data</span>
+        {% endif %}
+      </div>
+      <div class="text-on-surface-variant text-xs font-bold uppercase tracking-tight">Heart Rate</div>
+      <div class="flex items-baseline gap-1 mt-1">
+        <span class="text-3xl font-extrabold font-headline
+          {% if heart_rate and heart_rate < 40 %}text-red-600
+          {% elif heart_rate and heart_rate > 150 %}text-red-600
+          {% elif heart_rate and heart_rate > 100 %}text-yellow-600
+          {% else %}text-primary{% endif %}">
+          {% if heart_rate %}{{ heart_rate }}{% else %}—{% endif %}
+        </span>
+        <span class="text-sm text-on-surface-variant">BPM</span>
+      </div>
+      {% if heart_rate %}
+        {% if heart_rate < 40 %}
+          <p class="text-[10px] text-red-600 font-bold mt-2">Seek medical attention</p>
+        {% elif heart_rate > 150 %}
+          <p class="text-[10px] text-red-600 font-bold mt-2">Seek medical attention immediately</p>
+        {% elif heart_rate > 100 %}
+          <p class="text-[10px] text-yellow-600 font-bold mt-2">Consult your doctor</p>
+        {% endif %}
+      {% endif %}
+    </div>
 
-  <hr>
-  <a href="{{ url_for('main.profile') }}">← Back to Profile</a>
-  &nbsp;|&nbsp;
-  <a href="{{ url_for('main.index') }}">← Back to Home</a>
-{% endblock %}
+    <!-- BLOOD PRESSURE CARD
+         sys < 120 AND dia < 80  → Normal (green)
+         sys 120–129 AND dia < 80 → Elevated (yellow)
+         sys 130–139 OR dia 80–89 → Stage 1 (orange)
+         sys ≥ 140 OR dia ≥ 90   → Stage 2 (red)
+         sys > 180 OR dia > 120  → ⚠ Crisis (dark red)
+    -->
+    <div class="bg-surface-container-lowest p-6 rounded-lg shadow-sm border-l-2 border-secondary">
+      <div class="flex items-center justify-between mb-4">
+        <span class="material-symbols-outlined text-secondary p-2 bg-secondary-fixed rounded-lg">monitor_heart</span>
+        {% if bp_sys and bp_dia %}
+          {% if bp_sys > 180 or bp_dia > 120 %}
+            <span class="text-xs font-bold text-white bg-error px-2 py-1 rounded-full">⚠ Crisis</span>
+          {% elif bp_sys >= 140 or bp_dia >= 90 %}
+            <span class="text-xs font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full">Stage 2</span>
+          {% elif bp_sys >= 130 or bp_dia >= 80 %}
+            <span class="text-xs font-bold text-orange-700 bg-orange-50 px-2 py-1 rounded-full">Stage 1</span>
+          {% elif bp_sys >= 120 and bp_dia < 80 %}
+            <span class="text-xs font-bold text-yellow-700 bg-yellow-50 px-2 py-1 rounded-full">Elevated</span>
+          {% else %}
+            <span class="text-xs font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full">Normal</span>
+          {% endif %}
+        {% else %}
+          <span class="text-xs font-bold text-on-secondary-container bg-secondary-fixed px-2 py-1 rounded-full">No Data</span>
+        {% endif %}
+      </div>
+      <div class="text-on-surface-variant text-xs font-bold uppercase tracking-tight">Blood Pressure</div>
+      <div class="flex items-baseline gap-1 mt-1">
+        <span class="text-3xl font-extrabold font-headline
+          {% if bp_sys and bp_dia %}
+            {% if bp_sys > 180 or bp_dia > 120 %}text-error
+            {% elif bp_sys >= 140 or bp_dia >= 90 %}text-red-600
+            {% elif bp_sys >= 130 or bp_dia >= 80 %}text-orange-600
+            {% elif bp_sys >= 120 %}text-yellow-600
+            {% else %}text-primary{% endif %}
+          {% else %}text-primary{% endif %}">
+          {% if bp_sys and bp_dia %}{{ bp_sys }}/{{ bp_dia }}{% else %}—{% endif %}
+        </span>
+        <span class="text-sm text-on-surface-variant">mmHg</span>
+      </div>
+      {% if bp_sys and bp_dia %}
+        {% if bp_sys > 180 or bp_dia > 120 %}
+          <p class="text-[10px] text-error font-bold mt-2">Call 911 immediately</p>
+        {% elif bp_sys >= 140 or bp_dia >= 90 %}
+          <p class="text-[10px] text-red-600 font-bold mt-2">Seek medical attention</p>
+        {% elif bp_sys >= 130 or bp_dia >= 80 %}
+          <p class="text-[10px] text-orange-600 font-bold mt-2">Consult your doctor</p>
+        {% elif bp_sys >= 120 %}
+          <p class="text-[10px] text-yellow-600 font-bold mt-2">Monitor regularly</p>
+        {% endif %}
+      {% endif %}
+    </div>
+
+    <!-- SPO2 CARD
+         ≥ 95%  → Normal (green)
+         91–94% → Concerning (yellow)
+         90%    → Low (orange)
+         80–89% → ⚠ Seek Care (red)
+         < 80%  → ⚠ Cyanosis (dark red)
+    -->
+    <div class="bg-surface-container-lowest p-6 rounded-lg shadow-sm border-l-2 border-secondary">
+      <div class="flex items-center justify-between mb-4">
+        <span class="material-symbols-outlined text-blue-500 p-2 bg-blue-50 rounded-lg">air</span>
+        {% if spo2 %}
+          {% if spo2 >= 95 %}
+            <span class="text-xs font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full">Normal</span>
+          {% elif spo2 >= 91 %}
+            <span class="text-xs font-bold text-yellow-700 bg-yellow-50 px-2 py-1 rounded-full">Concerning</span>
+          {% elif spo2 >= 90 %}
+            <span class="text-xs font-bold text-orange-700 bg-orange-50 px-2 py-1 rounded-full">Low</span>
+          {% elif spo2 >= 80 %}
+            <span class="text-xs font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full">⚠ Seek Care</span>
+          {% else %}
+            <span class="text-xs font-bold text-white bg-error px-2 py-1 rounded-full">⚠ Cyanosis</span>
+          {% endif %}
+        {% else %}
+          <span class="text-xs font-bold text-on-secondary-container bg-secondary-fixed px-2 py-1 rounded-full">No Data</span>
+        {% endif %}
+      </div>
+      <div class="text-on-surface-variant text-xs font-bold uppercase tracking-tight">SpO2</div>
+      <div class="flex items-baseline gap-1 mt-1">
+        <span class="text-3xl font-extrabold font-headline
+          {% if spo2 and spo2 < 80 %}text-error
+          {% elif spo2 and spo2 < 90 %}text-red-600
+          {% elif spo2 and spo2 < 91 %}text-orange-600
+          {% elif spo2 and spo2 < 95 %}text-yellow-600
+          {% else %}text-primary{% endif %}">
+          {% if spo2 %}{{ spo2 }}{% else %}—{% endif %}
+        </span>
+        <span class="text-sm text-on-surface-variant">%</span>
+      </div>
+      {% if spo2 %}
+        {% if spo2 < 80 %}
+          <p class="text-[10px] text-error font-bold mt-2">Cyanosis — emergency care now</p>
+        {% elif spo2 < 90 %}
+          <p class="text-[10px] text-red-600 font-bold mt-2">Seek medical attention immediately</p>
+        {% elif spo2 < 91 %}
+          <p class="text-[10px] text-orange-600 font-bold mt-2">Low — monitor closely</p>
+        {% elif spo2 < 95 %}
+          <p class="text-[10px] text-yellow-600 font-bold mt-2">Concerning — consult your doctor</p>
+        {% endif %}
+      {% endif %}
+    </div>
+
+    <!-- WEIGHT CARD
+         No status classification — shows latest value only
+    -->
+    <div class="bg-surface-container-lowest p-6 rounded-lg shadow-sm border-l-2 border-secondary">
+      <div class="flex items-center justify-between mb-4">
+        <span class="material-symbols-outlined text-on-primary-container p-2 bg-primary-fixed-dim/30 rounded-lg">scale</span>
+        <span class="text-xs font-bold text-on-secondary-container bg-secondary-fixed px-2 py-1 rounded-full">
+          {% if weight %}Latest{% else %}No Data{% endif %}
+        </span>
+      </div>
+      <div class="text-on-surface-variant text-xs font-bold uppercase tracking-tight">Weight</div>
+      <div class="flex items-baseline gap-1 mt-1">
+        <span class="text-3xl font-extrabold text-primary font-headline">
+          {% if weight %}{{ weight }}{% else %}—{% endif %}
+        </span>
+        <span class="text-sm text-on-surface-variant">lbs</span>
+      </div>
+    </div>
+
+    <!-- GLUCOSE CARD
+         < 50 mg/dL    → ⚠ Danger Low (dark red)
+         50–70 mg/dL   → Low (red)
+         70–108 mg/dL  → Normal (green)
+         120–180 mg/dL → Borderline (yellow)
+         215–315 mg/dL → ⚠ High (red)
+         > 315 mg/dL   → ⚠ Danger High (dark red)
+    -->
+    <div class="bg-surface-container-lowest p-6 rounded-lg shadow-sm border-l-2 border-secondary">
+      <div class="flex items-center justify-between mb-4">
+        <span class="material-symbols-outlined text-blue-500 p-2 bg-blue-50 rounded-lg">water_drop</span>
+        {% if glucose %}
+          {% if glucose < 50 %}
+            <span class="text-xs font-bold text-white bg-error px-2 py-1 rounded-full">⚠ Danger Low</span>
+          {% elif glucose < 70 %}
+            <span class="text-xs font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full">Low</span>
+          {% elif glucose <= 108 %}
+            <span class="text-xs font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full">Normal</span>
+          {% elif glucose <= 180 %}
+            <span class="text-xs font-bold text-yellow-700 bg-yellow-50 px-2 py-1 rounded-full">Borderline</span>
+          {% elif glucose <= 315 %}
+            <span class="text-xs font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full">⚠ High</span>
+          {% else %}
+            <span class="text-xs font-bold text-white bg-error px-2 py-1 rounded-full">⚠ Danger High</span>
+          {% endif %}
+        {% else %}
+          <span class="text-xs font-bold text-on-secondary-container bg-secondary-fixed px-2 py-1 rounded-full">No Data</span>
+        {% endif %}
+      </div>
+      <div class="text-on-surface-variant text-xs font-bold uppercase tracking-tight">Glucose</div>
+      <div class="flex items-baseline gap-1 mt-1">
+        <span class="text-3xl font-extrabold font-headline
+          {% if glucose and (glucose < 50 or glucose > 315) %}text-error
+          {% elif glucose and (glucose < 70 or glucose > 180) %}text-red-600
+          {% elif glucose and glucose > 108 %}text-yellow-600
+          {% else %}text-primary{% endif %}">
+          {% if glucose %}{{ glucose }}{% else %}—{% endif %}
+        </span>
+        <span class="text-sm text-on-surface-variant">mg/dL</span>
+      </div>
+      {% if glucose %}
+        {% if glucose < 50 or glucose > 315 %}
+          <p class="text-[10px] text-error font-bold mt-2">Seek medical attention now</p>
+        {% elif glucose < 70 or glucose > 180 %}
+          <p class="text-[10px] text-red-600 font-bold mt-2">Consult your doctor</p>
+        {% elif glucose > 108 %}
+          <p class="text-[10px] text-yellow-600 font-bold mt-2">Monitor closely</p>
+        {% endif %}
+      {% endif %}
+    </div>
+
+  </section>
+
+  <!-- ───────────────────────────────────
+       TWO-COLUMN SECTION
+       Left (wide): Recent Documents list
+       Right (narrow): Quick Stats + Link a Caregiver
+  ─────────────────────────────────────── -->
+  <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+    <!-- RECENT DOCUMENTS
+         Shows last 5 uploaded docs
+         Each row: icon, filename, date,
+         Verified/Pending badge, more_vert button
+    -->
+    <div class="lg:col-span-2 bg-surface-container-lowest rounded-lg p-8 shadow-sm">
+      <div class="flex items-center justify-between mb-8">
+        <h3 class="text-xl font-extrabold font-headline text-primary">Recent Documents</h3>
+        <a href="{{ url_for('main.doc_hub') }}" class="text-secondary font-bold text-sm hover:underline">View All</a>
+      </div>
+      <div class="space-y-4">
+        {% if documents %}
+          {% for doc in documents %}
+          <div class="flex items-center gap-6 p-4 rounded-xl hover:bg-surface-container-low transition-colors group">
+            <div class="w-12 h-12 flex items-center justify-center rounded-lg flex-shrink-0
+              {% if doc['filename'].endswith('.pdf') %}bg-red-50 text-red-600
+              {% elif doc['filename'].endswith('.docx') %}bg-blue-50 text-secondary
+              {% elif doc['filename'].endswith('.csv') %}bg-green-50 text-green-600
+              {% else %}bg-orange-50 text-orange-600{% endif %}">
+              <span class="material-symbols-outlined">
+                {% if doc['filename'].endswith('.pdf') %}picture_as_pdf
+                {% elif doc['filename'].endswith('.docx') %}description
+                {% elif doc['filename'].endswith('.csv') %}table_chart
+                {% else %}insert_drive_file{% endif %}
+              </span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h4 class="font-bold text-primary group-hover:text-secondary transition-colors truncate">{{ doc['filename'] }}</h4>
+              <p class="text-xs text-on-surface-variant">{{ doc['uploaded_at'] }}</p>
+            </div>
+            {% if doc['processed'] %}
+              <span class="px-3 py-1 bg-green-50 text-green-700 text-xs font-bold rounded-full flex-shrink-0">Verified</span>
+            {% else %}
+              <span class="px-3 py-1 bg-surface-container-high text-on-surface-variant text-xs font-bold rounded-full flex-shrink-0">Pending</span>
+            {% endif %}
+            <button class="material-symbols-outlined text-on-surface-variant flex-shrink-0">more_vert</button>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="text-center py-12">
+            <span class="material-symbols-outlined text-5xl text-on-surface-variant/30 mb-3 block">folder_open</span>
+            <p class="text-on-surface-variant text-sm mb-4">No documents uploaded yet</p>
+            <a href="{{ url_for('main.doc_hub') }}"
+              class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-br from-primary to-primary-container text-white font-bold text-sm rounded-full shadow-lg hover:shadow-xl transition-all">
+              <span class="material-symbols-outlined text-sm">upload_file</span> Upload Your First Document
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="space-y-6">
+
+      <!-- QUICK STATS
+           Total Docs, Total Readings, Member Since
+      -->
+      <div class="bg-surface-container-lowest p-8 rounded-lg shadow-sm">
+        <h3 class="text-lg font-extrabold font-headline text-primary mb-6">Quick Stats</h3>
+        <div class="space-y-6">
+          <div class="flex items-center justify-between border-b border-surface-container-low pb-4">
+            <div class="text-sm font-medium text-on-surface-variant">Total Docs</div>
+            <div class="text-lg font-extrabold text-primary">{{ total_docs }}</div>
+          </div>
+          <div class="flex items-center justify-between border-b border-surface-container-low pb-4">
+            <div class="text-sm font-medium text-on-surface-variant">Total Readings</div>
+            <div class="text-lg font-extrabold text-primary">{{ total_readings }}</div>
+          </div>
+          <div class="flex items-center justify-between pb-2">
+            <div class="text-sm font-medium text-on-surface-variant">Member since</div>
+            <div class="text-sm font-extrabold text-primary">{{ member_since if member_since else 'N/A' }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LINK A CAREGIVER
+           Shows patient code if generated,
+           otherwise shows Generate button
+      -->
+      <div class="bg-surface-container-low p-8 rounded-lg relative overflow-hidden">
+        <div class="relative z-10">
+          <h3 class="text-lg font-extrabold font-headline text-primary mb-2">Link a Caregiver</h3>
+          <p class="text-xs text-on-surface-variant leading-relaxed mb-6">Share this unique code with your doctor or family member to grant access to your portal.</p>
+          {% if patient_code %}
+          <div class="bg-surface-container-lowest p-4 rounded-xl flex items-center justify-between shadow-sm border border-secondary/10">
+            <span class="font-mono text-secondary font-bold">#{{ patient_code }}</span>
+            <button onclick="navigator.clipboard.writeText('{{ patient_code }}')"
+              class="material-symbols-outlined text-secondary hover:bg-secondary-fixed p-2 rounded-full transition-colors">content_copy</button>
+          </div>
+          {% else %}
+          <form method="POST" action="{{ url_for('main.generate_code') }}">
+            <button type="submit"
+              class="w-full py-2.5 bg-gradient-to-br from-primary to-primary-container text-white text-sm font-semibold rounded-full shadow-md hover:opacity-90 transition-opacity">
+              Generate Patient Code
+            </button>
+          </form>
+          {% endif %}
+        </div>
+        <span class="material-symbols-outlined absolute -bottom-4 -right-4 text-primary/5 text-8xl" style="font-variation-settings: 'FILL' 1;">medical_information</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ───────────────────────────────────
+       RECENT BIOMETRICS TABLE
+       Shows latest reading per metric
+       Columns: Metric, Value, Unit, Date
+  ─────────────────────────────────────── -->
+  <section class="bg-surface-container-lowest rounded-lg shadow-sm overflow-hidden mb-12">
+    <div class="p-8 flex items-center justify-between bg-white border-b border-surface-container-low">
+      <h3 class="text-xl font-extrabold font-headline text-primary">Recent Biometrics</h3>
+      <button class="flex items-center gap-2 text-sm font-bold text-on-surface-variant hover:text-primary transition-colors">
+        <span class="material-symbols-outlined text-lg">filter_list</span> Filter
+      </button>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="text-on-surface-variant text-xs font-bold uppercase tracking-widest bg-surface-container-low/50">
+            <th class="px-8 py-4">Metric</th>
+            <th class="px-8 py-4 text-center">Value</th>
+            <th class="px-8 py-4 text-center">Unit</th>
+            <th class="px-8 py-4 text-right">Date</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-surface-container-low">
+          {% if latest %}
+            {% for reading in latest %}
+            <tr class="hover:bg-surface-container-low/30 transition-colors">
+              <td class="px-8 py-5 font-bold text-primary">
+                <div class="flex items-center gap-3">
+                  <span class="w-2 h-2 rounded-full bg-secondary flex-shrink-0"></span>
+                  {{ reading['metric_name'].replace('_', ' ').title() }}
+                </div>
+              </td>
+              <td class="px-8 py-5 text-center font-bold">{{ reading['value'] }}</td>
+              <td class="px-8 py-5 text-center text-on-surface-variant">{{ reading['unit'] if reading['unit'] else '—' }}</td>
+              <td class="px-8 py-5 text-right text-on-surface-variant">{{ reading['recorded_date'] }}</td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="4" class="px-8 py-12 text-center text-on-surface-variant text-sm">
+                <span class="material-symbols-outlined text-4xl block mb-2 opacity-30">monitor_heart</span>
+                No biometric readings yet. Upload a document to get started.
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══════════════════════════════════════
+     NOTIFICATION BADGE SCRIPT
+     Fetches unread count from API
+     Shows red dot on bell if count > 0
+═══════════════════════════════════════ -->
+<script>
+  fetch('/api/notifications/unread-count')
+    .then(r => r.json())
+    .then(data => {
+      if (data.count > 0) {
+        const badge = document.getElementById('notif-badge');
+        if (badge) badge.classList.remove('hidden');
+      }
+    });
+</script>
+
+</body>
+</html>

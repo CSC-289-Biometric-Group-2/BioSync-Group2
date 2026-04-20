@@ -1,18 +1,323 @@
-{% extends 'base.html' %}
-
-{% block title %}Home{% endblock %}
-
-{% block header %}
-  <h1>Welcome to BioSync</h1>
-{% endblock %}
-
-{% block content %}
-  <p>A Biometric Wellness Ecosystem — track, upload, and understand your health data.</p>
-  {% if g.user %}
-    <p><a href="{{ url_for('main.upload') }}">Upload a Document</a></p>
-    <p><a href="{{ url_for('main.profile') }}">View My Profile</a></p>
-  {% else %}
-    <p><a href="{{ url_for('auth.register') }}">Register</a> or 
-       <a href="{{ url_for('auth.login') }}">Log In</a> to get started.</p>
-  {% endif %}
-{% endblock %}
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BioSync — Next-Gen Health Orchestration</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                "colors": {
+                    "on-primary": "#ffffff",
+                    "on-tertiary-fixed-variant": "#930005",
+                    "on-error": "#ffffff",
+                    "tertiary-fixed-dim": "#ffb4a9",
+                    "primary-fixed": "#d8e2ff",
+                    "surface-bright": "#f7f9fc",
+                    "on-secondary-container": "#004b75",
+                    "surface-dim": "#d8dadd",
+                    "on-secondary-fixed": "#001d32",
+                    "inverse-on-surface": "#eff1f4",
+                    "outline": "#75777f",
+                    "tertiary": "#3d0001",
+                    "surface-tint": "#4e5e83",
+                    "primary": "#041839",
+                    "on-tertiary": "#ffffff",
+                    "primary-container": "#1c2d4f",
+                    "on-surface": "#191c1e",
+                    "on-surface-variant": "#44474e",
+                    "surface-container": "#eceef1",
+                    "secondary-fixed": "#cde5ff",
+                    "secondary-container": "#6cbdfe",
+                    "on-error-container": "#93000a",
+                    "on-tertiary-container": "#ff6050",
+                    "error": "#ba1a1a",
+                    "primary-fixed-dim": "#b6c6f1",
+                    "on-secondary": "#ffffff",
+                    "outline-variant": "#c5c6cf",
+                    "surface": "#f7f9fc",
+                    "error-container": "#ffdad6",
+                    "surface-container-highest": "#e0e3e6",
+                    "secondary": "#006398",
+                    "surface-variant": "#e0e3e6",
+                    "on-primary-fixed": "#071a3c",
+                    "surface-container-low": "#f2f4f7",
+                    "on-primary-fixed-variant": "#36466a",
+                    "on-tertiary-fixed": "#410001",
+                    "inverse-surface": "#2d3133",
+                    "tertiary-fixed": "#ffdad5",
+                    "tertiary-container": "#640002",
+                    "background": "#f7f9fc",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary-fixed-variant": "#004b74",
+                    "on-background": "#191c1e",
+                    "inverse-primary": "#b6c6f1",
+                    "secondary-fixed-dim": "#94ccff",
+                    "surface-container-high": "#e6e8eb"
+                },
+                "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+                },
+                "fontFamily": {
+                    "headline": ["Manrope", "sans-serif"],
+                    "body": ["Inter", "sans-serif"],
+                    "label": ["Inter", "sans-serif"]
+                }
+            },
+        }
+    }
+</script>
+<style>
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .glass-nav {
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+</style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased">
+ 
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md shadow-sm shadow-blue-900/5 flex justify-between items-center px-6 py-3 font-headline tracking-tight">
+    <div class="flex items-center gap-8">
+        <a href="{{ url_for('main.index') }}" class="flex items-center gap-2">
+           <img src="{{ url_for('static', filename='BioSync.png') }}" alt="BioSync" class="h-20 w-auto"/>
+        </a>
+        <div class="hidden md:flex gap-6 items-center">
+            <a class="text-[#006398] font-semibold border-b-2 border-[#006398] pb-1" href="{{ url_for('main.index') }}">Home</a>
+            <a class="text-on-surface-variant hover:text-primary transition-colors" href="{{ url_for('main.dashboard') }}">Dashboard</a>
+            <a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Resources</a>
+        </div>
+    </div>
+    <div class="flex items-center gap-4">
+        {% if g.user %}
+            <a href="{{ url_for('main.individual_profile') }}" class="text-on-surface-variant hover:text-primary font-semibold transition-colors">My Profile</a>
+            <a href="{{ url_for('main.doc_hub') }}" class="text-on-surface-variant hover:text-primary font-semibold transition-colors">Upload</a>
+            <a href="{{ url_for('auth.logout') }}" class="hidden md:block px-6 py-2 bg-gradient-to-br from-primary to-primary-container text-white rounded-full font-semibold active:scale-95 duration-150">Log Out</a>
+        {% else %}
+            <a href="{{ url_for('auth.login') }}" class="text-on-surface-variant hover:text-primary font-semibold transition-colors">Log In</a>
+            <a href="{{ url_for('auth.register') }}" class="hidden md:block px-6 py-2 bg-gradient-to-br from-primary to-primary-container text-white rounded-full font-semibold active:scale-95 duration-150">Get Started</a>
+        {% endif %}
+    </div>
+</nav>
+ 
+<main class="pt-16">
+    <!-- Hero Section -->
+    <section class="relative min-h-[921px] flex items-center px-6 md:px-12 overflow-hidden bg-surface">
+        <!-- Background Aesthetic -->
+        <div class="absolute top-0 right-0 w-2/3 h-full opacity-20 pointer-events-none">
+            <div class="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-secondary-container rounded-full blur-[120px]"></div>
+            <div class="absolute bottom-[-20%] right-[10%] w-[400px] h-[400px] bg-primary-fixed-dim rounded-full blur-[100px]"></div>
+        </div>
+        <div class="container mx-auto grid md:grid-cols-2 gap-12 items-center relative z-10">
+            <div class="space-y-8 max-w-2xl">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary-container/20 text-secondary font-semibold text-sm border border-secondary/10">
+                    <span class="material-symbols-outlined text-sm">verified_user</span>
+                    CLINICAL PRECISION. HUMAN VITALITY.
+                </div>
+                <h1 class="text-5xl md:text-7xl font-headline font-extrabold text-primary leading-[1.1] tracking-tight">
+                    Next-Gen Health <br/>
+                    <span class="text-secondary">Orchestration.</span>
+                </h1>
+                <p class="text-xl text-on-surface-variant leading-relaxed font-medium">
+                    BioSync centralizes your clinical data, biometric streams, and care networks into a single, high-fidelity clinical workspace.
+                </p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="{{ url_for('auth.register') }}" class="px-8 py-4 bg-gradient-to-br from-primary to-primary-container text-white rounded-full font-bold text-lg shadow-lg shadow-primary/20 active:scale-95 transition-all">
+                        Register Now
+                    </a>
+                    <a href="{{ url_for('auth.login') }}" class="px-8 py-4 bg-surface-container-lowest text-primary rounded-full font-bold text-lg border border-outline-variant/20 hover:bg-surface-container-low transition-all">
+                        Log In
+                    </a>
+                </div>
+                <div class="flex items-center gap-6 pt-4">
+                    <div class="flex -space-x-3">
+                        <!-- ============================================================ -->
+                        <!-- IMAGES: These 3 avatar images are from Google Stitch.        -->
+                        <!-- Replace with your own team/placeholder images in static/     -->
+                        <!-- or remove this section entirely                              -->
+                        <!-- ============================================================ -->
+                        <img alt="doctor" class="w-10 h-10 rounded-full border-2 border-surface" src="{{ url_for('static', filename='avatar.png') }}"/>
+                        <img alt="nurse" class="w-10 h-10 rounded-full border-2 border-surface" src="{{ url_for('static', filename='avatar.png') }}"/>
+                        <img alt="specialist" class="w-10 h-10 rounded-full border-2 border-surface" src="{{ url_for('static', filename='avatar.png') }}"/>
+                    </div>
+                    <p class="text-sm text-on-surface-variant font-medium">Trusted by <span class="text-primary font-bold">2,500+</span> healthcare practitioners worldwide.</p>
+                </div>
+            </div>
+ 
+            <!-- Asymmetric Interactive Visual -->
+            <div class="relative">
+                <div class="aspect-square bg-surface-container-lowest rounded-[3rem] shadow-2xl shadow-blue-900/5 relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-gradient-to-br from-secondary-container/30 to-primary-fixed/20"></div>
+ 
+                    <!-- Floating Glass Metric Card -->
+                    <div class="absolute top-8 right-[-20px] w-64 p-6 bg-white/90 glass-nav rounded-2xl shadow-xl shadow-primary/10 border border-white/50">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="material-symbols-outlined text-secondary bg-secondary-container/20 p-2 rounded-lg">favorite</span>
+                            <span class="text-xs font-bold text-secondary bg-secondary-container/30 px-2 py-1 rounded">LIVE</span>
+                        </div>
+                        <div class="space-y-1">
+                            <p class="text-on-surface-variant text-xs font-bold uppercase tracking-widest">Resting Heart Rate</p>
+                            <div class="flex items-baseline gap-2">
+                                <h3 class="text-3xl font-headline font-extrabold text-primary">72</h3>
+                                <span class="text-sm font-semibold text-on-surface-variant">BPM</span>
+                            </div>
+                        </div>
+                        <div class="mt-4 h-12 flex items-end gap-1">
+                            <div class="w-full h-4 bg-secondary-container/40 rounded-sm"></div>
+                            <div class="w-full h-6 bg-secondary-container/60 rounded-sm"></div>
+                            <div class="w-full h-8 bg-secondary rounded-sm"></div>
+                            <div class="w-full h-5 bg-secondary-container/50 rounded-sm"></div>
+                            <div class="w-full h-7 bg-secondary-container/80 rounded-sm"></div>
+                        </div>
+                    </div>
+ 
+                    <!-- Secondary Glass Overlay -->
+                    <div class="absolute bottom-8 left-8 w-72 p-6 bg-primary/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10">
+                        <div class="flex items-center gap-4">
+                            <div class="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-white">description</span>
+                            </div>
+                            <div>
+                                <p class="text-white font-bold text-sm">Health Records</p>
+                                <p class="text-primary-fixed-dim text-xs">Patient-File_082.pdf</p>
+                            </div>
+                            <span class="material-symbols-outlined text-white ml-auto">download</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+ 
+    <!-- Bento Grid Features Section -->
+    <section class="py-24 px-6 md:px-12 bg-surface-container-low">
+        <div class="container mx-auto">
+            <div class="text-center max-w-3xl mx-auto mb-20 space-y-4">
+                <h2 class="text-4xl font-headline font-bold text-primary">Unified Clinical Ecosystem</h2>
+                <p class="text-on-surface-variant text-lg">Beyond simple tracking—a comprehensive architecture for data-driven wellness.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 h-auto md:h-[600px]">
+                <!-- Biometric Tracking Card -->
+                <div class="md:col-span-8 bg-surface-container-lowest p-8 rounded-2xl flex flex-col justify-between group hover:shadow-lg transition-shadow relative overflow-hidden">
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-2 mb-6">
+                            <div class="w-2 h-8 bg-secondary rounded-full"></div>
+                            <h3 class="text-2xl font-headline font-bold text-primary">Biometric Tracking</h3>
+                        </div>
+                        <p class="text-on-surface-variant max-w-md text-lg">Real-time integration with medical-grade wearables and devices. Monitor vital signs with sub-second latency and clinical-grade accuracy.</p>
+                    </div>
+                    <div class="mt-8 relative z-10 flex gap-4">
+                        <div class="px-4 py-2 bg-surface-container-low rounded-lg border border-outline-variant/10 text-sm font-semibold text-primary flex items-center gap-2">
+                            <span class="material-symbols-outlined text-secondary text-sm">timeline</span> Continuous Sync
+                        </div>
+                        <div class="px-4 py-2 bg-surface-container-low rounded-lg border border-outline-variant/10 text-sm font-semibold text-primary flex items-center gap-2">
+                            <span class="material-symbols-outlined text-secondary text-sm">bolt</span> Rapid Analysis
+                        </div>
+                    </div>
+                    <div class="absolute bottom-[-10%] right-[-10%] opacity-10 group-hover:opacity-20 transition-opacity">
+                        <span class="material-symbols-outlined text-[300px] text-primary">monitoring</span>
+                    </div>
+                </div>
+ 
+                <!-- Document Storage Card -->
+                <div class="md:col-span-4 bg-primary p-8 rounded-2xl flex flex-col justify-between text-white relative overflow-hidden">
+                    <div class="space-y-4">
+                        <span class="material-symbols-outlined text-4xl text-secondary-container" style="font-variation-settings: 'FILL' 1;">description</span>
+                        <h3 class="text-2xl font-headline font-bold">Encrypted Vault</h3>
+                        <p class="text-primary-fixed-dim">Store medical history, prescriptions, and imaging with military-grade AES-256 encryption.</p>
+                    </div>
+                    <a href="{{ url_for('main.doc_hub') }}" class="w-full py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-bold transition-all flex items-center justify-center gap-2">
+                        Secure Access <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    </a>
+                </div>
+ 
+                <!-- Caregiver Sharing Card -->
+                <div class="md:col-span-4 bg-tertiary-container p-8 rounded-2xl flex flex-col justify-between text-on-tertiary-container relative overflow-hidden">
+                    <div class="space-y-4">
+                        <span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">groups</span>
+                        <h3 class="text-2xl font-headline font-bold">Care Network</h3>
+                        <p class="opacity-80">Grant granular access to family members or specialists. Total control over who sees your health story.</p>
+                    </div>
+                    <a href="{{ url_for('main.individual_profile') }}" class="flex items-center gap-2 font-bold text-sm">
+                        Manage Permissions <span class="material-symbols-outlined text-sm">settings</span>
+                    </a>
+                </div>
+ 
+                <!-- Insight Trends Card -->
+                <div class="md:col-span-8 bg-surface-container-lowest p-8 rounded-2xl border-l-4 border-secondary flex items-center gap-12 group">
+                    <div class="flex-1 space-y-4">
+                        <h3 class="text-2xl font-headline font-bold text-primary">Predictive Trends</h3>
+                        <p class="text-on-surface-variant">AI-powered analytics that identify health patterns before they become issues. Experience proactive rather than reactive care.</p>
+                    </div>
+                    <div class="hidden lg:block w-48 h-32 bg-surface-container-low rounded-xl relative overflow-hidden">
+                        <div class="absolute bottom-0 left-0 w-full h-full p-4 flex items-end gap-1">
+                            <div class="w-3 h-[20%] bg-secondary-container/40 rounded-t-sm"></div>
+                            <div class="w-3 h-[45%] bg-secondary-container/60 rounded-t-sm"></div>
+                            <div class="w-3 h-[30%] bg-secondary-container/40 rounded-t-sm"></div>
+                            <div class="w-3 h-[60%] bg-secondary rounded-t-sm"></div>
+                            <div class="w-3 h-[50%] bg-secondary-container/80 rounded-t-sm"></div>
+                            <div class="w-3 h-[85%] bg-secondary rounded-t-sm"></div>
+                            <div class="w-3 h-[70%] bg-secondary-container rounded-t-sm"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+ 
+    <!-- CTA Section -->
+    <section class="py-24 px-6 relative overflow-hidden">
+        <div class="container mx-auto max-w-5xl bg-primary rounded-[3rem] p-12 md:p-20 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-full h-full bg-gradient-to-br from-primary to-primary-container opacity-50"></div>
+            <div class="relative z-10 text-center space-y-8">
+                <h2 class="text-4xl md:text-6xl font-headline font-extrabold text-white leading-tight">Ready to synchronize <br/> your healthcare?</h2>
+                <p class="text-primary-fixed-dim text-xl max-w-2xl mx-auto">Join thousands of clinical practitioners and health-conscious individuals redefining what's possible in modern medicine.</p>
+                <div class="flex flex-col md:flex-row items-center justify-center gap-6 pt-6">
+                    <a href="{{ url_for('auth.register') }}" class="px-10 py-5 bg-secondary text-white rounded-full font-bold text-xl hover:bg-secondary-container transition-all active:scale-95">
+                        Get Started Now
+                    </a>
+                    <a class="text-white font-bold text-lg flex items-center gap-2 hover:opacity-80" href="{{ url_for('auth.login') }}">
+                        Sign In <span class="material-symbols-outlined">chevron_right</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+ 
+<!-- Footer -->
+<footer class="bg-surface py-12 px-6 border-t border-outline-variant/10">
+    <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+        <div class="flex flex-col items-center md:items-start gap-4">
+            <span class="text-2xl font-bold text-primary">BioSync</span>
+            <p class="text-on-surface-variant text-sm font-medium">© 2024 BioSync Systems. All rights reserved.</p>
+        </div>
+        <div class="flex gap-8 text-on-surface-variant font-semibold text-sm">
+            <a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
+            <a class="hover:text-primary transition-colors" href="#">Terms of Service</a>
+            <a class="hover:text-primary transition-colors" href="#">Contact Support</a>
+        </div>
+        <div class="flex gap-4">
+            <button class="h-10 w-10 flex items-center justify-center rounded-full bg-surface-container-low text-primary hover:bg-surface-container-high transition-colors">
+                <span class="material-symbols-outlined text-xl">language</span>
+            </button>
+            <button class="h-10 w-10 flex items-center justify-center rounded-full bg-surface-container-low text-primary hover:bg-surface-container-high transition-colors">
+                <span class="material-symbols-outlined text-xl">shield_with_heart</span>
+            </button>
+        </div>
+    </div>
+</footer>
+ 
+</body>
+</html>
