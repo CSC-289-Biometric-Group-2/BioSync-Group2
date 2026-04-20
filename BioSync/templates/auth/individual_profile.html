@@ -45,7 +45,7 @@
 <aside class="h-screen w-64 fixed left-0 top-0 flex flex-col bg-surface-container-low border-r border-outline-variant/10 font-body text-sm z-50">
   <div class="px-4 py-6">
     <a href="{{ url_for('main.index') }}">
-  <img src="{{ url_for('static', filename='BioSync.png') }}" alt="BioSync" class="h-10 w-auto mb-2"/>
+  <img src="{{ url_for('static', filename='BioSync.png') }}" alt="BioSync" class="h-20 w-auto mb-2"/>
   </a>
     <p class="text-xs text-on-surface-variant font-medium mt-1">Clinical Workspace</p>
     <p class="text-[10px] text-on-surface-variant/70 uppercase tracking-widest mt-0.5">Sarah_A_dev</p>
@@ -105,7 +105,7 @@
           <span class="material-symbols-outlined">settings</span>
         </button>
         <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-white font-bold text-sm">
-          {{ g.user['username'][0].upper() }}
+          {{ (g.user['first_name'] if g.user['first_name'] else g.user['username'])[0].upper() }}
         </div>
       </div>
     </div>
@@ -117,11 +117,11 @@
     <!-- Patient Profile Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-8">
       <div class="w-20 h-20 rounded-2xl bg-primary-container flex items-center justify-center text-white font-bold text-3xl shadow-lg flex-shrink-0">
-        {{ g.user['username'][0].upper() }}
+        {{ (g.user['first_name'] if g.user['first_name'] else g.user['username'])[0].upper() }}
       </div>
       <div class="flex-grow">
         <p class="text-xs font-bold text-secondary uppercase tracking-widest mb-1">Patient Profile</p>
-        <h1 class="font-headline text-3xl font-extrabold text-primary tracking-tight">{{ g.user['username'] }}</h1>
+        <h1 class="font-headline text-3xl font-extrabold text-primary tracking-tight">{{ g.user['first_name'] if g.user['first_name'] else g.user['username'] }}</h1>
         <div class="flex items-center gap-4 mt-2 text-xs text-on-surface-variant">
           <span class="flex items-center gap-1">
             <span class="material-symbols-outlined text-sm">badge</span> ID: #BS-{{ g.user['id'] }}0{{ g.user['id'] }}
