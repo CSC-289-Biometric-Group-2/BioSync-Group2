@@ -5,7 +5,7 @@ from flask import (
     request, jsonify, url_for, current_app
 )
 from werkzeug.utils import secure_filename
-from BioSync.auth import login_required, check_and_notify, create_notification
+from BioSync.auth import login_required, check_and_notify, create_notification, calculate_age, get_hr_range
 from BioSync.db import get_db
 from BioSync.doc_processor import process_document
 from BioSync.pattern_engine import get_trends, get_all_metrics, compare_baseline
@@ -130,10 +130,15 @@ def dashboard():
 
     member_since = get_member_since(db, g.user['id'])
 
+    age = calculate_age(g.user['dob']) if g.user['dob'] else None
+    hr_min, hr_max = get_hr_range(age, g.user['sex'])
+
     return render_template('dashboard.html',
                            documents=documents,
                            latest=latest,
                            heart_rate=heart_rate,
+                           hr_min=hr_min,
+                           hr_max=hr_max,
                            bp_sys=bp_sys,
                            bp_dia=bp_dia,
                            spo2=spo2,

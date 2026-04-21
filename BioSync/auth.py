@@ -27,6 +27,28 @@ def calculate_age(dob_str):
         return None
 
 
+def get_hr_range(age, sex):
+    """Return (hr_min, hr_max) resting BPM range for a given age and sex."""
+    if age is None or not sex:
+        return None, None
+    sex = sex.lower()
+    if sex == 'male':
+        if age >= 65:   return 62, 73
+        elif age >= 56: return 61, 74
+        elif age >= 46: return 63, 76
+        elif age >= 36: return 63, 75
+        elif age >= 26: return 62, 74
+        elif age >= 18: return 62, 73
+    elif sex == 'female':
+        if age >= 65:   return 63, 76
+        elif age >= 56: return 64, 77
+        elif age >= 46: return 65, 77
+        elif age >= 36: return 65, 77
+        elif age >= 26: return 64, 76
+        elif age >= 18: return 63, 76
+    return None, None
+
+
 def create_notification(db, user_id, metric, value, status, message):
     """Insert a notification for the user."""
     db.execute(
@@ -48,6 +70,16 @@ def check_and_notify(db, user_id, metric_name, value):
             notif = ('danger', '⚠ High Heart Rate (>150 BPM) — Seek medical attention. Emergency care if accompanied by chest pain, dizziness, or fainting.')
         elif value > 100:
             notif = ('caution', '⚠ Tachycardia detected (>100 BPM) — Consult your doctor')
+        else:
+            user_row = db.execute('SELECT dob, sex FROM user WHERE id = ?', (user_id,)).fetchone()
+            age = calculate_age(user_row['dob']) if user_row else None
+            sex = user_row['sex'] if user_row else None
+            hr_min, hr_max = get_hr_range(age, sex)
+
+            if hr_min is not None and value > hr_max:
+                notif = ('warning', f'High Heart Rate: {int(value)} BPM exceeds normal range ({hr_min}–{hr_max} BPM) for your age and sex')
+            elif hr_min is not None and value < hr_min:
+                notif = ('warning', f'Low Heart Rate: {int(value)} BPM is below normal range ({hr_min}–{hr_max} BPM) for your age and sex')
 
     elif metric_name == 'blood_pressure_sys':
         dia_row = db.execute(
