@@ -48,10 +48,9 @@
 <aside class="h-screen w-64 fixed left-0 top-0 flex flex-col bg-surface-container-low border-r border-outline-variant/10 font-body text-sm z-50">
   <div class="px-4 py-6">
     <a href="{{ url_for('main.index') }}">
-      <img src="{{ url_for('static', filename='BioSync.png') }}" alt="BioSync" class="h-20 w-auto mb-2"/>
+      <img src="{{ url_for('static', filename='BioSync.png') }}" alt="BioSync" class="h-20 w-auto mb-3"/>
     </a>
-    <p class="text-xs text-on-surface-variant font-medium mt-1">Clinical Workspace</p>
-    <p class="text-[10px] text-on-surface-variant/70 uppercase tracking-widest mt-0.5">{{ g.user['username'] }}</p>
+    <p class="text-xs text-on-surface-variant leading-relaxed mt-2">Track your biometric history over time. Visualize patterns, compare baselines, and monitor progress across all metrics.</p>
   </div>
   <nav class="flex-1 px-4 space-y-1">
     <a href="{{ url_for('main.dashboard') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
@@ -98,21 +97,21 @@
       </div>
     </div>
     <div class="flex items-center gap-4">
-      <button class="p-2 rounded-full hover:bg-surface-container-low transition-colors text-on-surface-variant relative">
+      <a href="{{ url_for('main.notifications') }}" class="p-2 rounded-full hover:bg-surface-container-low transition-colors text-on-surface-variant relative">
         <span class="material-symbols-outlined">notifications</span>
-        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
-      </button>
+        <span id="notif-badge" class="hidden absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
+      </a>
       <button class="p-2 rounded-full hover:bg-surface-container-low transition-colors text-on-surface-variant">
         <span class="material-symbols-outlined">settings</span>
       </button>
       <div class="h-8 w-px bg-outline-variant/30 mx-2"></div>
       <div class="flex items-center gap-3">
         <div class="text-right">
-          <div class="text-sm font-bold text-primary">{{ g.user['username'] }}</div>
+          <div class="text-sm font-bold text-primary">{{ g.user['first_name'] if g.user['first_name'] else g.user['username'] }}</div>
           <div class="text-xs text-on-surface-variant">Patient</div>
         </div>
         <div class="w-9 h-9 rounded-full bg-primary-container flex items-center justify-center text-white font-bold text-sm">
-          {{ g.user['username'][0].upper() }}
+          {{ (g.user['first_name'] if g.user['first_name'] else g.user['username'])[0].upper() }}
         </div>
       </div>
     </div>

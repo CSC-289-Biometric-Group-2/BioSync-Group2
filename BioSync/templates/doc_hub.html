@@ -65,10 +65,9 @@
 <aside class="h-screen w-64 fixed left-0 top-0 flex flex-col bg-surface-container-low border-r border-outline-variant/10 font-body text-sm z-50">
   <div class="px-4 py-6">
     <a href="{{ url_for('main.index') }}">
-  <img src="{{ url_for('static', filename='BioSync.png') }}" alt="BioSync" class="h-20 w-auto mb-2"/>
+      <img src="{{ url_for('static', filename='BioSync.png') }}" alt="BioSync" class="h-20 w-auto mb-3"/>
     </a>
-    <p class="text-xs text-on-surface-variant font-medium mt-1">Clinical Workspace</p>
-    <p class="text-[10px] text-on-surface-variant/70 uppercase tracking-widest mt-0.5">{{ g.user['username'] }}</p>
+    <p class="text-xs text-on-surface-variant leading-relaxed mt-2">Upload and manage your medical records. BioSync automatically extracts biometric data from your clinical documents.</p>
   </div>
   <nav class="flex-1 px-4 space-y-1">
     <a href="{{ url_for('main.dashboard') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
@@ -107,23 +106,30 @@
 <main class="ml-64 min-h-screen">
 
   <!-- Top Nav Bar -->
-  <header class="sticky top-0 z-40 bg-surface/80 backdrop-blur-xl flex justify-between items-center w-full px-8 py-4 shadow-sm">
-    <h2 class="font-headline font-extrabold text-2xl tracking-tighter text-primary">Document Hub</h2>
-    <div class="flex items-center gap-6">
-      <div class="relative hidden lg:block">
+  <header class="sticky top-0 z-40 flex justify-between items-center w-full px-8 h-16 bg-white/80 backdrop-blur-xl shadow-sm">
+    <div class="flex items-center gap-6 flex-1">
+      <h2 class="font-headline font-bold text-primary text-lg">Documents</h2>
+      <div class="relative w-full max-w-md">
         <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
-        <input class="pl-10 pr-4 py-2 bg-surface-container-low rounded-full border-none focus:ring-2 focus:ring-secondary/20 w-64 text-sm" placeholder="Search clinical records..." type="text"/>
+        <input class="w-full bg-surface-container-low border-none rounded-full pl-10 pr-4 py-1.5 text-sm focus:ring-1 focus:ring-primary/20 transition-all" placeholder="Search clinical records..." type="text"/>
       </div>
+    </div>
+    <div class="flex items-center gap-4">
+      <a href="{{ url_for('main.notifications') }}" class="p-2 rounded-full hover:bg-surface-container-low transition-colors text-on-surface-variant relative">
+        <span class="material-symbols-outlined">notifications</span>
+        <span id="notif-badge" class="hidden absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
+      </a>
+      <button class="p-2 rounded-full hover:bg-surface-container-low transition-colors text-on-surface-variant">
+        <span class="material-symbols-outlined">settings</span>
+      </button>
+      <div class="h-8 w-px bg-outline-variant/30 mx-2"></div>
       <div class="flex items-center gap-3">
-        <a href="{{ url_for('main.notifications') }}" class="p-2 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors relative">
-          <span class="material-symbols-outlined">notifications</span>
-          <span id="notif-badge" class="hidden absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-surface"></span>
-        </a>
-        <button class="p-2 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors">
-          <span class="material-symbols-outlined">settings</span>
-        </button>
-        <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-white font-bold text-sm">
-          {{ g.user['username'][0].upper() }}
+        <div class="text-right">
+          <div class="text-sm font-bold text-primary">{{ g.user['first_name'] if g.user['first_name'] else g.user['username'] }}</div>
+          <div class="text-xs text-on-surface-variant">Patient</div>
+        </div>
+        <div class="w-9 h-9 rounded-full bg-primary-container flex items-center justify-center text-white font-bold text-sm">
+          {{ (g.user['first_name'] if g.user['first_name'] else g.user['username'])[0].upper() }}
         </div>
       </div>
     </div>
@@ -150,17 +156,16 @@
 
       <!-- Upload Zone -->
       <form method="POST" enctype="multipart/form-data" id="uploadForm">
-        <div id="dropZone"
-          class="bg-surface-container-lowest rounded-xl p-10 flex flex-col items-center justify-center border-2 border-dashed border-outline-variant/30 hover:border-secondary transition-colors group cursor-pointer"
+        <div id="dropZone" class="bg-surface-container-lowest rounded-xl p-10 flex flex-col items-center justify-center border-2 border-dashed border-outline-variant/30 hover:border-secondary transition-colors group cursor-pointer"
           onclick="document.getElementById('fileInput').click()">
           <div class="w-16 h-16 rounded-full bg-secondary/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
             <span class="material-symbols-outlined text-4xl text-secondary">cloud_upload</span>
           </div>
           <h3 class="text-xl font-headline font-bold text-primary mb-2">Drop clinical files here</h3>
-          <p class="text-on-surface-variant mb-2 max-w-md text-center">PDF, DOCX, TXT, or CSV. Multiple files supported.</p>
+          <p class="text-on-surface-variant mb-2 max-w-md text-center">PDF files only. Multiple files supported.</p>
           <p id="fileNames" class="text-secondary text-sm font-bold mb-4 text-center"></p>
           <input type="file" name="documents" id="fileInput" class="hidden"
-            accept=".pdf,.docx,.txt,.csv"
+            accept=".pdf"
             multiple
             onchange="handleFileSelect(this)"/>
           <button type="button" onclick="event.stopPropagation(); document.getElementById('fileInput').click()"
@@ -401,7 +406,6 @@
 </script>
 <script>
   // ── FILE SELECT HANDLER ──
-  // Updates file name display and shows Upload button
   function handleFileSelect(input) {
     const files = Array.from(input.files);
     const nameEl = document.getElementById('fileNames');
@@ -418,7 +422,7 @@
     }
   }
 
-  // ── DRAG AND DROP HANDLERS ──
+  // ── DRAG AND DROP ──
   const dropZone = document.getElementById('dropZone');
 
   dropZone.addEventListener('dragover', e => {
@@ -437,15 +441,11 @@
     e.preventDefault();
     e.stopPropagation();
     dropZone.classList.remove('border-secondary', 'bg-secondary/5');
-
     const files = e.dataTransfer.files;
     const fileInput = document.getElementById('fileInput');
-
-    // Assign dropped files to the input
     const dt = new DataTransfer();
     Array.from(files).forEach(f => dt.items.add(f));
     fileInput.files = dt.files;
-
     handleFileSelect(fileInput);
   });
 
