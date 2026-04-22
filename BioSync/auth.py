@@ -240,6 +240,9 @@ def login():
         if error is None:
             session.clear()
             session['user_id'] = user['id']
+            # Redirect caregivers to caregiver dashboard
+            if user['account_type'] == 'caregiver':
+                return redirect(url_for('caretaker.dashboard'))
             return redirect(url_for('main.dashboard'))
 
         flash(error)

@@ -37,7 +37,14 @@ CREATE TABLE user (
   doctor_name TEXT,
   insurance TEXT,
   -- Account type
-  account_type TEXT DEFAULT 'individual'
+  account_type TEXT DEFAULT 'individual',
+  -- Caregiver specific fields
+  email TEXT,
+  clinical_id TEXT,
+  caregiver_type TEXT,
+  duration TEXT,
+  end_date TEXT,
+  organization TEXT
 );
 
 -- Stores uploaded medical documents linked to a user

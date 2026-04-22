@@ -245,7 +245,7 @@
 
         <!-- Card Footer -->
         <div class="px-6 py-3 bg-surface-container-low/50 flex items-center justify-between">
-          <span class="text-xs text-on-surface-variant">Linked {{ patient.linked_at[:10] if patient.linked_at else '' }}</span>
+          <span class="text-xs text-on-surface-variant">Linked {{ patient.linked_at.strftime('%b %d, %Y') if patient.linked_at else '' }}</span>
           <span class="text-xs font-bold text-secondary flex items-center gap-1 group-hover:gap-2 transition-all">
             View Details <span class="material-symbols-outlined text-sm">chevron_right</span>
           </span>

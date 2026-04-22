@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>My Profile — BioSync Caregiver</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "primary": "#041839", "primary-container": "#1c2d4f",
+          "on-primary": "#ffffff", "primary-fixed-dim": "#b6c6f1",
+          "secondary": "#006398", "secondary-container": "#6cbdfe",
+          "on-secondary": "#ffffff", "on-secondary-container": "#004b75",
+          "secondary-fixed": "#cde5ff",
+          "error": "#ba1a1a", "error-container": "#ffdad6",
+          "surface": "#f7f9fc", "surface-container-lowest": "#ffffff",
+          "surface-container-low": "#f2f4f7", "surface-container": "#eceef1",
+          "surface-container-high": "#e6e8eb", "surface-container-highest": "#e0e3e6",
+          "on-surface": "#191c1e", "on-surface-variant": "#44474e",
+          "outline": "#75777f", "outline-variant": "#c5c6cf",
+          "on-primary-container": "#8495bd",
+        },
+        "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+        "fontFamily": { "headline": ["Manrope"], "body": ["Inter"] }
+      }
+    }
+  }
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  .nav-active { color: #006398; background: white; border-left: 4px solid #006398; border-radius: 0.5rem; }
+  body { font-family: 'Inter', sans-serif; background-color: #f7f9fc; }
+  h1, h2, h3, h4 { font-family: 'Manrope', sans-serif; }
+</style>
+</head>
+<body class="bg-surface text-on-surface">
+
+<!-- ═══════════════════════════════════════
+     SIDEBAR
+     - Logo + description
+     - Nav: My Patients, Upload Document,
+            Notifications, My Profile (active)
+     - Sign Out
+═══════════════════════════════════════ -->
+<aside class="h-screen w-64 fixed left-0 top-0 flex flex-col bg-surface-container-low border-r border-outline-variant/10 text-sm z-50">
+  <div class="px-4 py-6">
+    <a href="{{ url_for('main.index') }}">
+      <img src="{{ url_for('static', filename='BioSync.png') }}" alt="BioSync" class="h-20 w-auto mb-3"/>
+    </a>
+    <p class="text-xs text-on-surface-variant leading-relaxed mt-2">Your caregiver workspace. Manage your profile, linked patients, and clinical credentials all in one place.</p>
+  </div>
+  <nav class="flex-1 px-4 space-y-1">
+    <a href="{{ url_for('caretaker.dashboard') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">group</span> My Patients
+    </a>
+    <a href="{{ url_for('caretaker.upload_document') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">upload_file</span> Upload Document
+    </a>
+    <a href="{{ url_for('caretaker.notifications') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">notifications</span> Notifications
+    </a>
+    <a href="{{ url_for('caretaker.profile') }}" class="flex items-center gap-3 px-4 py-3 nav-active transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">badge</span> My Profile
+    </a>
+  </nav>
+  <div class="px-4 py-6 border-t border-outline-variant/10">
+    <a href="{{ url_for('auth.logout') }}" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-primary transition-colors">
+      <span class="material-symbols-outlined">logout</span> Sign Out
+    </a>
+  </div>
+</aside>
+
+<!-- ═══════════════════════════════════════
+     TOP BAR
+     - Page title: My Profile
+     - Search
+     - Notifications bell
+     - Caregiver first name + avatar
+═══════════════════════════════════════ -->
+<main class="ml-64 min-h-screen">
+  <header class="sticky top-0 z-40 flex justify-between items-center w-full px-8 h-16 bg-white/80 backdrop-blur-xl shadow-sm">
+    <div class="flex items-center gap-6 flex-1">
+      <h2 class="font-headline font-bold text-primary text-lg">My Profile</h2>
+      <div class="relative w-full max-w-md">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+        <input class="w-full bg-surface-container-low border-none rounded-full pl-10 pr-4 py-1.5 text-sm focus:ring-1 focus:ring-primary/20 transition-all" placeholder="Search..." type="text"/>
+      </div>
+    </div>
+    <div class="flex items-center gap-4">
+      <a href="{{ url_for('caretaker.notifications') }}" class="p-2 rounded-full hover:bg-surface-container-low transition-colors text-on-surface-variant relative">
+        <span class="material-symbols-outlined">notifications</span>
+        <span id="notif-badge" class="hidden absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
+      </a>
+      <div class="h-8 w-px bg-outline-variant/30 mx-2"></div>
+      <div class="flex items-center gap-3">
+        <div class="text-right">
+          <div class="text-sm font-bold text-primary">{{ g.user['first_name'] if g.user['first_name'] else g.user['username'] }}</div>
+          <div class="text-xs text-on-surface-variant">Caregiver</div>
+        </div>
+        <div class="w-9 h-9 rounded-full bg-secondary flex items-center justify-center text-white font-bold text-sm">
+          {{ (g.user['first_name'] if g.user['first_name'] else g.user['username'])[0].upper() }}
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ─────────────────────────────────────
+       CONTENT
+  ───────────────────────────────────────── -->
+  <div class="p-8 max-w-5xl mx-auto">
+
+    <!-- ── PROFILE HEADER ── -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-8">
+      <div class="w-20 h-20 rounded-2xl bg-secondary flex items-center justify-center text-white font-bold text-3xl shadow-lg flex-shrink-0">
+        {{ (g.user['first_name'] if g.user['first_name'] else g.user['username'])[0].upper() }}
+      </div>
+      <div class="flex-grow">
+        <p class="text-xs font-bold text-secondary uppercase tracking-widest mb-1">Caregiver Profile</p>
+        <h1 class="font-headline text-3xl font-extrabold text-primary tracking-tight">
+          {{ g.user['first_name'] }} {{ g.user['last_name'] if g.user['last_name'] else '' }}
+        </h1>
+        <div class="flex items-center gap-4 mt-2 text-xs text-on-surface-variant flex-wrap">
+          <span class="flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">badge</span>
+            {% if g.user['caregiver_type'] == 'informal' %}Informal Caregiver
+            {% elif g.user['caregiver_type'] == 'formal' %}Formal Caregiver
+            {% elif g.user['caregiver_type'] == 'agency' %}Agency Caregiver
+            {% elif g.user['caregiver_type'] == 'senior_living' %}Senior Living Caregiver
+            {% else %}Caregiver{% endif %}
+          </span>
+          <span class="flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">calendar_today</span>
+            Member since {{ member_since if member_since else 'N/A' }}
+          </span>
+          {% if g.user['duration'] %}
+          <span class="flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">schedule</span>
+            {{ g.user['duration'].replace('_', ' ').title() }} Care
+          </span>
+          {% endif %}
+        </div>
+      </div>
+      <div class="flex gap-3 flex-shrink-0">
+        <button class="px-5 py-2.5 rounded-full bg-gradient-to-br from-primary to-primary-container text-white font-bold text-sm shadow-lg hover:shadow-xl transition-all flex items-center gap-2">
+          <span class="material-symbols-outlined text-sm">edit</span> Edit Profile
+        </button>
+      </div>
+    </div>
+
+    <!-- ── ACTIVITY STATS ROW ── -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+      <!-- Total Patients -->
+      <div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm text-center">
+        <p class="text-3xl font-extrabold font-headline text-primary">{{ linked_patients | length }}</p>
+        <p class="text-xs text-on-surface-variant font-medium uppercase tracking-wider mt-1">Linked Patients</p>
+      </div>
+      <!-- Total Docs Uploaded -->
+      <div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm text-center">
+        <p class="text-3xl font-extrabold font-headline text-primary">{{ total_docs }}</p>
+        <p class="text-xs text-on-surface-variant font-medium uppercase tracking-wider mt-1">Docs Uploaded</p>
+      </div>
+      <!-- Total Alerts -->
+      <div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm text-center">
+        <p class="text-3xl font-extrabold font-headline text-primary">{{ total_alerts }}</p>
+        <p class="text-xs text-on-surface-variant font-medium uppercase tracking-wider mt-1">Alerts Sent</p>
+      </div>
+      <!-- Account Type -->
+      <div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm text-center">
+        <span class="inline-block text-xs font-bold text-secondary bg-secondary/10 px-3 py-1 rounded-full mb-2">
+          {% if g.user['caregiver_type'] == 'informal' %}Informal
+          {% elif g.user['caregiver_type'] == 'formal' %}Formal
+          {% elif g.user['caregiver_type'] == 'agency' %}Agency
+          {% elif g.user['caregiver_type'] == 'senior_living' %}Senior Living
+          {% else %}Caregiver{% endif %}
+        </span>
+        <p class="text-xs text-on-surface-variant font-medium uppercase tracking-wider mt-1">Account Type</p>
+      </div>
+    </div>
+
+    <!-- ── TWO COLUMN LAYOUT ── -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+
+      <!-- PROFESSIONAL INFO CARD -->
+      <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-outline-variant/10 flex items-center gap-3">
+          <span class="material-symbols-outlined text-secondary">work</span>
+          <h3 class="font-headline font-bold text-primary">Professional Info</h3>
+        </div>
+        <div class="px-6 py-5 space-y-4">
+          <!-- Name -->
+          <div class="flex justify-between items-center py-3 border-b border-surface-container-low">
+            <span class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Full Name</span>
+            <span class="text-sm font-bold text-primary">{{ g.user['first_name'] }} {{ g.user['last_name'] if g.user['last_name'] else '' }}</span>
+          </div>
+          <!-- Username -->
+          <div class="flex justify-between items-center py-3 border-b border-surface-container-low">
+            <span class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Username</span>
+            <span class="text-sm font-bold text-primary">{{ g.user['username'] }}</span>
+          </div>
+          <!-- Email -->
+          <div class="flex justify-between items-center py-3 border-b border-surface-container-low">
+            <span class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Email</span>
+            <span class="text-sm font-bold text-primary">{{ g.user['email'] if g.user['email'] else '—' }}</span>
+          </div>
+          <!-- Clinical ID -->
+          <div class="flex justify-between items-center py-3 border-b border-surface-container-low">
+            <span class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Clinical ID / NPI</span>
+            <span class="text-sm font-bold text-primary font-mono">{{ g.user['clinical_id'] if g.user['clinical_id'] else '—' }}</span>
+          </div>
+          <!-- Organization -->
+          <div class="flex justify-between items-center py-3 border-b border-surface-container-low">
+            <span class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Organization</span>
+            <span class="text-sm font-bold text-primary">{{ g.user['organization'] if g.user['organization'] else '—' }}</span>
+          </div>
+          <!-- Duration -->
+          <div class="flex justify-between items-center py-3 border-b border-surface-container-low">
+            <span class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Care Duration</span>
+            <span class="text-sm font-bold text-primary">{{ g.user['duration'].replace('_', ' ').title() if g.user['duration'] else '—' }}</span>
+          </div>
+          <!-- End Date -->
+          {% if g.user['end_date'] %}
+          <div class="flex justify-between items-center py-3">
+            <span class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">End Date</span>
+            <span class="text-sm font-bold text-primary">{{ g.user['end_date'] }}</span>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- ACCOUNT SECTION -->
+      <div class="space-y-6">
+
+        <!-- Account Card -->
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+          <div class="px-6 py-4 border-b border-outline-variant/10 flex items-center gap-3">
+            <span class="material-symbols-outlined text-secondary">manage_accounts</span>
+            <h3 class="font-headline font-bold text-primary">Account</h3>
+          </div>
+          <div class="px-6 py-5 space-y-3">
+            <div class="flex justify-between items-center py-3 border-b border-surface-container-low">
+              <span class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Account Type</span>
+              <span class="text-xs font-bold text-secondary bg-secondary/10 px-3 py-1 rounded-full">Caregiver</span>
+            </div>
+            <div class="flex justify-between items-center py-3 border-b border-surface-container-low">
+              <span class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Member Since</span>
+              <span class="text-sm font-bold text-primary">{{ member_since if member_since else 'N/A' }}</span>
+            </div>
+            <div class="flex justify-between items-center py-3">
+              <span class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Password</span>
+              <button class="text-xs font-bold text-secondary hover:underline">Change Password</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- HIPAA / Security Badge -->
+        <div class="bg-primary rounded-xl p-6 text-white">
+          <div class="flex items-center gap-3 mb-3">
+            <span class="material-symbols-outlined text-secondary-container" style="font-variation-settings:'FILL' 1;">verified_user</span>
+            <h3 class="font-headline font-bold">HIPAA Compliant</h3>
+          </div>
+          <p class="text-sm text-primary-fixed-dim leading-relaxed">Your clinical data is encrypted with AES-256 at rest and TLS 1.3 in transit. All patient access is logged per medical audit standards.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── LINKED PATIENTS SECTION ── -->
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden mb-8">
+      <div class="px-6 py-4 border-b border-outline-variant/10 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined text-secondary">group</span>
+          <h3 class="font-headline font-bold text-primary">Linked Patients</h3>
+        </div>
+        <span class="text-xs font-bold text-secondary bg-secondary/10 px-3 py-1 rounded-full">{{ linked_patients | length }} patient{{ 's' if linked_patients | length != 1 }}</span>
+      </div>
+      {% if linked_patients %}
+      <div class="divide-y divide-outline-variant/5">
+        {% for patient in linked_patients %}
+        <div class="px-6 py-4 flex items-center justify-between hover:bg-surface-container-low transition-colors">
+          <div class="flex items-center gap-4">
+            <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-white font-bold text-sm">
+              {{ (patient['first_name'] if patient['first_name'] else patient['username'])[0].upper() }}
+            </div>
+            <div>
+              <p class="font-bold text-sm text-primary">{{ patient['first_name'] }} {{ patient['last_name'] if patient['last_name'] else '' }}</p>
+              <p class="text-xs text-on-surface-variant">@{{ patient['username'] }} &bull; Linked {{ patient['linked_at'].strftime('%b %d, %Y') if patient['linked_at'] else '' }}</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <a href="{{ url_for('caretaker.patient_detail', patient_id=patient['id']) }}"
+              class="text-xs font-bold text-secondary hover:underline">View</a>
+            <button class="text-xs font-bold text-error hover:underline">Unlink</button>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="px-6 py-12 text-center">
+        <span class="material-symbols-outlined text-4xl text-on-surface-variant/30 mb-3 block">group</span>
+        <p class="text-on-surface-variant text-sm mb-4">No patients linked yet.</p>
+        <a href="{{ url_for('caretaker.dashboard') }}"
+          class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-primary to-primary-container text-white font-bold text-sm rounded-full shadow-lg transition-all">
+          <span class="material-symbols-outlined text-sm">add</span> Link a Patient
+        </a>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+</main>
+
+<!-- ═══════════════════════════════════════
+     NOTIFICATION BADGE SCRIPT
+═══════════════════════════════════════ -->
+<script>
+  fetch('/api/notifications/unread-count')
+    .then(r => r.json())
+    .then(data => {
+      if (data.count > 0) {
+        const badge = document.getElementById('notif-badge');
+        if (badge) badge.classList.remove('hidden');
+      }
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Upload Document — BioSync Caregiver</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "primary": "#041839", "primary-container": "#1c2d4f",
+          "on-primary": "#ffffff", "primary-fixed-dim": "#b6c6f1",
+          "secondary": "#006398", "secondary-container": "#6cbdfe",
+          "on-secondary": "#ffffff", "secondary-fixed": "#cde5ff",
+          "error": "#ba1a1a", "error-container": "#ffdad6",
+          "surface": "#f7f9fc", "surface-container-lowest": "#ffffff",
+          "surface-container-low": "#f2f4f7", "surface-container": "#eceef1",
+          "surface-container-high": "#e6e8eb",
+          "on-surface": "#191c1e", "on-surface-variant": "#44474e",
+          "outline": "#75777f", "outline-variant": "#c5c6cf",
+          "on-primary-container": "#8495bd",
+        },
+        "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+        "fontFamily": { "headline": ["Manrope"], "body": ["Inter"] }
+      }
+    }
+  }
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  .nav-active { color: #006398; background: white; border-left: 4px solid #006398; border-radius: 0.5rem; }
+  body { font-family: 'Inter', sans-serif; background-color: #f7f9fc; }
+  h1, h2, h3, h4 { font-family: 'Manrope', sans-serif; }
+</style>
+</head>
+<body class="bg-surface text-on-surface">
+
+<!-- ═══════════════════════════════════════
+     SIDEBAR
+═══════════════════════════════════════ -->
+<aside class="h-screen w-64 fixed left-0 top-0 flex flex-col bg-surface-container-low border-r border-outline-variant/10 text-sm z-50">
+  <div class="px-4 py-6">
+    <a href="{{ url_for('main.index') }}">
+      <img src="{{ url_for('static', filename='BioSync.png') }}" alt="BioSync" class="h-20 w-auto mb-3"/>
+    </a>
+    <p class="text-xs text-on-surface-variant leading-relaxed mt-2">Monitor your patients' health. View biometric readings, track trends, and receive alerts for critical health changes.</p>
+  </div>
+  <nav class="flex-1 px-4 space-y-1">
+    <a href="{{ url_for('caretaker.dashboard') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">group</span> My Patients
+    </a>
+    <a href="{{ url_for('caretaker.upload_document') }}" class="flex items-center gap-3 px-4 py-3 nav-active transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">upload_file</span> Upload Document
+    </a>
+    <a href="{{ url_for('caretaker.notifications') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">notifications</span> Notifications
+    </a>
+    <a href="{{ url_for('caretaker.profile') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">badge</span> My Profile
+    </a>
+  </nav>
+  <div class="px-4 py-6 border-t border-outline-variant/10">
+    <a href="{{ url_for('auth.logout') }}" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-primary transition-colors">
+      <span class="material-symbols-outlined">logout</span> Sign Out
+    </a>
+  </div>
+</aside>
+
+<!-- ═══════════════════════════════════════
+     TOP BAR
+═══════════════════════════════════════ -->
+<main class="ml-64 min-h-screen">
+  <header class="sticky top-0 z-40 flex justify-between items-center w-full px-8 h-16 bg-white/80 backdrop-blur-xl shadow-sm">
+    <div class="flex items-center gap-6 flex-1">
+      <h2 class="font-headline font-bold text-primary text-lg">Upload Document</h2>
+    </div>
+    <div class="flex items-center gap-4">
+      <a href="{{ url_for('caretaker.notifications') }}" class="p-2 rounded-full hover:bg-surface-container-low transition-colors text-on-surface-variant relative">
+        <span class="material-symbols-outlined">notifications</span>
+        <span id="notif-badge" class="hidden absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
+      </a>
+      <div class="h-8 w-px bg-outline-variant/30 mx-2"></div>
+      <div class="flex items-center gap-3">
+        <div class="text-right">
+          <div class="text-sm font-bold text-primary">{{ g.user['first_name'] if g.user['first_name'] else g.user['username'] }}</div>
+          <div class="text-xs text-on-surface-variant">Caregiver</div>
+        </div>
+        <div class="w-9 h-9 rounded-full bg-secondary flex items-center justify-center text-white font-bold text-sm">
+          {{ (g.user['first_name'] if g.user['first_name'] else g.user['username'])[0].upper() }}
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ─────────────────────────────────────
+       CONTENT
+  ───────────────────────────────────────── -->
+  <div class="p-8 max-w-3xl mx-auto">
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <div class="bg-green-50 text-green-700 rounded-xl px-4 py-3 text-sm font-medium mb-6">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Page Header -->
+    <div class="mb-8">
+      <p class="text-xs font-bold text-secondary uppercase tracking-widest mb-1">Document Management</p>
+      <h1 class="font-headline text-3xl font-extrabold text-primary">Upload Patient Document</h1>
+      <p class="text-on-surface-variant text-sm mt-2">Upload a clinical PDF on behalf of a linked patient. BioSync will automatically extract biometric readings from the document.</p>
+    </div>
+
+    {% if linked_patients %}
+
+    <!-- Upload Form Card -->
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden mb-6">
+      <div class="px-8 py-5 border-b border-outline-variant/10 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center">
+          <span class="material-symbols-outlined text-secondary">upload_file</span>
+        </div>
+        <div>
+          <p class="font-bold text-primary text-sm">New Document</p>
+          <p class="text-xs text-on-surface-variant">PDF files only</p>
+        </div>
+      </div>
+
+      <form method="POST" enctype="multipart/form-data" id="uploadForm" class="px-8 py-8 space-y-6">
+
+        <!-- ── PATIENT SELECTOR ── -->
+        <div>
+          <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-3">Select Patient</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="patientGrid">
+            {% for patient in linked_patients %}
+            <label class="patient-card cursor-pointer">
+              <input type="radio" name="patient_id" value="{{ patient['id'] }}"
+                class="sr-only patient-radio"
+                {% if loop.first %}checked{% endif %}>
+              <div class="patient-card-inner flex items-center gap-3 p-4 rounded-xl border-2 transition-all
+                {% if loop.first %}border-secondary bg-secondary/5{% else %}border-outline-variant/20 bg-surface-container-low hover:border-secondary/40{% endif %}">
+                <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                  {{ (patient['first_name'] if patient['first_name'] else patient['username'])[0].upper() }}
+                </div>
+                <div>
+                  <p class="font-bold text-sm text-primary">{{ patient['first_name'] }} {{ patient['last_name'] if patient['last_name'] else '' }}</p>
+                  <p class="text-xs text-on-surface-variant">@{{ patient['username'] }}</p>
+                </div>
+              </div>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- ── DROP ZONE ── -->
+        <div>
+          <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-3">Document</label>
+          <div id="dropZone"
+            class="bg-surface-container-low rounded-xl p-10 flex flex-col items-center justify-center border-2 border-dashed border-outline-variant/30 hover:border-secondary transition-colors cursor-pointer"
+            onclick="document.getElementById('fileInput').click()">
+            <div class="w-14 h-14 rounded-full bg-secondary/5 flex items-center justify-center mb-4">
+              <span class="material-symbols-outlined text-3xl text-secondary">cloud_upload</span>
+            </div>
+            <h3 class="font-headline font-bold text-primary mb-1">Drop PDF files here</h3>
+            <p class="text-on-surface-variant text-sm mb-2">or click to browse</p>
+            <p id="fileNames" class="text-secondary text-sm font-bold text-center"></p>
+            <input type="file" name="documents" id="fileInput" class="hidden"
+              accept=".pdf" multiple
+              onchange="handleFileSelect(this)"/>
+          </div>
+        </div>
+
+        <!-- ── ACTIONS ── -->
+        <div class="flex items-center gap-4 pt-2">
+          <button type="submit" id="uploadBtn"
+            class="px-8 py-3 bg-gradient-to-br from-primary to-primary-container text-white font-bold rounded-full shadow-md hover:shadow-lg transition-all flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">upload_file</span> Upload Document
+          </button>
+          <a href="{{ url_for('caretaker.dashboard') }}"
+            class="px-6 py-3 border border-outline-variant text-on-surface-variant font-medium rounded-full hover:bg-surface-container transition-colors text-sm">
+            Cancel
+          </a>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- Info Card -->
+    <div class="bg-secondary/5 rounded-xl p-6 border border-secondary/10">
+      <h3 class="font-headline font-bold text-primary mb-3 flex items-center gap-2">
+        <span class="material-symbols-outlined text-secondary">info</span>
+        What gets extracted?
+      </h3>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+        {% for metric, icon in [('Heart Rate', 'favorite'), ('Blood Pressure', 'monitor_heart'), ('SpO2', 'air'), ('Glucose', 'water_drop'), ('Temperature', 'thermometer'), ('Weight', 'scale'), ('BMI', 'accessibility'), ('HRV', 'ecg_heart')] %}
+        <div class="bg-surface-container-lowest rounded-lg p-3">
+          <span class="material-symbols-outlined text-secondary text-xl block mb-1">{{ icon }}</span>
+          <p class="text-xs font-bold text-primary">{{ metric }}</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% else %}
+    <!-- No patients linked -->
+    <div class="bg-surface-container-lowest rounded-xl p-16 text-center shadow-sm">
+      <span class="material-symbols-outlined text-6xl text-on-surface-variant/30 mb-4 block">group</span>
+      <h3 class="font-headline font-bold text-xl text-primary mb-2">No patients linked yet</h3>
+      <p class="text-on-surface-variant text-sm mb-6">You need to link a patient before you can upload documents on their behalf.</p>
+      <a href="{{ url_for('caretaker.link_patient') }}"
+        class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-primary to-primary-container text-white font-bold text-sm rounded-full shadow-lg transition-all">
+        <span class="material-symbols-outlined text-sm">add</span> Link a Patient
+      </a>
+    </div>
+    {% endif %}
+
+  </div>
+</main>
+
+<script>
+  // ── PATIENT CARD SELECTOR ──
+  document.querySelectorAll('.patient-radio').forEach(radio => {
+    radio.addEventListener('change', () => {
+      document.querySelectorAll('.patient-card-inner').forEach(card => {
+        card.classList.remove('border-secondary', 'bg-secondary/5');
+        card.classList.add('border-outline-variant/20', 'bg-surface-container-low');
+      });
+      radio.closest('.patient-card').querySelector('.patient-card-inner')
+        .classList.add('border-secondary', 'bg-secondary/5');
+    });
+  });
+
+  // ── FILE SELECT HANDLER ──
+  function handleFileSelect(input) {
+    const files = Array.from(input.files);
+    const nameEl = document.getElementById('fileNames');
+    if (files.length === 0) {
+      nameEl.textContent = '';
+    } else if (files.length === 1) {
+      nameEl.textContent = files[0].name;
+    } else {
+      nameEl.textContent = `${files.length} files selected`;
+    }
+  }
+
+  // ── DRAG AND DROP ──
+  const dropZone = document.getElementById('dropZone');
+  if (dropZone) {
+    dropZone.addEventListener('dragover', e => {
+      e.preventDefault();
+      dropZone.classList.add('border-secondary', 'bg-secondary/5');
+    });
+    dropZone.addEventListener('dragleave', e => {
+      e.preventDefault();
+      dropZone.classList.remove('border-secondary', 'bg-secondary/5');
+    });
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropZone.classList.remove('border-secondary', 'bg-secondary/5');
+      const dt = new DataTransfer();
+      Array.from(e.dataTransfer.files).forEach(f => dt.items.add(f));
+      const fileInput = document.getElementById('fileInput');
+      fileInput.files = dt.files;
+      handleFileSelect(fileInput);
+    });
+  }
+
+  // ── NOTIFICATION BADGE ──
+  fetch('/api/notifications/unread-count')
+    .then(r => r.json())
+    .then(data => {
+      if (data.count > 0) {
+        const badge = document.getElementById('notif-badge');
+        if (badge) badge.classList.remove('hidden');
+      }
+    });
+</script>
+
+</body>
+</html>
