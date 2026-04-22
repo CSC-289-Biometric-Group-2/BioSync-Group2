@@ -1,48 +1,516 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Patient Detail — BioSync Caregiver</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "primary": "#041839", "primary-container": "#1c2d4f",
+          "on-primary": "#ffffff", "primary-fixed-dim": "#b6c6f1",
+          "secondary": "#006398", "secondary-container": "#6cbdfe",
+          "on-secondary": "#ffffff", "on-secondary-container": "#004b75",
+          "secondary-fixed": "#cde5ff",
+          "error": "#ba1a1a", "error-container": "#ffdad6",
+          "surface": "#f7f9fc", "surface-container-lowest": "#ffffff",
+          "surface-container-low": "#f2f4f7", "surface-container": "#eceef1",
+          "surface-container-high": "#e6e8eb", "surface-container-highest": "#e0e3e6",
+          "on-surface": "#191c1e", "on-surface-variant": "#44474e",
+          "outline": "#75777f", "outline-variant": "#c5c6cf",
+          "on-primary-container": "#8495bd",
+        },
+        "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+        "fontFamily": { "headline": ["Manrope"], "body": ["Inter"] }
+      }
+    }
+  }
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  .nav-active { color: #006398; background: white; border-left: 4px solid #006398; border-radius: 0.5rem; }
+  body { font-family: 'Inter', sans-serif; background-color: #f7f9fc; }
+  h1, h2, h3, h4 { font-family: 'Manrope', sans-serif; }
+</style>
+</head>
+<body class="bg-surface text-on-surface">
 
-{% block title %}{{ patient['username'] }}'s Profile{% endblock %}
+<!-- ═══════════════════════════════════════
+     SIDEBAR
+═══════════════════════════════════════ -->
+<aside class="h-screen w-64 fixed left-0 top-0 flex flex-col bg-surface-container-low border-r border-outline-variant/10 text-sm z-50">
+  <div class="px-4 py-6">
+    <a href="{{ url_for('main.index') }}">
+      <img src="{{ url_for('static', filename='BioSync.png') }}" alt="BioSync" class="h-20 w-auto mb-3"/>
+    </a>
+    <p class="text-xs text-on-surface-variant leading-relaxed mt-2">Monitor your patients' health. View biometric readings, track trends, and receive alerts for critical health changes.</p>
+  </div>
+  <nav class="flex-1 px-4 space-y-1">
+    <a href="{{ url_for('caretaker.dashboard') }}" class="flex items-center gap-3 px-4 py-3 nav-active transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">group</span> My Patients
+    </a>
+    <a href="{{ url_for('caretaker.upload_document') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">upload_file</span> Upload Document
+    </a>
+    <a href="{{ url_for('caretaker.notifications') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">notifications</span> Notifications
+    </a>
+    <a href="{{ url_for('caretaker.profile') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">badge</span> My Profile
+    </a>
+  </nav>
+  <div class="px-4 py-6 border-t border-outline-variant/10">
+    <a href="{{ url_for('auth.logout') }}" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-primary transition-colors">
+      <span class="material-symbols-outlined">logout</span> Sign Out
+    </a>
+  </div>
+</aside>
 
-{% block header %}
-  <h1>{{ patient['username'] }}'s Health Profile</h1>
-{% endblock %}
+<!-- ═══════════════════════════════════════
+     TOP BAR
+═══════════════════════════════════════ -->
+<main class="ml-64 min-h-screen">
+  <header class="sticky top-0 z-40 flex justify-between items-center w-full px-8 h-16 bg-white/80 backdrop-blur-xl shadow-sm">
+    <div class="flex items-center gap-4 flex-1">
+      <!-- Back button -->
+      <a href="{{ url_for('caretaker.dashboard') }}" class="p-2 rounded-full hover:bg-surface-container-low transition-colors text-on-surface-variant">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </a>
+      <h2 class="font-headline font-bold text-primary text-lg">
+        {{ patient['first_name'] }} {{ patient['last_name'] if patient['last_name'] else '' }}
+      </h2>
+    </div>
+    <div class="flex items-center gap-4">
+      <a href="{{ url_for('caretaker.notifications') }}" class="p-2 rounded-full hover:bg-surface-container-low transition-colors text-on-surface-variant relative">
+        <span class="material-symbols-outlined">notifications</span>
+        <span id="notif-badge" class="hidden absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
+      </a>
+      <div class="h-8 w-px bg-outline-variant/30 mx-2"></div>
+      <div class="flex items-center gap-3">
+        <div class="text-right">
+          <div class="text-sm font-bold text-primary">{{ g.user['first_name'] if g.user['first_name'] else g.user['username'] }}</div>
+          <div class="text-xs text-on-surface-variant">Caregiver</div>
+        </div>
+        <div class="w-9 h-9 rounded-full bg-secondary flex items-center justify-center text-white font-bold text-sm">
+          {{ (g.user['first_name'] if g.user['first_name'] else g.user['username'])[0].upper() }}
+        </div>
+      </div>
+    </div>
+  </header>
 
-{% block content %}
-  <p>Caregiver Type: <strong>{{ link['caregiver_type'] }}</strong></p>
-  <p>Duration: <strong>{{ link['duration'] }}</strong></p>
+  <!-- ─────────────────────────────────────
+       CONTENT
+  ───────────────────────────────────────── -->
+  <div class="p-8 max-w-[1400px] mx-auto">
 
-  <hr>
+    <!-- ── PATIENT HEADER ── -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-8">
+      <div class="w-20 h-20 rounded-2xl bg-primary-container flex items-center justify-center text-white font-bold text-3xl shadow-lg flex-shrink-0">
+        {{ (patient['first_name'] if patient['first_name'] else patient['username'])[0].upper() }}
+      </div>
+      <div class="flex-grow">
+        <p class="text-xs font-bold text-secondary uppercase tracking-widest mb-1">Patient Profile</p>
+        <h1 class="font-headline text-3xl font-extrabold text-primary tracking-tight">
+          {{ patient['first_name'] }} {{ patient['last_name'] if patient['last_name'] else '' }}
+        </h1>
+        <div class="flex items-center gap-4 mt-2 text-xs text-on-surface-variant flex-wrap">
+          <span class="flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">badge</span>
+            @{{ patient['username'] }}
+          </span>
+          <span class="flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">cake</span>
+            DOB: {{ patient['dob'] if patient['dob'] else 'N/A' }}
+          </span>
+          <span class="flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">person</span>
+            Age: {{ age if age else 'N/A' }}
+          </span>
+          {% if patient['sex'] %}
+          <span class="flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">wc</span>
+            {{ patient['sex'] }}
+          </span>
+          {% endif %}
+          {% if patient['blood_type'] %}
+          <span class="flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">water_drop</span>
+            Blood Type: {{ patient['blood_type'] }}
+          </span>
+          {% endif %}
+        </div>
+      </div>
+      <div class="flex gap-3 flex-shrink-0">
+        <a href="{{ url_for('caretaker.upload_document') }}"
+          class="px-5 py-2.5 rounded-full bg-gradient-to-br from-primary to-primary-container text-white font-bold text-sm shadow-lg hover:shadow-xl transition-all flex items-center gap-2">
+          <span class="material-symbols-outlined text-sm">upload_file</span> Upload Document
+        </a>
+      </div>
+    </div>
 
-  <h2>Biometric Readings</h2>
-  {% if readings %}
-    <ul>
-      {% for r in readings %}
-        <li>
-          {{ r['metric_name'] | replace('_', ' ') | title }}:
-          <strong>{{ r['value'] }}</strong>
-          — {{ r['recorded_date'] }}
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>No readings recorded yet.</p>
-  {% endif %}
+    <!-- ── BIOMETRIC CARDS ROW ── -->
+    <!-- Shows latest reading per metric, BP merged as sys/dia -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+      {% if latest %}
+        {% set shown_bp = [] %}
+        {% for reading in latest %}
+          {% if reading['metric_name'] == 'blood_pressure_dia' %}
+            {# skip — shown with sys #}
+          {% elif reading['metric_name'] == 'blood_pressure_sys' %}
+            {% if shown_bp | length == 0 %}
+              {% set _ = shown_bp.append(1) %}
+              <div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm">
+                <p class="text-xs text-on-surface-variant font-medium uppercase tracking-wider mb-1">Blood Pressure</p>
+                <p class="text-2xl font-black text-primary">
+                  {% if bp_sys and bp_dia %}{{ bp_sys | int }}/{{ bp_dia | int }}{% else %}{{ reading['value'] | int }}/—{% endif %}
+                  <span class="text-sm font-normal text-on-surface-variant">mmHg</span>
+                </p>
+                <p class="text-[10px] text-on-surface-variant mt-1">{{ reading['recorded_date'] }}</p>
+              </div>
+            {% endif %}
+          {% else %}
+            <div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm">
+              <p class="text-xs text-on-surface-variant font-medium uppercase tracking-wider mb-1">
+                {{ reading['metric_name'].replace('_', ' ').title() }}
+              </p>
+              <p class="text-2xl font-black text-primary">
+                {{ reading['value'] }}
+                <span class="text-sm font-normal text-on-surface-variant">{{ reading['unit'] if reading['unit'] else '' }}</span>
+              </p>
+              <p class="text-[10px] text-on-surface-variant mt-1">{{ reading['recorded_date'] }}</p>
+            </div>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <div class="col-span-4 bg-surface-container-lowest rounded-xl p-8 text-center">
+          <span class="material-symbols-outlined text-4xl text-on-surface-variant/30 mb-2 block">monitor_heart</span>
+          <p class="text-on-surface-variant text-sm">No biometric readings yet for this patient.</p>
+        </div>
+      {% endif %}
+    </div>
 
-  <hr>
+    <!-- ── BP CHART + STATUS CARD ── -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
 
-  <h2>Uploaded Documents</h2>
-  {% if docs %}
-    {% for doc in docs %}
-      <p>
-        {{ doc['filename'] }} — {{ doc['uploaded_at'] }}
-        {% if doc['processed'] %}
-          <span>(analyzed)</span>
+      <!-- BP History Chart -->
+      <div class="lg:col-span-2 bg-surface-container-lowest rounded-xl p-6 shadow-sm">
+        <div class="flex justify-between items-start mb-6">
+          <div>
+            <p class="text-xs text-on-surface-variant font-medium uppercase tracking-wider mb-1">Blood Pressure History</p>
+            <p class="font-headline text-4xl font-extrabold text-primary">
+              {% if bp_sys and bp_dia %}{{ bp_sys | int }}/{{ bp_dia | int }}{% else %}—{% endif %}
+              <span class="text-lg font-normal text-secondary">mmHg</span>
+            </p>
+          </div>
+          <div class="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center">
+            <span class="material-symbols-outlined text-secondary" style="font-variation-settings:'FILL' 1;">favorite</span>
+          </div>
+        </div>
+        {% if bp_chart_values %}
+          <canvas id="bpChart" height="120"></canvas>
+        {% else %}
+          <div class="flex items-center justify-center h-32 text-on-surface-variant/40 text-sm">
+            No BP history yet for this patient.
+          </div>
         {% endif %}
-      </p>
-    {% endfor %}
-  {% else %}
-    <p>No documents uploaded yet.</p>
-  {% endif %}
+      </div>
 
-  <hr>
-  <a href="{{ url_for('caretaker.dashboard') }}">← Back to Dashboard</a>
-  <a href="{{ url_f
+      <!-- BP Status Card -->
+      <div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm">
+        <p class="text-xs text-on-surface-variant font-medium uppercase tracking-wider mb-2">BP Status</p>
+        <p class="font-headline text-4xl font-extrabold text-primary mb-2">
+          {% if bp_sys and bp_dia %}{{ bp_sys | int }}/{{ bp_dia | int }}{% else %}—{% endif %}
+          <span class="text-base font-normal text-on-surface-variant">mmHg</span>
+        </p>
+        {% if bp_sys and bp_dia %}
+          {% if bp_sys > 180 or bp_dia > 120 %}
+            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-white bg-error px-2 py-1 rounded-full mb-4">
+              <span class="w-1.5 h-1.5 bg-white rounded-full"></span> ⚠ CRISIS
+            </span>
+          {% elif bp_sys >= 140 or bp_dia >= 90 %}
+            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full mb-4">
+              <span class="w-1.5 h-1.5 bg-red-500 rounded-full"></span> STAGE 2
+            </span>
+          {% elif bp_sys >= 130 or bp_dia >= 80 %}
+            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-orange-700 bg-orange-50 px-2 py-1 rounded-full mb-4">
+              <span class="w-1.5 h-1.5 bg-orange-500 rounded-full"></span> STAGE 1
+            </span>
+          {% elif bp_sys >= 120 and bp_dia < 80 %}
+            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-yellow-700 bg-yellow-50 px-2 py-1 rounded-full mb-4">
+              <span class="w-1.5 h-1.5 bg-yellow-500 rounded-full"></span> ELEVATED
+            </span>
+          {% else %}
+            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full mb-4">
+              <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span> NORMAL
+            </span>
+          {% endif %}
+        {% endif %}
+        <!-- Systolic bar -->
+        <div class="space-y-4 mt-2">
+          <div>
+            <div class="flex justify-between text-xs mb-1.5">
+              <span class="text-on-surface-variant">Systolic{% if bp_sys %} ({{ bp_sys | int }}){% endif %}</span>
+              <span class="font-bold {% if bp_sys and bp_sys >= 140 %}text-red-600{% elif bp_sys and bp_sys >= 130 %}text-orange-600{% elif bp_sys and bp_sys >= 120 %}text-yellow-600{% else %}text-green-600{% endif %}">
+                {% if bp_sys %}{% if bp_sys >= 140 %}High{% elif bp_sys >= 130 %}Elevated{% elif bp_sys >= 120 %}Borderline{% else %}Normal{% endif %}{% else %}—{% endif %}
+              </span>
+            </div>
+            <div class="h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+              <div class="h-full rounded-full {% if bp_sys and bp_sys >= 140 %}bg-red-500{% elif bp_sys and bp_sys >= 130 %}bg-orange-500{% elif bp_sys and bp_sys >= 120 %}bg-yellow-500{% else %}bg-green-500{% endif %}"
+                style="width: {{ [((bp_sys or 0) / 180 * 100), 100] | min }}%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1.5">
+              <span class="text-on-surface-variant">Diastolic{% if bp_dia %} ({{ bp_dia | int }}){% endif %}</span>
+              <span class="font-bold {% if bp_dia and bp_dia >= 90 %}text-red-600{% else %}text-green-600{% endif %}">
+                {% if bp_dia %}{% if bp_dia >= 90 %}High{% else %}Normal{% endif %}{% else %}—{% endif %}
+              </span>
+            </div>
+            <div class="h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+              <div class="h-full rounded-full {% if bp_dia and bp_dia >= 90 %}bg-red-500{% else %}bg-green-500{% endif %}"
+                style="width: {{ [((bp_dia or 0) / 120 * 100), 100] | min }}%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TWO COLUMN: RECENT ALERTS + DOCUMENTS ── -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+
+      <!-- RECENT ALERTS -->
+      <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-outline-variant/10 flex items-center gap-3">
+          <span class="material-symbols-outlined text-error" style="font-variation-settings:'FILL' 1;">warning</span>
+          <h3 class="font-headline font-bold text-primary">Recent Alerts</h3>
+        </div>
+        {% if notifications %}
+        <div class="divide-y divide-outline-variant/5 max-h-80 overflow-y-auto">
+          {% for notif in notifications[:8] %}
+          <div class="px-6 py-4 flex items-start gap-3">
+            <div class="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center mt-0.5
+              {% if notif['status'] == 'danger' %}bg-error-container
+              {% elif notif['status'] == 'warning' %}bg-red-50
+              {% elif notif['status'] == 'caution' %}bg-yellow-50
+              {% else %}bg-secondary/10{% endif %}">
+              <span class="material-symbols-outlined text-xs
+                {% if notif['status'] == 'danger' %}text-error
+                {% elif notif['status'] == 'warning' %}text-red-600
+                {% elif notif['status'] == 'caution' %}text-yellow-600
+                {% else %}text-secondary{% endif %}"
+                style="font-variation-settings:'FILL' 1;">
+                {% if notif['status'] in ['danger','warning'] %}warning{% else %}info{% endif %}
+              </span>
+            </div>
+            <div class="flex-grow min-w-0">
+              <p class="text-xs font-bold uppercase tracking-widest mb-0.5
+                {% if notif['status'] == 'danger' %}text-error
+                {% elif notif['status'] == 'warning' %}text-red-600
+                {% elif notif['status'] == 'caution' %}text-yellow-600
+                {% else %}text-secondary{% endif %}">
+                {{ notif['metric'].replace('_', ' ').title() }}
+              </p>
+              <p class="text-sm text-on-surface leading-snug">{{ notif['message'] }}</p>
+              <p class="text-[10px] text-on-surface-variant mt-1">{{ notif['created_at'] }}</p>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="px-6 py-10 text-center">
+          <span class="material-symbols-outlined text-4xl text-on-surface-variant/30 mb-2 block">check_circle</span>
+          <p class="text-on-surface-variant text-sm">No alerts for this patient.</p>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- RECENT DOCUMENTS -->
+      <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-outline-variant/10 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-secondary">description</span>
+            <h3 class="font-headline font-bold text-primary">Documents</h3>
+          </div>
+          <a href="{{ url_for('caretaker.upload_document') }}" class="text-xs font-bold text-secondary hover:underline">Upload</a>
+        </div>
+        {% if documents %}
+        <div class="divide-y divide-outline-variant/5">
+          {% for doc in documents %}
+          <div class="px-6 py-4 flex items-center gap-4">
+            <div class="w-10 h-10 flex items-center justify-center rounded-lg bg-red-50 text-red-600 flex-shrink-0">
+              <span class="material-symbols-outlined text-sm">picture_as_pdf</span>
+            </div>
+            <div class="flex-grow min-w-0">
+              <p class="font-bold text-sm text-primary truncate">{{ doc['filename'] }}</p>
+              <p class="text-xs text-on-surface-variant">{{ doc['uploaded_at'] }}</p>
+            </div>
+            {% if doc['processed'] %}
+              <span class="text-[10px] font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full flex-shrink-0">Analyzed</span>
+            {% else %}
+              <span class="text-[10px] font-bold text-on-surface-variant bg-surface-container px-2 py-1 rounded-full flex-shrink-0">Pending</span>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="px-6 py-10 text-center">
+          <span class="material-symbols-outlined text-4xl text-on-surface-variant/30 mb-2 block">folder_open</span>
+          <p class="text-on-surface-variant text-sm mb-3">No documents yet.</p>
+          <a href="{{ url_for('caretaker.upload_document') }}"
+            class="text-xs font-bold text-secondary hover:underline">Upload a document</a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- ── RECENT READINGS TABLE ── -->
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+      <div class="px-6 py-4 border-b border-outline-variant/10">
+        <h3 class="font-headline font-bold text-primary">Recent Biometric Readings</h3>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-surface-container-low/50 text-on-surface-variant text-xs font-bold uppercase tracking-widest">
+              <th class="px-6 py-4">Metric</th>
+              <th class="px-6 py-4 text-center">Value</th>
+              <th class="px-6 py-4 text-center">Status</th>
+              <th class="px-6 py-4 text-right">Date</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-surface-container-low">
+            {% if latest %}
+              {% for reading in latest %}
+              {% set m = reading['metric_name'] %}
+              {% set v = reading['value'] | float %}
+              <tr class="hover:bg-surface-container-low/30 transition-colors">
+                <td class="px-6 py-4 font-bold text-primary">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-secondary flex-shrink-0"></span>
+                    {% if m == 'blood_pressure_sys' %}Blood Pressure Sys
+                    {% elif m == 'blood_pressure_dia' %}Blood Pressure Dia
+                    {% else %}{{ m.replace('_', ' ').title() }}{% endif %}
+                  </div>
+                </td>
+                <td class="px-6 py-4 text-center font-bold">{{ reading['value'] }}</td>
+                <td class="px-6 py-4 text-center">
+                  {% if m == 'heart_rate' %}
+                    {% if v < 40 %}<span class="text-xs font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full">⚠ Very Low</span>
+                    {% elif v < 60 %}<span class="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded-full">Athletic</span>
+                    {% elif v <= 100 %}<span class="text-xs font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full">Normal</span>
+                    {% elif v <= 150 %}<span class="text-xs font-bold text-yellow-700 bg-yellow-50 px-2 py-1 rounded-full">⚠ Tachycardia</span>
+                    {% else %}<span class="text-xs font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full">⚠ High</span>{% endif %}
+                  {% elif m == 'blood_pressure_sys' %}
+                    {% if v > 180 %}<span class="text-xs font-bold text-white bg-error px-2 py-1 rounded-full">⚠ Crisis</span>
+                    {% elif v >= 140 %}<span class="text-xs font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full">Stage 2</span>
+                    {% elif v >= 130 %}<span class="text-xs font-bold text-orange-700 bg-orange-50 px-2 py-1 rounded-full">Stage 1</span>
+                    {% elif v >= 120 %}<span class="text-xs font-bold text-yellow-700 bg-yellow-50 px-2 py-1 rounded-full">Elevated</span>
+                    {% else %}<span class="text-xs font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full">Normal</span>{% endif %}
+                  {% elif m == 'blood_pressure_dia' %}
+                    {% if v > 120 %}<span class="text-xs font-bold text-white bg-error px-2 py-1 rounded-full">⚠ Crisis</span>
+                    {% elif v >= 90 %}<span class="text-xs font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full">Stage 2</span>
+                    {% elif v >= 80 %}<span class="text-xs font-bold text-orange-700 bg-orange-50 px-2 py-1 rounded-full">Stage 1</span>
+                    {% else %}<span class="text-xs font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full">Normal</span>{% endif %}
+                  {% elif m == 'spo2' %}
+                    {% if v >= 95 %}<span class="text-xs font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full">Normal</span>
+                    {% elif v >= 91 %}<span class="text-xs font-bold text-yellow-700 bg-yellow-50 px-2 py-1 rounded-full">Concerning</span>
+                    {% elif v >= 90 %}<span class="text-xs font-bold text-orange-700 bg-orange-50 px-2 py-1 rounded-full">Low</span>
+                    {% elif v >= 80 %}<span class="text-xs font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full">⚠ Seek Care</span>
+                    {% else %}<span class="text-xs font-bold text-white bg-error px-2 py-1 rounded-full">⚠ Cyanosis</span>{% endif %}
+                  {% elif m == 'glucose' %}
+                    {% if v < 50 %}<span class="text-xs font-bold text-white bg-error px-2 py-1 rounded-full">⚠ Danger Low</span>
+                    {% elif v < 70 %}<span class="text-xs font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full">Low</span>
+                    {% elif v <= 108 %}<span class="text-xs font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full">Normal</span>
+                    {% elif v <= 180 %}<span class="text-xs font-bold text-yellow-700 bg-yellow-50 px-2 py-1 rounded-full">Borderline</span>
+                    {% elif v <= 315 %}<span class="text-xs font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full">⚠ High</span>
+                    {% else %}<span class="text-xs font-bold text-white bg-error px-2 py-1 rounded-full">⚠ Danger High</span>{% endif %}
+                  {% elif m == 'temperature' %}
+                    {% if v < 95 %}<span class="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded-full">⚠ Hypothermia</span>
+                    {% elif v <= 99.1 %}<span class="text-xs font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full">Normal</span>
+                    {% elif v <= 100.4 %}<span class="text-xs font-bold text-yellow-700 bg-yellow-50 px-2 py-1 rounded-full">Slight Fever</span>
+                    {% elif v <= 102.2 %}<span class="text-xs font-bold text-orange-700 bg-orange-50 px-2 py-1 rounded-full">Fever</span>
+                    {% else %}<span class="text-xs font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full">⚠ High Fever</span>{% endif %}
+                  {% elif m == 'bmi' %}
+                    {% if v < 18.5 %}<span class="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded-full">Underweight</span>
+                    {% elif v < 25 %}<span class="text-xs font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full">Normal</span>
+                    {% elif v < 30 %}<span class="text-xs font-bold text-yellow-700 bg-yellow-50 px-2 py-1 rounded-full">Overweight</span>
+                    {% else %}<span class="text-xs font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full">Obese</span>{% endif %}
+                  {% elif m == 'hrv' %}
+                    {% if v >= 60 %}<span class="text-xs font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full">Good</span>
+                    {% elif v >= 40 %}<span class="text-xs font-bold text-yellow-700 bg-yellow-50 px-2 py-1 rounded-full">Average</span>
+                    {% else %}<span class="text-xs font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full">Low</span>{% endif %}
+                  {% else %}
+                    <span class="text-xs font-bold text-on-surface-variant bg-surface-container px-2 py-1 rounded-full">Latest</span>
+                  {% endif %}
+                </td>
+                <td class="px-6 py-4 text-right text-on-surface-variant text-sm">{{ reading['recorded_date'] }}</td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="4" class="px-6 py-12 text-center text-on-surface-variant text-sm">
+                  <span class="material-symbols-outlined text-4xl block mb-2 opacity-30">monitor_heart</span>
+                  No biometric readings yet for this patient.
+                </td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- BP Chart Script -->
+{% if bp_chart_values %}
+<script>
+  const ctx = document.getElementById('bpChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: {{ bp_chart_labels | tojson }},
+      datasets: [{
+        label: 'Systolic',
+        data: {{ bp_chart_values | tojson }},
+        borderColor: '#006398',
+        backgroundColor: 'rgba(0,99,152,0.08)',
+        borderWidth: 2.5,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 4,
+        pointBackgroundColor: '#006398',
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#44474e', font: { size: 10 } }, grid: { display: false } },
+        y: { ticks: { color: '#44474e', font: { size: 10 } }, grid: { color: 'rgba(0,0,0,0.04)' } }
+      }
+    }
+  });
+</script>
+{% endif %}
+
+<script>
+  fetch('/api/notifications/unread-count')
+    .then(r => r.json())
+    .then(data => {
+      if (data.count > 0) {
+        const badge = document.getElementById('notif-badge');
+        if (badge) badge.classList.remove('hidden');
+      }
+    });
+</script>
+
+</body>
+</html>

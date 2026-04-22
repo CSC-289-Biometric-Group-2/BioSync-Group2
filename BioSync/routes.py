@@ -13,10 +13,10 @@ from BioSync.caretaker.utils import generate_patient_code
 
 bp = Blueprint('main', __name__)
 
-ALLOWED_EXTENSIONS = {'pdf', 'docx', 'txt', 'csv'}
-LAB_EXTENSIONS = {'pdf', 'csv', 'txt'}
-IMAGING_EXTENSIONS = {'dcm', 'dicom', 'jpg', 'jpeg', 'png'}
-PRESCRIPTION_EXTENSIONS = {'docx'}
+ALLOWED_EXTENSIONS = {'pdf'}
+LAB_EXTENSIONS = {'pdf'}
+IMAGING_EXTENSIONS = {'dcm', 'dicom'}
+PRESCRIPTION_EXTENSIONS = {'pdf'}
 
 # Metric units lookup
 METRIC_UNITS = {
@@ -246,7 +246,7 @@ def doc_hub():
     if request.method == 'POST':
         files = request.files.getlist('documents')
         if not files or all(f.filename == '' for f in files):
-            flash('Please select at least one file.')
+            flash('Please select at least one PDF file.')
             return redirect(request.url)
 
         total_readings = 0

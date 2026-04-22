@@ -1,21 +1,189 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Link Patient — BioSync Caregiver</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "primary": "#041839", "primary-container": "#1c2d4f",
+          "on-primary": "#ffffff", "primary-fixed-dim": "#b6c6f1",
+          "secondary": "#006398", "secondary-container": "#6cbdfe",
+          "on-secondary": "#ffffff", "secondary-fixed": "#cde5ff",
+          "error": "#ba1a1a", "error-container": "#ffdad6",
+          "surface": "#f7f9fc", "surface-container-lowest": "#ffffff",
+          "surface-container-low": "#f2f4f7", "surface-container": "#eceef1",
+          "surface-container-high": "#e6e8eb",
+          "on-surface": "#191c1e", "on-surface-variant": "#44474e",
+          "outline": "#75777f", "outline-variant": "#c5c6cf",
+          "on-primary-container": "#8495bd",
+        },
+        "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+        "fontFamily": { "headline": ["Manrope"], "body": ["Inter"] }
+      }
+    }
+  }
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  .nav-active { color: #006398; background: white; border-left: 4px solid #006398; border-radius: 0.5rem; }
+  body { font-family: 'Inter', sans-serif; background-color: #f7f9fc; }
+  h1, h2, h3, h4 { font-family: 'Manrope', sans-serif; }
+</style>
+</head>
+<body class="bg-surface text-on-surface">
 
-{% block title %}Link Patient{% endblock %}
+<!-- ═══════════════════════════════════════
+     SIDEBAR
+═══════════════════════════════════════ -->
+<aside class="h-screen w-64 fixed left-0 top-0 flex flex-col bg-surface-container-low border-r border-outline-variant/10 text-sm z-50">
+  <div class="px-4 py-6">
+    <a href="{{ url_for('main.index') }}">
+      <img src="{{ url_for('static', filename='BioSync.png') }}" alt="BioSync" class="h-20 w-auto mb-3"/>
+    </a>
+    <p class="text-xs text-on-surface-variant leading-relaxed mt-2">Monitor your patients' health. View biometric readings, track trends, and receive alerts for critical health changes.</p>
+  </div>
+  <nav class="flex-1 px-4 space-y-1">
+    <a href="{{ url_for('caretaker.dashboard') }}" class="flex items-center gap-3 px-4 py-3 nav-active transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">group</span> My Patients
+    </a>
+    <a href="{{ url_for('caretaker.upload_document') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">upload_file</span> Upload Document
+    </a>
+    <a href="{{ url_for('caretaker.notifications') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">notifications</span> Notifications
+    </a>
+    <a href="{{ url_for('caretaker.profile') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">badge</span> My Profile
+    </a>
+  </nav>
+  <div class="px-4 py-6 border-t border-outline-variant/10">
+    <a href="{{ url_for('auth.logout') }}" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-primary transition-colors">
+      <span class="material-symbols-outlined">logout</span> Sign Out
+    </a>
+  </div>
+</aside>
 
-{% block header %}
-  <h1>Link a Patient</h1>
-{% endblock %}
+<!-- ═══════════════════════════════════════
+     TOP BAR
+═══════════════════════════════════════ -->
+<main class="ml-64 min-h-screen">
+  <header class="sticky top-0 z-40 flex justify-between items-center w-full px-8 h-16 bg-white/80 backdrop-blur-xl shadow-sm">
+    <div class="flex items-center gap-6 flex-1">
+      <h2 class="font-headline font-bold text-primary text-lg">Link Patient</h2>
+    </div>
+    <div class="flex items-center gap-4">
+      <a href="{{ url_for('caretaker.notifications') }}" class="p-2 rounded-full hover:bg-surface-container-low transition-colors text-on-surface-variant relative">
+        <span class="material-symbols-outlined">notifications</span>
+        <span id="notif-badge" class="hidden absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
+      </a>
+      <div class="h-8 w-px bg-outline-variant/30 mx-2"></div>
+      <div class="flex items-center gap-3">
+        <div class="text-right">
+          <div class="text-sm font-bold text-primary">{{ g.user['first_name'] if g.user['first_name'] else g.user['username'] }}</div>
+          <div class="text-xs text-on-surface-variant">Caregiver</div>
+        </div>
+        <div class="w-9 h-9 rounded-full bg-secondary flex items-center justify-center text-white font-bold text-sm">
+          {{ (g.user['first_name'] if g.user['first_name'] else g.user['username'])[0].upper() }}
+        </div>
+      </div>
+    </div>
+  </header>
 
-{% block content %}
-  <p>Ask your patient for their unique patient code and enter it below.</p>
+  <!-- ─────────────────────────────────────
+       CONTENT
+  ───────────────────────────────────────── -->
+  <div class="p-8 max-w-2xl mx-auto">
 
-  <form method="post">
-    <label for="patient_code">Patient Code</label>
-    <input name="patient_code" id="patient_code" 
-           placeholder="Enter patient code" required>
-    <input type="submit" value="Link Patient">
-  </form>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <div class="bg-red-50 text-red-700 rounded-xl px-4 py-3 text-sm font-medium mb-6">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
 
-  <hr>
-  <a href="{{ url_for('caretaker.dashboard') }}">← Back to Dashboard</a>
-{% endblock %}
+    <!-- Page Header -->
+    <div class="mb-8">
+      <p class="text-xs font-bold text-secondary uppercase tracking-widest mb-1">Patient Management</p>
+      <h1 class="font-headline text-3xl font-extrabold text-primary">Link a New Patient</h1>
+      <p class="text-on-surface-variant text-sm mt-2">Ask your patient for their unique patient code from their BioSync profile and enter it below.</p>
+    </div>
+
+    <!-- Link Form Card -->
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden mb-6">
+      <div class="px-8 py-5 border-b border-outline-variant/10 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center">
+          <span class="material-symbols-outlined text-secondary">person_add</span>
+        </div>
+        <div>
+          <p class="font-bold text-primary text-sm">Enter Patient Code</p>
+          <p class="text-xs text-on-surface-variant">The code is found on the patient's profile page</p>
+        </div>
+      </div>
+      <form method="POST" action="{{ url_for('caretaker.link_patient') }}" class="px-8 py-8 space-y-6">
+        <div>
+          <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-3">Patient Code</label>
+          <input type="text" name="patient_code" required
+            placeholder="e.g. BS-4829"
+            class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-lg font-bold text-primary tracking-widest focus:ring-2 focus:ring-secondary/20 focus:bg-surface-container-lowest transition-all"/>
+          <p class="text-xs text-on-surface-variant mt-2">Ask your patient to generate a code from their dashboard or profile page.</p>
+        </div>
+        <div class="flex items-center gap-4 pt-2">
+          <button type="submit"
+            class="px-8 py-3 bg-gradient-to-br from-primary to-primary-container text-white font-bold rounded-full shadow-md hover:shadow-lg transition-all flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">link</span> Link Patient
+          </button>
+          <a href="{{ url_for('caretaker.dashboard') }}"
+            class="px-6 py-3 border border-outline-variant text-on-surface-variant font-medium rounded-full hover:bg-surface-container transition-colors text-sm">
+            Cancel
+          </a>
+        </div>
+      </form>
+    </div>
+
+    <!-- How it works -->
+    <div class="bg-secondary/5 rounded-xl p-6 border border-secondary/10">
+      <h3 class="font-headline font-bold text-primary mb-4 flex items-center gap-2">
+        <span class="material-symbols-outlined text-secondary">info</span>
+        How it works
+      </h3>
+      <div class="space-y-3">
+        <div class="flex items-start gap-3">
+          <span class="w-6 h-6 rounded-full bg-secondary text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
+          <p class="text-sm text-on-surface-variant">Your patient logs into BioSync and goes to their Dashboard or Profile page.</p>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="w-6 h-6 rounded-full bg-secondary text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
+          <p class="text-sm text-on-surface-variant">They click "Generate Patient Code" and share the code with you.</p>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="w-6 h-6 rounded-full bg-secondary text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
+          <p class="text-sm text-on-surface-variant">You enter the code above and click Link Patient. You'll immediately see them in your Patient Hub.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  fetch('/api/notifications/unread-count')
+    .then(r => r.json())
+    .then(data => {
+      if (data.count > 0) {
+        const badge = document.getElementById('notif-badge');
+        if (badge) badge.classList.remove('hidden');
+      }
+    });
+</script>
+
+</body>
+</html>

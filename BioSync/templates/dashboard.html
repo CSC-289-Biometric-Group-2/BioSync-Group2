@@ -68,10 +68,9 @@
 <aside class="h-screen w-64 fixed left-0 top-0 flex flex-col bg-surface-container-low border-r border-outline-variant/10 font-body text-sm z-50">
   <div class="px-4 py-6">
     <a href="{{ url_for('main.index') }}">
-      <img src="{{ url_for('static', filename='BioSync.png') }}" alt="BioSync" class="h-20 w-auto mb-2">
+      <img src="{{ url_for('static', filename='BioSync.png') }}" alt="BioSync" class="h-20 w-auto mb-3">
     </a>
-    <p class="text-xs text-on-surface-variant font-medium mt-1">Clinical Workspace</p>
-    <p class="text-[10px] text-on-surface-variant/70 uppercase tracking-widest mt-0.5">{{ g.user['username'] }}</p>
+    <p class="text-xs text-on-surface-variant leading-relaxed mt-2">Your health at a glance. View your latest biometric readings, recent documents, and quick stats all in one place.</p>
   </div>
   <nav class="flex-1 px-4 space-y-1">
     <!-- Overview — ACTIVE -->
@@ -120,30 +119,30 @@
      - Settings
      - User avatar + name
 ═══════════════════════════════════════ -->
-<header class="sticky top-0 z-40 w-full glass-effect ml-64 flex items-center justify-between px-8 py-4" style="width: calc(100% - 16rem);">
-  <div class="flex items-center gap-8 flex-1">
-    <h1 class="text-2xl font-bold text-primary font-headline">Overview</h1>
-    <div class="relative max-w-md w-full">
+<header class="sticky top-0 z-40 flex justify-between items-center w-full px-8 h-16 bg-white/80 backdrop-blur-xl shadow-sm ml-64" style="width: calc(100% - 16rem);">
+  <div class="flex items-center gap-6 flex-1">
+    <h2 class="font-headline font-bold text-primary text-lg">Overview</h2>
+    <div class="relative w-full max-w-md">
       <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
-      <input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-full text-sm focus:ring-2 focus:ring-secondary/20 transition-all" placeholder="Search medical records..." type="text"/>
+      <input class="w-full bg-surface-container-low border-none rounded-full pl-10 pr-4 py-1.5 text-sm focus:ring-1 focus:ring-primary/20 transition-all" placeholder="Search medical records..." type="text"/>
     </div>
   </div>
-  <div class="flex items-center gap-6">
-    <!-- Notifications Bell — links to /notifications -->
-    <a href="{{ url_for('main.notifications') }}" class="relative text-on-surface-variant hover:text-primary transition-colors p-2 rounded-full hover:bg-surface-container">
+  <div class="flex items-center gap-4">
+    <a href="{{ url_for('main.notifications') }}" class="p-2 rounded-full hover:bg-surface-container-low transition-colors text-on-surface-variant relative">
       <span class="material-symbols-outlined">notifications</span>
-      <span id="notif-badge" class="hidden absolute top-0 right-0 w-2 h-2 bg-error rounded-full border-2 border-white"></span>
+      <span id="notif-badge" class="hidden absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
     </a>
-    <button class="text-on-surface-variant hover:text-primary transition-colors">
+    <button class="p-2 rounded-full hover:bg-surface-container-low transition-colors text-on-surface-variant">
       <span class="material-symbols-outlined">settings</span>
     </button>
-    <div class="flex items-center gap-3 pl-4 border-l border-outline-variant/20">
+    <div class="h-8 w-px bg-outline-variant/30 mx-2"></div>
+    <div class="flex items-center gap-3">
       <div class="text-right">
-        <div class="text-sm font-bold text-primary">{{ g.user['username'] }}</div>
-        <div class="text-xs text-on-surface-variant">Patient #BS-{{ g.user['id'] }}0{{ g.user['id'] }}</div>
+        <div class="text-sm font-bold text-primary">{{ g.user['first_name'] if g.user['first_name'] else g.user['username'] }}</div>
+        <div class="text-xs text-on-surface-variant">Patient</div>
       </div>
-      <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-white font-bold text-sm">
-        {{ g.user['username'][0].upper() }}
+      <div class="w-9 h-9 rounded-full bg-primary-container flex items-center justify-center text-white font-bold text-sm">
+        {{ (g.user['first_name'] if g.user['first_name'] else g.user['username'])[0].upper() }}
       </div>
     </div>
   </div>
@@ -531,7 +530,7 @@
   <!-- ───────────────────────────────────
        RECENT BIOMETRICS TABLE
        Shows latest reading per metric
-       Columns: Metric, Value, Unit, Date
+       Columns: Metric, Value, Status, Date
   ─────────────────────────────────────── -->
   <section class="bg-surface-container-lowest rounded-lg shadow-sm overflow-hidden mb-12">
     <div class="p-8 flex items-center justify-between bg-white border-b border-surface-container-low">
@@ -546,22 +545,134 @@
           <tr class="text-on-surface-variant text-xs font-bold uppercase tracking-widest bg-surface-container-low/50">
             <th class="px-8 py-4">Metric</th>
             <th class="px-8 py-4 text-center">Value</th>
-            <th class="px-8 py-4 text-center">Unit</th>
+            <th class="px-8 py-4 text-center">Status</th>
             <th class="px-8 py-4 text-right">Date</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-surface-container-low">
           {% if latest %}
             {% for reading in latest %}
+            {% set m = reading['metric_name'] %}
+            {% set v = reading['value'] | float %}
             <tr class="hover:bg-surface-container-low/30 transition-colors">
               <td class="px-8 py-5 font-bold text-primary">
                 <div class="flex items-center gap-3">
                   <span class="w-2 h-2 rounded-full bg-secondary flex-shrink-0"></span>
-                  {{ reading['metric_name'].replace('_', ' ').title() }}
+                  {% if m == 'blood_pressure_sys' %}Blood Pressure Sys
+                  {% elif m == 'blood_pressure_dia' %}Blood Pressure Dia
+                  {% else %}{{ m.replace('_', ' ').title() }}{% endif %}
                 </div>
               </td>
               <td class="px-8 py-5 text-center font-bold">{{ reading['value'] }}</td>
-              <td class="px-8 py-5 text-center text-on-surface-variant">{{ reading['unit'] if reading['unit'] else '—' }}</td>
+
+              <!-- STATUS COLUMN — clinical badge per metric -->
+              <td class="px-8 py-5 text-center">
+                {% if m == 'heart_rate' %}
+                  {% if v < 40 %}
+                    <span class="text-xs font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full">⚠ Very Low</span>
+                  {% elif v < 60 %}
+                    <span class="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded-full">Athletic</span>
+                  {% elif v <= 100 %}
+                    <span class="text-xs font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full">Normal</span>
+                  {% elif v <= 150 %}
+                    <span class="text-xs font-bold text-yellow-700 bg-yellow-50 px-2 py-1 rounded-full">⚠ Tachycardia</span>
+                  {% else %}
+                    <span class="text-xs font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full">⚠ High</span>
+                  {% endif %}
+
+                {% elif m == 'blood_pressure_sys' %}
+                  {% if v > 180 %}
+                    <span class="text-xs font-bold text-white bg-error px-2 py-1 rounded-full">⚠ Crisis</span>
+                  {% elif v >= 140 %}
+                    <span class="text-xs font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full">Stage 2</span>
+                  {% elif v >= 130 %}
+                    <span class="text-xs font-bold text-orange-700 bg-orange-50 px-2 py-1 rounded-full">Stage 1</span>
+                  {% elif v >= 120 %}
+                    <span class="text-xs font-bold text-yellow-700 bg-yellow-50 px-2 py-1 rounded-full">Elevated</span>
+                  {% else %}
+                    <span class="text-xs font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full">Normal</span>
+                  {% endif %}
+
+                {% elif m == 'blood_pressure_dia' %}
+                  {% if v > 120 %}
+                    <span class="text-xs font-bold text-white bg-error px-2 py-1 rounded-full">⚠ Crisis</span>
+                  {% elif v >= 90 %}
+                    <span class="text-xs font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full">Stage 2</span>
+                  {% elif v >= 80 %}
+                    <span class="text-xs font-bold text-orange-700 bg-orange-50 px-2 py-1 rounded-full">Stage 1</span>
+                  {% else %}
+                    <span class="text-xs font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full">Normal</span>
+                  {% endif %}
+
+                {% elif m == 'spo2' %}
+                  {% if v >= 95 %}
+                    <span class="text-xs font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full">Normal</span>
+                  {% elif v >= 91 %}
+                    <span class="text-xs font-bold text-yellow-700 bg-yellow-50 px-2 py-1 rounded-full">Concerning</span>
+                  {% elif v >= 90 %}
+                    <span class="text-xs font-bold text-orange-700 bg-orange-50 px-2 py-1 rounded-full">Low</span>
+                  {% elif v >= 80 %}
+                    <span class="text-xs font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full">⚠ Seek Care</span>
+                  {% else %}
+                    <span class="text-xs font-bold text-white bg-error px-2 py-1 rounded-full">⚠ Cyanosis</span>
+                  {% endif %}
+
+                {% elif m == 'glucose' %}
+                  {% if v < 50 %}
+                    <span class="text-xs font-bold text-white bg-error px-2 py-1 rounded-full">⚠ Danger Low</span>
+                  {% elif v < 70 %}
+                    <span class="text-xs font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full">Low</span>
+                  {% elif v <= 108 %}
+                    <span class="text-xs font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full">Normal</span>
+                  {% elif v <= 180 %}
+                    <span class="text-xs font-bold text-yellow-700 bg-yellow-50 px-2 py-1 rounded-full">Borderline</span>
+                  {% elif v <= 315 %}
+                    <span class="text-xs font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full">⚠ High</span>
+                  {% else %}
+                    <span class="text-xs font-bold text-white bg-error px-2 py-1 rounded-full">⚠ Danger High</span>
+                  {% endif %}
+
+                {% elif m == 'temperature' %}
+                  {% if v < 95 %}
+                    <span class="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded-full">⚠ Hypothermia</span>
+                  {% elif v <= 99.1 %}
+                    <span class="text-xs font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full">Normal</span>
+                  {% elif v <= 100.4 %}
+                    <span class="text-xs font-bold text-yellow-700 bg-yellow-50 px-2 py-1 rounded-full">Slight Fever</span>
+                  {% elif v <= 102.2 %}
+                    <span class="text-xs font-bold text-orange-700 bg-orange-50 px-2 py-1 rounded-full">Fever</span>
+                  {% else %}
+                    <span class="text-xs font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full">⚠ High Fever</span>
+                  {% endif %}
+
+                {% elif m == 'bmi' %}
+                  {% if v < 18.5 %}
+                    <span class="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded-full">Underweight</span>
+                  {% elif v < 25 %}
+                    <span class="text-xs font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full">Normal</span>
+                  {% elif v < 30 %}
+                    <span class="text-xs font-bold text-yellow-700 bg-yellow-50 px-2 py-1 rounded-full">Overweight</span>
+                  {% else %}
+                    <span class="text-xs font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full">Obese</span>
+                  {% endif %}
+
+                {% elif m == 'hrv' %}
+                  {% if v >= 60 %}
+                    <span class="text-xs font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full">Good</span>
+                  {% elif v >= 40 %}
+                    <span class="text-xs font-bold text-yellow-700 bg-yellow-50 px-2 py-1 rounded-full">Average</span>
+                  {% else %}
+                    <span class="text-xs font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full">Low</span>
+                  {% endif %}
+
+                {% elif m == 'weight' %}
+                  <span class="text-xs font-bold text-on-surface-variant bg-surface-container px-2 py-1 rounded-full">Latest</span>
+
+                {% else %}
+                  <span class="text-xs font-bold text-on-surface-variant bg-surface-container px-2 py-1 rounded-full">—</span>
+                {% endif %}
+              </td>
+
               <td class="px-8 py-5 text-right text-on-surface-variant">{{ reading['recorded_date'] }}</td>
             </tr>
             {% endfor %}
