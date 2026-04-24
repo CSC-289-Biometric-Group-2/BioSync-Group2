@@ -193,11 +193,12 @@
   <section class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
 
     <!-- HEART RATE CARD
-         < 40 BPM    → ⚠ Very Low (red)
-         40–59 BPM   → Athletic (blue)
-         60–100 BPM  → Normal (green)
-         101–150 BPM → Tachycardia (yellow)
-         > 150 BPM   → ⚠ High (red)
+         < 40 BPM             → ⚠ Very Low (red)
+         > 150 BPM            → ⚠ High Emergency (red)
+         101–150 BPM          → ⚠ Tachycardia (yellow)
+         Above age-range max  → High Heart Rate (orange)
+         Below age-range min  → Low Heart Rate (blue)
+         Within age range     → Normal (green)
     -->
     <div class="bg-surface-container-lowest p-6 rounded-lg shadow-sm border-l-2 border-secondary">
       <div class="flex items-center justify-between mb-4">
@@ -205,14 +206,16 @@
         {% if heart_rate %}
           {% if heart_rate < 40 %}
             <span class="text-xs font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full">⚠ Very Low</span>
-          {% elif heart_rate < 60 %}
-            <span class="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded-full">Athletic</span>
-          {% elif heart_rate <= 100 %}
-            <span class="text-xs font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full">Normal</span>
-          {% elif heart_rate <= 150 %}
-            <span class="text-xs font-bold text-yellow-700 bg-yellow-50 px-2 py-1 rounded-full">⚠ Tachycardia</span>
-          {% else %}
+          {% elif heart_rate > 150 %}
             <span class="text-xs font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full">⚠ High</span>
+          {% elif heart_rate > 100 %}
+            <span class="text-xs font-bold text-yellow-700 bg-yellow-50 px-2 py-1 rounded-full">⚠ Tachycardia</span>
+          {% elif hr_max and heart_rate > hr_max %}
+            <span class="text-xs font-bold text-orange-700 bg-orange-50 px-2 py-1 rounded-full">High Heart Rate</span>
+          {% elif hr_min and heart_rate < hr_min %}
+            <span class="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded-full">Low Heart Rate</span>
+          {% else %}
+            <span class="text-xs font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full">Normal</span>
           {% endif %}
         {% else %}
           <span class="text-xs font-bold text-on-secondary-container bg-secondary-fixed px-2 py-1 rounded-full">No Data</span>
@@ -224,6 +227,8 @@
           {% if heart_rate and heart_rate < 40 %}text-red-600
           {% elif heart_rate and heart_rate > 150 %}text-red-600
           {% elif heart_rate and heart_rate > 100 %}text-yellow-600
+          {% elif heart_rate and hr_max and heart_rate > hr_max %}text-orange-600
+          {% elif heart_rate and hr_min and heart_rate < hr_min %}text-blue-600
           {% else %}text-primary{% endif %}">
           {% if heart_rate %}{{ heart_rate }}{% else %}—{% endif %}
         </span>
@@ -236,6 +241,10 @@
           <p class="text-[10px] text-red-600 font-bold mt-2">Seek medical attention immediately</p>
         {% elif heart_rate > 100 %}
           <p class="text-[10px] text-yellow-600 font-bold mt-2">Consult your doctor</p>
+        {% elif hr_max and heart_rate > hr_max %}
+          <p class="text-[10px] text-orange-600 font-bold mt-2">Above normal for your age &amp; sex ({{ hr_min }}–{{ hr_max }} BPM)</p>
+        {% elif hr_min and heart_rate < hr_min %}
+          <p class="text-[10px] text-blue-600 font-bold mt-2">Below normal for your age &amp; sex ({{ hr_min }}–{{ hr_max }} BPM)</p>
         {% endif %}
       {% endif %}
     </div>
