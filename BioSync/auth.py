@@ -75,6 +75,7 @@ def check_and_notify(db, user_id, metric_name, value):
             age = calculate_age(user_row['dob']) if user_row else None
             sex = user_row['sex'] if user_row else None
             hr_min, hr_max = get_hr_range(age, sex)
+
             if hr_min is not None and value > hr_max:
                 notif = ('warning', f'High Heart Rate: {int(value)} BPM exceeds normal range ({hr_min}–{hr_max} BPM) for your age and sex')
             elif hr_min is not None and value < hr_min:
