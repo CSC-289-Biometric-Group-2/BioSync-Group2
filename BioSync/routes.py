@@ -5,7 +5,7 @@ from flask import (
     request, jsonify, url_for, current_app
 )
 from werkzeug.utils import secure_filename
-from BioSync.auth import login_required, check_and_notify, create_notification
+from BioSync.auth import login_required, check_and_notify, create_notification, calculate_age, get_hr_range
 from BioSync.db import get_db
 from BioSync.doc_processor import process_document
 from BioSync.pattern_engine import get_trends, get_all_metrics, compare_baseline
@@ -131,10 +131,15 @@ def dashboard():
 
     member_since = get_member_since(db, g.user['id'])
 
+    age = calculate_age(g.user['dob']) if g.user['dob'] else None
+    hr_min, hr_max = get_hr_range(age, g.user['sex'])
+
     return render_template('dashboard.html',
                            documents=documents,
                            latest=latest,
                            heart_rate=heart_rate,
+                           hr_min=hr_min,
+                           hr_max=hr_max,
                            bp_sys=bp_sys,
                            bp_dia=bp_dia,
                            spo2=spo2,
@@ -796,7 +801,6 @@ def export_all_readings():
     import csv
     import io
     from flask import Response
-    from datetime import datetime, timedelta
 
     db = get_db()
     cutoff = datetime.now() - timedelta(days=30)
@@ -814,7 +818,6 @@ def export_all_readings():
     writer.writerow(['Date', 'Metric', 'Value', 'Unit', 'Source'])
 
     for row in rows:
-        # Format BP metric names nicely
         metric = row['metric_name']
         if metric == 'blood_pressure_sys':
             metric = 'Blood Pressure Systolic'
@@ -822,98 +825,18 @@ def export_all_readings():
             metric = 'Blood Pressure Diastolic'
         else:
             metric = metric.replace('_', ' ').title()
-
-        writer.writerow([
-            row['recorded_date'],
-            metric,
-            row['value'],
-            row['unit'] or '',
-            row['source'] or 'manual'
-        ])
+        writer.writerow([row['recorded_date'], metric, row['value'],
+                         row['unit'] or '', row['source'] or 'manual'])
 
     month_str = datetime.now().strftime('%B_%Y')
     filename = f"biosync_all_readings_{month_str}.csv"
     output.seek(0)
-
-    return Response(
-        output.getvalue(),
-        mimetype='text/csv',
-        headers={
-            'Content-Disposition': f'attachment; filename={filename}',
-            'Content-Type': 'text/csv'
-        }
-    )
+    return Response(output.getvalue(), mimetype='text/csv',
+        headers={'Content-Disposition': f'attachment; filename={filename}',
+                 'Content-Type': 'text/csv'})
 
 
-
-    import csv
-    import io
-    from flask import Response
-
-    metric = request.args.get('metric', 'heart_rate')
-
-    db = get_db()
-
-    # Handle blood pressure — export both sys and dia together
-    if metric == 'blood_pressure':
-        sys_rows = db.execute(
-            '''SELECT recorded_date, value, unit, source FROM biometric_reading
-               WHERE user_id = ? AND metric_name = 'blood_pressure_sys'
-               ORDER BY recorded_date DESC''',
-            (g.user['id'],)
-        ).fetchall()
-        dia_rows = db.execute(
-            '''SELECT recorded_date, value, unit, source FROM biometric_reading
-               WHERE user_id = ? AND metric_name = 'blood_pressure_dia'
-               ORDER BY recorded_date DESC''',
-            (g.user['id'],)
-        ).fetchall()
-
-        output = io.StringIO()
-        writer = csv.writer(output)
-        writer.writerow(['Date', 'Metric', 'Systolic (mmHg)', 'Diastolic (mmHg)', 'Source'])
-        for i, sys_row in enumerate(sys_rows):
-            dia_val = dia_rows[i]['value'] if i < len(dia_rows) else '—'
-            writer.writerow([
-                sys_row['recorded_date'],
-                'Blood Pressure',
-                sys_row['value'],
-                dia_val,
-                sys_row['source'] or 'manual'
-            ])
-    else:
-        rows = db.execute(
-            '''SELECT recorded_date, metric_name, value, unit, source
-               FROM biometric_reading
-               WHERE user_id = ? AND metric_name = ?
-               ORDER BY recorded_date DESC''',
-            (g.user['id'], metric)
-        ).fetchall()
-
-        output = io.StringIO()
-        writer = csv.writer(output)
-        writer.writerow(['Date', 'Metric', 'Value', 'Unit', 'Source'])
-        for row in rows:
-            writer.writerow([
-                row['recorded_date'],
-                row['metric_name'].replace('_', ' ').title(),
-                row['value'],
-                row['unit'] or '',
-                row['source'] or 'manual'
-            ])
-
-    filename = f"biosync_{metric}_readings.csv"
-    output.seek(0)
-
-    return Response(
-        output.getvalue(),
-        mimetype='text/csv',
-        headers={
-            'Content-Disposition': f'attachment; filename={filename}',
-            'Content-Type': 'text/csv'
-        }
-    )
-
-
-
+@bp.route('/api/trends/<metric_name>')
+@login_required
+def api_trends(metric_name):
     return jsonify(get_trends(g.user['id'], metric_name))

@@ -27,6 +27,28 @@ def calculate_age(dob_str):
         return None
 
 
+def get_hr_range(age, sex):
+    """Return (hr_min, hr_max) resting BPM range for a given age and sex."""
+    if age is None or not sex:
+        return None, None
+    sex = sex.lower()
+    if sex == 'male':
+        if age >= 65:   return 62, 73
+        elif age >= 56: return 61, 74
+        elif age >= 46: return 63, 76
+        elif age >= 36: return 63, 75
+        elif age >= 26: return 62, 74
+        elif age >= 18: return 62, 73
+    elif sex == 'female':
+        if age >= 65:   return 63, 76
+        elif age >= 56: return 64, 77
+        elif age >= 46: return 65, 77
+        elif age >= 36: return 65, 77
+        elif age >= 26: return 64, 76
+        elif age >= 18: return 63, 76
+    return None, None
+
+
 def create_notification(db, user_id, metric, value, status, message):
     """Insert a notification for the user."""
     db.execute(
@@ -48,6 +70,15 @@ def check_and_notify(db, user_id, metric_name, value):
             notif = ('danger', '⚠ High Heart Rate (>150 BPM) — Seek medical attention. Emergency care if accompanied by chest pain, dizziness, or fainting.')
         elif value > 100:
             notif = ('caution', '⚠ Tachycardia detected (>100 BPM) — Consult your doctor')
+        else:
+            user_row = db.execute('SELECT dob, sex FROM user WHERE id = ?', (user_id,)).fetchone()
+            age = calculate_age(user_row['dob']) if user_row else None
+            sex = user_row['sex'] if user_row else None
+            hr_min, hr_max = get_hr_range(age, sex)
+            if hr_min is not None and value > hr_max:
+                notif = ('warning', f'High Heart Rate: {int(value)} BPM exceeds normal range ({hr_min}–{hr_max} BPM) for your age and sex')
+            elif hr_min is not None and value < hr_min:
+                notif = ('warning', f'Low Heart Rate: {int(value)} BPM is below normal range ({hr_min}–{hr_max} BPM) for your age and sex')
 
     elif metric_name == 'blood_pressure_sys':
         dia_row = db.execute(
@@ -189,10 +220,15 @@ def register():
 @bp.route('/caregiver/register', methods=('GET', 'POST'))
 def register_caregiver():
     if request.method == 'POST':
-        username      = request.form.get('username', '').strip()
-        password      = request.form.get('password', '').strip()
+        username       = request.form.get('username', '').strip()
+        password       = request.form.get('password', '').strip()
         caregiver_type = request.form.get('caregiver_type', '')
-        duration      = request.form.get('duration', '')
+        duration       = request.form.get('duration', '')
+        end_date       = request.form.get('end_date', '')
+        first_name     = request.form.get('first_name', '')
+        last_name      = request.form.get('last_name', '')
+        email          = request.form.get('email', '')
+        clinical_id    = request.form.get('clinical_id', '')
         db = get_db()
         error = None
 
@@ -206,8 +242,16 @@ def register_caregiver():
         if error is None:
             try:
                 db.execute(
-                    "INSERT INTO user (username, password, account_type) VALUES (?, ?, ?)",
-                    (username, generate_password_hash(password), 'caregiver'),
+                    '''INSERT INTO user (
+                        username, password, account_type,
+                        first_name, last_name, email, clinical_id,
+                        caregiver_type, duration, end_date
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+                    (
+                        username, generate_password_hash(password), 'caregiver',
+                        first_name, last_name, email, clinical_id,
+                        caregiver_type, duration, end_date
+                    ),
                 )
                 db.commit()
             except db.IntegrityError:
