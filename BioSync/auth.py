@@ -221,10 +221,15 @@ def register():
 @bp.route('/caregiver/register', methods=('GET', 'POST'))
 def register_caregiver():
     if request.method == 'POST':
-        username      = request.form.get('username', '').strip()
-        password      = request.form.get('password', '').strip()
+        username       = request.form.get('username', '').strip()
+        password       = request.form.get('password', '').strip()
         caregiver_type = request.form.get('caregiver_type', '')
-        duration      = request.form.get('duration', '')
+        duration       = request.form.get('duration', '')
+        end_date       = request.form.get('end_date', '')
+        first_name     = request.form.get('first_name', '')
+        last_name      = request.form.get('last_name', '')
+        email          = request.form.get('email', '')
+        clinical_id    = request.form.get('clinical_id', '')
         db = get_db()
         error = None
 
@@ -238,8 +243,16 @@ def register_caregiver():
         if error is None:
             try:
                 db.execute(
-                    "INSERT INTO user (username, password, account_type) VALUES (?, ?, ?)",
-                    (username, generate_password_hash(password), 'caregiver'),
+                    '''INSERT INTO user (
+                        username, password, account_type,
+                        first_name, last_name, email, clinical_id,
+                        caregiver_type, duration, end_date
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+                    (
+                        username, generate_password_hash(password), 'caregiver',
+                        first_name, last_name, email, clinical_id,
+                        caregiver_type, duration, end_date
+                    ),
                 )
                 db.commit()
             except db.IntegrityError:
