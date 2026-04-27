@@ -269,9 +269,10 @@
     <section class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm">
       <div class="px-8 py-6 border-b border-outline-variant/10 flex justify-between items-center">
         <h4 class="font-headline font-bold text-primary">Recent Readings History</h4>
-        <button class="text-secondary text-sm font-bold flex items-center gap-1 hover:underline">
+        <a href="{{ url_for('main.export_readings', metric=selected_metric) }}"
+          class="text-secondary text-sm font-bold flex items-center gap-1 hover:underline">
           Download CSV <span class="material-symbols-outlined text-sm">download</span>
-        </button>
+        </a>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
