@@ -68,10 +68,9 @@
 <aside class="h-screen w-64 fixed left-0 top-0 flex flex-col bg-surface-container-low border-r border-outline-variant/10 font-body text-sm z-50">
   <div class="px-4 py-6">
     <a href="{{ url_for('main.index') }}">
-      <img src="{{ url_for('static', filename='BioSync.png') }}" alt="BioSync" class="h-20 w-auto mb-2">
+      <img src="{{ url_for('static', filename='BioSync.png') }}" alt="BioSync" class="h-20 w-auto mb-3">
     </a>
-    <p class="text-xs text-on-surface-variant font-medium mt-1">Clinical Workspace</p>
-    <p class="text-[10px] text-on-surface-variant/70 uppercase tracking-widest mt-0.5">{{ g.user['username'] }}</p>
+    <p class="text-xs text-on-surface-variant leading-relaxed mt-2">Your health at a glance. View your latest biometric readings, recent documents, and quick stats all in one place.</p>
   </div>
   <nav class="flex-1 px-4 space-y-1">
     <!-- Overview — ACTIVE -->

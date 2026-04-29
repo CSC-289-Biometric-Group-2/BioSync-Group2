@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>BioSync — Next-Gen Health Orchestration</title>
+<title>BioSync — Your Health, All in One Place</title>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -126,11 +126,11 @@
                     CLINICAL PRECISION. HUMAN VITALITY.
                 </div>
                 <h1 class="text-5xl md:text-7xl font-headline font-extrabold text-primary leading-[1.1] tracking-tight">
-                    Next-Gen Health <br/>
-                    <span class="text-secondary">Orchestration.</span>
+                    Your Health.<br/>
+                    <span class="text-secondary">All in One Place.</span>
                 </h1>
                 <p class="text-xl text-on-surface-variant leading-relaxed font-medium">
-                    BioSync centralizes your clinical data, biometric streams, and care networks into a single, high-fidelity clinical workspace.
+                    BioSync brings your biometric readings, medical documents, and care team together in one secure clinical workspace — helping you and your caregivers stay informed and proactive.
                 </p>
                 <div class="flex flex-wrap gap-4">
                     <a href="{{ url_for('auth.register') }}" class="px-8 py-4 bg-gradient-to-br from-primary to-primary-container text-white rounded-full font-bold text-lg shadow-lg shadow-primary/20 active:scale-95 transition-all">
@@ -151,7 +151,7 @@
                         <img alt="nurse" class="w-10 h-10 rounded-full border-2 border-surface" src="{{ url_for('static', filename='avatar.png') }}"/>
                         <img alt="specialist" class="w-10 h-10 rounded-full border-2 border-surface" src="{{ url_for('static', filename='avatar.png') }}"/>
                     </div>
-                    <p class="text-sm text-on-surface-variant font-medium">Trusted by <span class="text-primary font-bold">2,500+</span> healthcare practitioners worldwide.</p>
+                    <p class="text-sm text-on-surface-variant font-medium">Built for patients, caregivers, and <span class="text-primary font-bold">clinical teams</span> who want better health visibility.</p>
                 </div>
             </div>
  
@@ -215,7 +215,7 @@
                             <div class="w-2 h-8 bg-secondary rounded-full"></div>
                             <h3 class="text-2xl font-headline font-bold text-primary">Biometric Tracking</h3>
                         </div>
-                        <p class="text-on-surface-variant max-w-md text-lg">Real-time integration with medical-grade wearables and devices. Monitor vital signs with sub-second latency and clinical-grade accuracy.</p>
+                        <p class="text-on-surface-variant max-w-md text-lg">Log readings manually or upload clinical PDFs — BioSync automatically extracts your biometrics and tracks Heart Rate, Blood Pressure, SpO2, Glucose, Temperature, HRV, BMI, and Weight over time.</p>
                     </div>
                     <div class="mt-8 relative z-10 flex gap-4">
                         <div class="px-4 py-2 bg-surface-container-low rounded-lg border border-outline-variant/10 text-sm font-semibold text-primary flex items-center gap-2">
@@ -235,7 +235,7 @@
                     <div class="space-y-4">
                         <span class="material-symbols-outlined text-4xl text-secondary-container" style="font-variation-settings: 'FILL' 1;">description</span>
                         <h3 class="text-2xl font-headline font-bold">Encrypted Vault</h3>
-                        <p class="text-primary-fixed-dim">Store medical history, prescriptions, and imaging with military-grade AES-256 encryption.</p>
+                        <p class="text-primary-fixed-dim">Upload and store your medical PDFs securely. BioSync automatically extracts biometric data from your clinical documents and links them to your health history.</p>
                     </div>
                     <a href="{{ url_for('main.doc_hub') }}" class="w-full py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-bold transition-all flex items-center justify-center gap-2">
                         Secure Access <span class="material-symbols-outlined text-sm">arrow_forward</span>
@@ -258,7 +258,7 @@
                 <div class="md:col-span-8 bg-surface-container-lowest p-8 rounded-2xl border-l-4 border-secondary flex items-center gap-12 group">
                     <div class="flex-1 space-y-4">
                         <h3 class="text-2xl font-headline font-bold text-primary">Predictive Trends</h3>
-                        <p class="text-on-surface-variant">AI-powered analytics that identify health patterns before they become issues. Experience proactive rather than reactive care.</p>
+                        <p class="text-on-surface-variant">Clinical threshold analysis that flags readings outside safe ranges the moment they are logged. View trends over time and catch changes before they become emergencies.</p>
                     </div>
                     <div class="hidden lg:block w-48 h-32 bg-surface-container-low rounded-xl relative overflow-hidden">
                         <div class="absolute bottom-0 left-0 w-full h-full p-4 flex items-end gap-1">
@@ -281,8 +281,8 @@
         <div class="container mx-auto max-w-5xl bg-primary rounded-[3rem] p-12 md:p-20 relative overflow-hidden">
             <div class="absolute top-0 right-0 w-full h-full bg-gradient-to-br from-primary to-primary-container opacity-50"></div>
             <div class="relative z-10 text-center space-y-8">
-                <h2 class="text-4xl md:text-6xl font-headline font-extrabold text-white leading-tight">Ready to synchronize <br/> your healthcare?</h2>
-                <p class="text-primary-fixed-dim text-xl max-w-2xl mx-auto">Join thousands of clinical practitioners and health-conscious individuals redefining what's possible in modern medicine.</p>
+                <h2 class="text-4xl md:text-6xl font-headline font-extrabold text-white leading-tight">Ready to take control <br/> of your health?</h2>
+                <p class="text-primary-fixed-dim text-xl max-w-2xl mx-auto">Create your free account and start tracking your biometrics, uploading your medical records, and connecting with your care team today.</p>
                 <div class="flex flex-col md:flex-row items-center justify-center gap-6 pt-6">
                     <a href="{{ url_for('auth.register') }}" class="px-10 py-5 bg-secondary text-white rounded-full font-bold text-xl hover:bg-secondary-container transition-all active:scale-95">
                         Get Started Now
@@ -301,7 +301,7 @@
     <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
         <div class="flex flex-col items-center md:items-start gap-4">
             <span class="text-2xl font-bold text-primary">BioSync</span>
-            <p class="text-on-surface-variant text-sm font-medium">© 2024 BioSync Systems. All rights reserved.</p>
+            <p class="text-on-surface-variant text-sm font-medium">© 2026 BioSync Systems. All rights reserved.</p>
         </div>
         <div class="flex gap-8 text-on-surface-variant font-semibold text-sm">
             <a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
