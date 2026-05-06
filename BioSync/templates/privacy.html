@@ -38,63 +38,31 @@
 </head>
 <body class="text-on-surface">
 
-<!-- Sidebar -->
-<aside class="h-screen w-64 fixed left-0 top-0 flex flex-col bg-surface-container-low border-r border-outline-variant/10 font-body text-sm z-50">
-  <div class="px-4 py-6">
-    <a href="{{ url_for('main.index') }}">
-      <img src="{{ url_for('static', filename='BioSync.png') }}" alt="BioSync" class="h-20 w-auto mb-3"/>
+<!-- Floating Nav -->
+<nav class="fixed top-0 w-full z-[60] bg-white/80 backdrop-blur-md shadow-sm shadow-blue-900/5 flex justify-between items-center px-6 py-3 font-headline tracking-tight">
+  <div class="flex items-center gap-8">
+    <a href="{{ url_for('main.index') }}" class="flex items-center gap-2">
+      <img src="{{ url_for('static', filename='BioSync.png') }}" alt="BioSync" class="h-20 w-auto"/>
     </a>
-    <p class="text-xs text-on-surface-variant leading-relaxed mt-2">BioSync is committed to protecting your health data with full transparency about what we collect and how it's used.</p>
+    <div class="hidden md:flex gap-6 items-center">
+      <a class="text-on-surface-variant hover:text-primary transition-colors" href="{{ url_for('main.index') }}">Home</a>
+      <a class="text-on-surface-variant hover:text-primary transition-colors" href="{{ url_for('main.dashboard') }}">Dashboard</a>
+      <a class="text-on-surface-variant hover:text-primary transition-colors" href="{{ url_for('main.help_page') }}">Resources</a>
+    </div>
   </div>
-  <nav class="flex-1 px-4 space-y-1">
-    <a href="{{ url_for('main.dashboard') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
-      <span class="material-symbols-outlined">dashboard</span> Overview
-    </a>
-    <a href="{{ url_for('main.doc_hub') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
-      <span class="material-symbols-outlined">description</span> Documents
-    </a>
-    <a href="{{ url_for('main.trends_overview') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
-      <span class="material-symbols-outlined">trending_up</span> Trends
-    </a>
-    <a href="{{ url_for('main.individual_profile') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
-      <span class="material-symbols-outlined">person</span> My Profile
-    </a>
-  </nav>
-  <div class="px-6 mb-8">
-    <a href="{{ url_for('main.doc_hub') }}" class="w-full py-3 bg-gradient-to-br from-primary to-primary-container text-white rounded-full font-semibold shadow-md flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
-      <span class="material-symbols-outlined text-sm">upload_file</span> Upload Document
-    </a>
+  <div class="flex items-center gap-4">
+    {% if g.user %}
+      <a href="{{ url_for('main.individual_profile') }}" class="text-on-surface-variant hover:text-primary font-semibold transition-colors">My Profile</a>
+      <a href="{{ url_for('auth.logout') }}" class="hidden md:block px-6 py-2 bg-gradient-to-br from-primary to-primary-container text-white rounded-full font-semibold active:scale-95 duration-150">Log Out</a>
+    {% else %}
+      <a href="{{ url_for('auth.login') }}" class="text-on-surface-variant hover:text-primary font-semibold transition-colors">Log In</a>
+      <a href="{{ url_for('auth.register') }}" class="hidden md:block px-6 py-2 bg-gradient-to-br from-primary to-primary-container text-white rounded-full font-semibold active:scale-95 duration-150">Get Started</a>
+    {% endif %}
   </div>
-  <div class="px-4 py-6 border-t border-outline-variant/10 space-y-1">
-    <a href="{{ url_for('main.help_page') }}" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-primary transition-colors">
-      <span class="material-symbols-outlined">help_outline</span>
-      <span>Support</span>
-    </a>
-    <a href="{{ url_for('auth.logout') }}" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-primary transition-colors">
-      <span class="material-symbols-outlined">logout</span>
-      <span>Sign Out</span>
-    </a>
-  </div>
-</aside>
+</nav>
 
 <!-- Main -->
-<main class="ml-64 min-h-screen">
-
-  <!-- Top Bar -->
-  <header class="sticky top-0 z-40 flex justify-between items-center w-full px-8 h-16 bg-white/80 backdrop-blur-xl shadow-sm">
-    <h2 class="font-headline font-bold text-primary text-lg">Privacy Policy</h2>
-    <div class="flex items-center gap-4">
-      <a href="{{ url_for('main.notifications') }}" class="p-2 rounded-full hover:bg-surface-container-low transition-colors text-on-surface-variant relative">
-        <span class="material-symbols-outlined">notifications</span>
-        <span id="notif-badge" class="hidden absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
-      </a>
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-full bg-primary-container flex items-center justify-center text-white font-bold text-sm">
-          {{ (g.user['first_name'] if g.user and g.user['first_name'] else g.user['username'] if g.user else 'G')[0].upper() }}
-        </div>
-      </div>
-    </div>
-  </header>
+<main class="min-h-screen pt-28">
 
   <div class="p-8 max-w-4xl mx-auto space-y-8">
 
@@ -206,15 +174,5 @@
   </div>
 </main>
 
-<script>
-  fetch('/api/notifications/unread-count')
-    .then(r => r.json())
-    .then(data => {
-      if (data.count > 0) {
-        const badge = document.getElementById('notif-badge');
-        if (badge) badge.classList.remove('hidden');
-      }
-    });
-</script>
 </body>
 </html>
