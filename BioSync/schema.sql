@@ -94,6 +94,15 @@ CREATE TABLE IF NOT EXISTS patient_code (
   FOREIGN KEY (user_id) REFERENCES user (id)
 );
 
+-- Stores clinical notes written or uploaded by the user
+CREATE TABLE IF NOT EXISTS clinical_note (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  content TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES user (id)
+);
+
 -- Stores notifications for the user
 CREATE TABLE IF NOT EXISTS notification (
   id INTEGER PRIMARY KEY AUTOINCREMENT,

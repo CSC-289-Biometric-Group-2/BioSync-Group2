@@ -36,9 +36,46 @@
   .nav-active { color: #006398; background: white; border-left: 4px solid #006398; border-radius: 0.5rem; }
   body { font-family: 'Inter', sans-serif; background-color: #f7f9fc; }
   h1, h2, h3, h4 { font-family: 'Manrope', sans-serif; }
+
+  /* Toast */
+  #toast {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    z-index: 9999;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    background: #fff;
+    border-left: 4px solid #ba1a1a;
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    padding: 1rem 1.25rem;
+    min-width: 300px;
+    max-width: 400px;
+    transform: translateX(calc(100% + 2rem));
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  #toast.show { transform: translateX(0); }
 </style>
 </head>
 <body class="bg-surface text-on-surface">
+
+<!-- ═══════════════════════════════════════
+     TOAST POPUP
+═══════════════════════════════════════ -->
+<div id="toast" role="alert">
+  <div class="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0">
+    <span class="material-symbols-outlined text-error text-sm" style="font-variation-settings:'FILL' 1;">error</span>
+  </div>
+  <div class="flex-1 min-w-0">
+    <p class="font-bold text-sm text-primary mb-0.5">Invalid Patient Code</p>
+    <p id="toast-msg" class="text-xs text-on-surface-variant leading-snug"></p>
+  </div>
+  <button onclick="closeToast()" class="text-on-surface-variant hover:text-primary transition-colors flex-shrink-0 mt-0.5">
+    <span class="material-symbols-outlined text-sm">close</span>
+  </button>
+</div>
 
 <!-- ═══════════════════════════════════════
      SIDEBAR
@@ -102,11 +139,12 @@
   ───────────────────────────────────────── -->
   <div class="p-8 max-w-2xl mx-auto">
 
+    <!-- Flash messages fed into JS — no inline banner -->
     {% with messages = get_flashed_messages() %}
       {% if messages %}
-        {% for message in messages %}
-          <div class="bg-red-50 text-red-700 rounded-xl px-4 py-3 text-sm font-medium mb-6">{{ message }}</div>
-        {% endfor %}
+        <script>
+          window._flashMessages = {{ messages | tojson }};
+        </script>
       {% endif %}
     {% endwith %}
 
@@ -131,9 +169,10 @@
       <form method="POST" action="{{ url_for('caretaker.link_patient') }}" class="px-8 py-8 space-y-6">
         <div>
           <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-3">Patient Code</label>
-          <input type="text" name="patient_code" required
-            placeholder="e.g. BS-4829"
-            class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-lg font-bold text-primary tracking-widest focus:ring-2 focus:ring-secondary/20 focus:bg-surface-container-lowest transition-all"/>
+          <input type="text" name="patient_code" id="patient_code" required
+            placeholder="Enter patient code"
+            class="w-full bg-surface-container-low border-2 border-transparent rounded-xl px-4 py-3 text-lg font-bold text-primary tracking-widest focus:ring-0 focus:border-secondary focus:bg-surface-container-lowest transition-all"
+            id="codeInput"/>
           <p class="text-xs text-on-surface-variant mt-2">Ask your patient to generate a code from their dashboard or profile page.</p>
         </div>
         <div class="flex items-center gap-4 pt-2">
@@ -175,6 +214,26 @@
 </main>
 
 <script>
+  // ── TOAST ──
+  function showToast(msg) {
+    document.getElementById('toast-msg').textContent = msg;
+    document.getElementById('toast').classList.add('show');
+    // auto-dismiss after 5s
+    setTimeout(closeToast, 5000);
+  }
+
+  function closeToast() {
+    document.getElementById('toast').classList.remove('show');
+  }
+
+  // Fire if Flask flashed any messages
+  document.addEventListener('DOMContentLoaded', () => {
+    if (window._flashMessages && window._flashMessages.length > 0) {
+      showToast(window._flashMessages[0]);
+    }
+  });
+
+  // ── NOTIFICATION BADGE ──
   fetch('/api/notifications/unread-count')
     .then(r => r.json())
     .then(data => {

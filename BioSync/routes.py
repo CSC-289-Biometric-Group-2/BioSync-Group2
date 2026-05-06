@@ -329,6 +329,36 @@ def doc_hub():
 
 
 # ─────────────────────────────────────────────
+# ROUTE: /doc/delete/<doc_id>
+# PURPOSE: Delete a document and its associated
+#          biometric readings from the database
+# ─────────────────────────────────────────────
+@bp.route('/doc/delete/<int:doc_id>', methods=['POST'])
+@login_required
+def delete_document(doc_id):
+    db = get_db()
+    # Verify doc belongs to this user
+    doc = db.execute(
+        'SELECT * FROM medical_document WHERE id = ? AND user_id = ?',
+        (doc_id, g.user['id'])
+    ).fetchone()
+    if not doc:
+        flash('Document not found.')
+        return redirect(url_for('main.doc_hub'))
+    # Delete associated biometric readings first
+    db.execute('DELETE FROM biometric_reading WHERE document_id = ?', (doc_id,))
+    # Delete the document record
+    db.execute('DELETE FROM medical_document WHERE id = ?', (doc_id,))
+    db.commit()
+    # Delete file from disk if it exists
+    import os
+    if doc['file_path'] and os.path.exists(doc['file_path']):
+        os.remove(doc['file_path'])
+    flash('Document and associated readings deleted successfully.')
+    return redirect(url_for('main.doc_hub'))
+
+
+# ─────────────────────────────────────────────
 # ROUTE: /upload  (GET + POST)
 # TEMPLATE: templates/upload.html
 # PURPOSE: Legacy upload route — kept for compatibility
@@ -628,13 +658,18 @@ def individual_profile():
 
     member_since = get_member_since(db, g.user['id'])
 
+    notes = db.execute(
+        'SELECT * FROM clinical_note WHERE user_id = ? ORDER BY created_at DESC',
+        (g.user['id'],)
+    ).fetchall()
+
     return render_template('auth/individual_profile.html',
                            docs=docs,
                            metrics=metrics,
                            latest=latest,
                            caregivers=caregivers,
                            patient_code=patient_code['code'] if patient_code else None,
-                           notes=None,
+                           notes=notes,
                            member_since=member_since,
                            bp_sys=bp_sys,
                            bp_dia=bp_dia,
@@ -656,6 +691,53 @@ def individual_profile():
 @login_required
 def generate_code():
     generate_patient_code(g.user['id'])
+    db = get_db()
+    row = db.execute('SELECT code FROM patient_code WHERE user_id = ?', (g.user['id'],)).fetchone()
+    code = row['code'] if row else None
+    # Support both AJAX (JSON) and plain form POST (redirect)
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.accept_mimetypes.accept_json:
+        return jsonify({'code': code})
+    return redirect(url_for('main.dashboard'))
+
+
+# ─────────────────────────────────────────────
+# ROUTE: /add-note  (POST)
+# PURPOSE: Add a clinical note — either typed text
+#          or extracted from an uploaded PDF/DOCX
+# ─────────────────────────────────────────────
+@bp.route('/add-note', methods=['POST'])
+@login_required
+def add_clinical_note():
+    db = get_db()
+    content = request.form.get('content', '').strip()
+    note_file = request.files.get('note_file')
+
+    if note_file and note_file.filename:
+        filename = secure_filename(note_file.filename)
+        ext = filename.rsplit('.', 1)[-1].lower() if '.' in filename else ''
+        if ext == 'pdf':
+            import pdfplumber
+            import io as _io
+            with pdfplumber.open(note_file.stream) as pdf:
+                content = '\n'.join(page.extract_text() or '' for page in pdf.pages).strip()
+        elif ext == 'docx':
+            import docx as _docx
+            import io as _io
+            doc = _docx.Document(note_file.stream)
+            content = '\n'.join(p.text for p in doc.paragraphs if p.text.strip())
+        elif ext == 'txt':
+            content = note_file.read().decode('utf-8', errors='ignore').strip()
+
+    if not content:
+        flash('Note content cannot be empty.')
+        return redirect(url_for('main.individual_profile'))
+
+    db.execute(
+        'INSERT INTO clinical_note (user_id, content) VALUES (?, ?)',
+        (g.user['id'], content)
+    )
+    db.commit()
+    flash('Clinical note saved.')
     return redirect(url_for('main.individual_profile'))
 
 
@@ -840,3 +922,25 @@ def export_all_readings():
 @login_required
 def api_trends(metric_name):
     return jsonify(get_trends(g.user['id'], metric_name))
+
+
+# ─────────────────────────────────────────────
+# ROUTE: /help
+# TEMPLATE: templates/help.html
+# PURPOSE: Resources / Help page — FAQs, supported
+#          metrics, how-to guides for new users
+# ─────────────────────────────────────────────
+@bp.route('/help')
+def help_page():
+    return render_template('help.html')
+
+
+# ─────────────────────────────────────────────
+# ROUTE: /privacy
+# TEMPLATE: templates/privacy.html
+# PURPOSE: Privacy policy page — data collection,
+#          storage, access, and deletion details
+# ─────────────────────────────────────────────
+@bp.route('/privacy')
+def privacy_page():
+    return render_template('privacy.html')

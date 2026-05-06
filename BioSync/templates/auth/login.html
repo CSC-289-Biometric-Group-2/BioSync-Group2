@@ -37,7 +37,7 @@
   }
 </script>
 </head>
-<body class="bg-surface text-on-surface min-h-screen flex flex-col md:flex-row overflow-x-hidden">
+<body class="bg-surface text-on-surface min-h-screen flex flex-col md:flex-row overflow-x-hidden pt-[96px]">
 
 <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md shadow-sm shadow-blue-900/5 flex justify-between items-center px-6 py-3 font-headline tracking-tight">
     <div class="flex items-center gap-8">
@@ -56,14 +56,14 @@
     </div>
 </nav>
 
-<section class="hidden lg:flex w-5/12 relative bg-primary items-center justify-center p-12 overflow-hidden sticky top-0 h-screen">
+<section class="hidden lg:flex w-5/12 relative bg-primary items-center justify-center p-12 overflow-hidden sticky top-0 h-[calc(100vh-96px)]">
   <div class="relative z-10 max-w-lg">
     <h1 class="text-5xl font-extrabold text-white leading-tight mb-6 tracking-tight">Welcome back <br/><span class="text-secondary-container">to BioSync.</span></h1>
     <p class="text-white text-lg leading-relaxed mb-10 max-w-md">Your health dashboard, medical documents, and care team are all waiting for you. Log in to pick up where you left off.</p>
   </div>
 </section>
 
-<main class="flex-1 bg-surface flex flex-col items-center justify-center p-6 md:p-12 lg:p-16 overflow-y-auto pt-24 lg:pt-16">
+<main class="flex-1 bg-surface flex flex-col items-center justify-center p-6 md:p-12 lg:p-16 overflow-y-auto">
   <div class="w-full max-w-md">
     <div class="mb-10">
       <h2 class="text-3xl font-extrabold text-on-surface tracking-tight mb-2">Welcome Back</h2>
@@ -79,32 +79,32 @@
         <span class="font-headline font-bold text-xs tracking-wider uppercase">Individual</span>
       </button>
       <button type="button" onclick="setType('caregiver')" id="btn-caregiver"
-        class="group flex flex-col items-center gap-3 p-5 rounded-xl transition-all duration-200 border-2 border-primary/10 hover:border-primary/30 bg-primary-container text-white shadow-lg active:scale-[0.98]">
-        <div id="icon-caregiver" class="w-12 h-12 rounded-full bg-white flex items-center justify-center text-primary shadow-inner group-hover:scale-110 transition-transform">
+        class="group flex flex-col items-center gap-3 p-5 rounded-xl transition-all duration-200 border-2 border-primary/10 hover:border-primary/30 bg-surface-container-low text-on-surface-variant focus:outline-none active:scale-[0.98]">
+        <div id="icon-caregiver" class="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center text-primary shadow-inner group-hover:scale-110 transition-transform">
           <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">medical_services</span>
         </div>
         <span class="font-bold text-xs tracking-wider uppercase">Care Giver</span>
       </button>
     </div>
 
-    <form method="post" class="space-y-4">
-      <input type="hidden" name="account_type" id="account_type" value="caregiver"/>
+    <form method="post" class="space-y-4" autocomplete="off">
+      <input type="hidden" name="account_type" id="account_type" value=""/>
       <div class="space-y-2">
         <label class="text-sm font-bold text-primary uppercase tracking-wider ml-1">Username</label>
         <div class="relative flex items-center">
           <span class="material-symbols-outlined absolute left-4 text-on-surface-variant">person</span>
-          <input name="username" type="text" required placeholder="your username" class="w-full bg-surface-container-low border-none rounded-lg pl-12 pr-4 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-outline-variant"/>
+          <input name="username" type="text" required placeholder="your username" autocomplete="off" class="w-full bg-surface-container-low border-none rounded-lg pl-12 pr-4 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-outline-variant"/>
         </div>
       </div>
       <div class="space-y-2">
         <label class="text-sm font-bold text-primary uppercase tracking-wider">Password</label>
         <div class="relative flex items-center">
           <span class="material-symbols-outlined absolute left-4 text-on-surface-variant">lock</span>
-          <input name="password" type="password" required placeholder="••••••••" class="w-full bg-surface-container-low border-none rounded-lg pl-12 pr-4 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-outline-variant"/>
+          <input name="password" type="password" required placeholder="••••••••" autocomplete="new-password" class="w-full bg-surface-container-low border-none rounded-lg pl-12 pr-4 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-outline-variant"/>
         </div>
       </div>
       
-      <button type="submit" class="w-full py-4 px-6 bg-gradient-to-br from-primary to-primary-container text-white font-bold text-lg rounded-full shadow-lg shadow-primary/20 hover:shadow-xl active:scale-[0.99] transition-all flex items-center justify-center gap-2 group mt-4">
+      <button id="submit-btn" type="submit" disabled class="w-full py-4 px-6 bg-gradient-to-br from-primary to-primary-container text-white font-bold text-lg rounded-full shadow-lg shadow-primary/20 hover:shadow-xl active:scale-[0.99] transition-all flex items-center justify-center gap-2 group mt-4 opacity-40 cursor-not-allowed">
         Authorize Access
       </button>
     </form>
@@ -114,6 +114,11 @@
 <script>
   function setType(type) {
     document.getElementById('account_type').value = type;
+
+    // Enable submit button once a type is chosen
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = false;
+    btn.classList.remove('opacity-40', 'cursor-not-allowed');
     
     // Elements
     const btnIndividual = document.getElementById('btn-individual');
@@ -126,22 +131,22 @@
     const baseIconClasses = "w-12 h-12 rounded-full flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform";
 
     if (type === 'individual') {
-      // --- INDIVIDUAL ACTIVE (Red bg, White logo) ---
+      // --- INDIVIDUAL ACTIVE ---
       btnIndividual.className = layoutClasses + " border-tertiary-container/30 bg-tertiary-container text-on-tertiary-container";
-      iconIndividual.className = baseIconClasses + " bg-white text-tertiary"; 
+      iconIndividual.className = baseIconClasses + " bg-white text-tertiary";
 
-      // --- CAREGIVER INACTIVE (Blue bg, Dark Blue logo) ---
+      // --- CAREGIVER INACTIVE ---
       btnCaregiver.className = layoutClasses + " border-primary/10 bg-surface-container-low text-on-surface-variant";
-      iconCaregiver.className = baseIconClasses + " bg-primary-container text-primary"; 
+      iconCaregiver.className = baseIconClasses + " bg-primary-container text-primary";
 
     } else {
-      // --- INDIVIDUAL INACTIVE (Red bg, Red logo) ---
+      // --- INDIVIDUAL INACTIVE ---
       btnIndividual.className = layoutClasses + " border-tertiary-container/10 bg-surface-container-low text-on-surface-variant";
-      iconIndividual.className = baseIconClasses + " bg-tertiary-container text-tertiary"; 
+      iconIndividual.className = baseIconClasses + " bg-tertiary-container text-tertiary";
 
-      // --- CAREGIVER ACTIVE (Blue bg, White logo) ---
+      // --- CAREGIVER ACTIVE ---
       btnCaregiver.className = layoutClasses + " border-primary/10 bg-primary-container text-white";
-      iconCaregiver.className = baseIconClasses + " bg-white text-primary"; 
+      iconCaregiver.className = baseIconClasses + " bg-white text-primary";
     }
   }
 </script>

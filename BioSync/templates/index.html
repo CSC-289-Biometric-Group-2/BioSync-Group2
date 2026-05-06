@@ -96,7 +96,7 @@
         <div class="hidden md:flex gap-6 items-center">
             <a class="text-[#006398] font-semibold border-b-2 border-[#006398] pb-1" href="{{ url_for('main.index') }}">Home</a>
             <a class="text-on-surface-variant hover:text-primary transition-colors" href="{{ url_for('main.dashboard') }}">Dashboard</a>
-            <a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Resources</a>
+            <a class="text-on-surface-variant hover:text-primary transition-colors" href="{{ url_for('main.help_page') }}">Resources</a>
         </div>
     </div>
     <div class="flex items-center gap-4">
@@ -304,9 +304,9 @@
             <p class="text-on-surface-variant text-sm font-medium">© 2026 BioSync Systems. All rights reserved.</p>
         </div>
         <div class="flex gap-8 text-on-surface-variant font-semibold text-sm">
-            <a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
-            <a class="hover:text-primary transition-colors" href="#">Terms of Service</a>
-            <a class="hover:text-primary transition-colors" href="#">Contact Support</a>
+            <a class="hover:text-primary transition-colors" href="{{ url_for('main.privacy_page') }}">Privacy Policy</a>
+            <a class="hover:text-primary transition-colors" href="{{ url_for('main.help_page') }}">Terms of Service</a>
+            <a class="hover:text-primary transition-colors" href="{{ url_for('main.help_page') }}">Contact Support</a>
         </div>
         <div class="flex gap-4">
             <button class="h-10 w-10 flex items-center justify-center rounded-full bg-surface-container-low text-primary hover:bg-surface-container-high transition-colors">

@@ -14,6 +14,99 @@ bp = Blueprint('caretaker', __name__, url_prefix='/caretaker')
 
 
 # ─────────────────────────────────────────────
+# THRESHOLDS
+# Each metric: low, high, unit, low_msg, high_msg
+# None means no limit on that side
+# ─────────────────────────────────────────────
+THRESHOLDS = {
+    'heart_rate': {
+        'low':      40,
+        'high':     100,
+        'unit':     'bpm',
+        'low_msg':  'Heart rate is critically low',
+        'high_msg': 'Heart rate is elevated (tachycardia)',
+    },
+    'blood_pressure_sys': {
+        'low':      90,
+        'high':     120,
+        'unit':     'mmHg',
+        'low_msg':  'Systolic blood pressure is dangerously low',
+        'high_msg': 'Systolic blood pressure is elevated',
+    },
+    'blood_pressure_dia': {
+        'low':      60,
+        'high':     80,
+        'unit':     'mmHg',
+        'low_msg':  'Diastolic blood pressure is dangerously low',
+        'high_msg': 'Diastolic blood pressure is elevated',
+    },
+    'spo2': {
+        'low':      95,
+        'high':     None,
+        'unit':     '%',
+        'low_msg':  'Oxygen saturation is below normal range',
+        'high_msg': None,
+    },
+    'temperature': {
+        'low':      97.0,
+        'high':     99.1,
+        'unit':     'F',
+        'low_msg':  'Body temperature is below normal (hypothermia risk)',
+        'high_msg': 'Body temperature is elevated (fever)',
+    },
+    'glucose': {
+        'low':      70,
+        'high':     108,
+        'unit':     'mg/dL',
+        'low_msg':  'Blood glucose is low (hypoglycemia risk)',
+        'high_msg': 'Blood glucose is elevated (hyperglycemia risk)',
+    },
+    'bmi': {
+        'low':      18.5,
+        'high':     24.9,
+        'unit':     '',
+        'low_msg':  'BMI is below normal range (underweight)',
+        'high_msg': 'BMI is above normal range (overweight)',
+    },
+    'hrv': {
+        'low':      40,
+        'high':     None,
+        'unit':     'ms',
+        'low_msg':  'Heart rate variability is low',
+        'high_msg': None,
+    },
+}
+
+
+def check_and_notify(db, patient_id, metric_name, value):
+    """Check a reading against thresholds and insert a notification if out of range."""
+    thresholds = THRESHOLDS.get(metric_name)
+    if not thresholds:
+        return
+
+    value = float(value)
+    status = None
+    message = None
+    unit = thresholds['unit']
+    low  = thresholds['low']
+    high = thresholds['high']
+
+    if low is not None and value < low:
+        message = f"{thresholds['low_msg']} ({value} {unit}, normal >= {low} {unit})"
+        status  = 'danger' if (low - value) > (low * 0.1) else 'warning'
+    elif high is not None and value > high:
+        message = f"{thresholds['high_msg']} ({value} {unit}, normal <= {high} {unit})"
+        status  = 'danger' if (value - high) > (high * 0.1) else 'warning'
+
+    if status and message:
+        db.execute(
+            '''INSERT INTO notification (user_id, metric, value, status, message, is_read)
+               VALUES (?, ?, ?, ?, ?, 0)''',
+            (patient_id, metric_name, value, status, message)
+        )
+
+
+# ─────────────────────────────────────────────
 # HELPERS
 # ─────────────────────────────────────────────
 def get_member_since(db, user_id):
@@ -56,9 +149,6 @@ def caregiver_required(view):
 
 # ─────────────────────────────────────────────
 # ROUTE: /caretaker/dashboard
-# TEMPLATE: templates/caretaker/caregiver_dashboard.html
-# PURPOSE: Patient hub — grid of all linked patients
-#          with latest biometrics and alert badges
 # ─────────────────────────────────────────────
 @bp.route('/dashboard')
 @login_required
@@ -119,8 +209,6 @@ def dashboard():
 
 # ─────────────────────────────────────────────
 # ROUTE: /caretaker/link-patient  (GET + POST)
-# TEMPLATE: templates/caretaker/link_patient.html
-# PURPOSE: Enter a patient code to link a patient
 # ─────────────────────────────────────────────
 @bp.route('/link-patient', methods=['GET', 'POST'])
 @login_required
@@ -129,7 +217,7 @@ def link_patient():
     db = get_db()
 
     if request.method == 'POST':
-        patient_code = request.form.get('patient_code', '').strip()
+        patient_code = request.form.get('patient_code', '').strip().lstrip('#')
 
         if not patient_code:
             flash('Please enter a patient code.')
@@ -173,9 +261,6 @@ def link_patient():
 
 # ─────────────────────────────────────────────
 # ROUTE: /caretaker/patient/<patient_id>
-# TEMPLATE: templates/caretaker/patient_view.html
-# PURPOSE: Detailed view of one patient's biometrics,
-#          alerts, and documents
 # ─────────────────────────────────────────────
 @bp.route('/patient/<int:patient_id>')
 @login_required
@@ -245,7 +330,6 @@ def patient_detail(patient_id):
 
 # ─────────────────────────────────────────────
 # ROUTE: /caretaker/unlink-patient/<patient_id>
-# PURPOSE: Remove caregiver-patient link
 # ─────────────────────────────────────────────
 @bp.route('/unlink-patient/<int:patient_id>', methods=['POST'])
 @login_required
@@ -263,8 +347,6 @@ def unlink_patient(patient_id):
 
 # ─────────────────────────────────────────────
 # ROUTE: /caretaker/notifications
-# TEMPLATE: templates/caretaker/caregiver_notifications.html
-# PURPOSE: All alerts across all linked patients
 # ─────────────────────────────────────────────
 @bp.route('/notifications')
 @login_required
@@ -313,8 +395,6 @@ def notifications():
 
 # ─────────────────────────────────────────────
 # ROUTE: /caretaker/profile
-# TEMPLATE: templates/caretaker/caregiver_profile.html
-# PURPOSE: Caregiver's own profile page
 # ─────────────────────────────────────────────
 @bp.route('/profile')
 @login_required
@@ -354,8 +434,6 @@ def profile():
 
 # ─────────────────────────────────────────────
 # ROUTE: /caretaker/upload  (GET + POST)
-# TEMPLATE: templates/caretaker/caregiver_upload.html
-# PURPOSE: Upload a document on behalf of a patient
 # ─────────────────────────────────────────────
 @bp.route('/upload', methods=['GET', 'POST'])
 @login_required
@@ -418,6 +496,8 @@ def upload_document():
                        VALUES (?, ?, ?, ?, ?)''',
                     (patient_id, doc_id, r['metric_name'], r['value'], 'document')
                 )
+                # ── CHECK THRESHOLDS & CREATE NOTIFICATION ──
+                check_and_notify(db, patient_id, r['metric_name'], r['value'])
 
             db.execute('UPDATE medical_document SET processed = 1 WHERE id = ?', (doc_id,))
             db.commit()
@@ -427,5 +507,13 @@ def upload_document():
         flash(f'{uploaded_count} file{"s" if uploaded_count != 1 else ""} uploaded. Found {total_readings} biometric readings.')
         return redirect(url_for('caretaker.upload_document'))
 
+    patients_with_docs = []
+    for patient in linked_patients:
+        docs = db.execute(
+            'SELECT * FROM medical_document WHERE user_id = ? ORDER BY uploaded_at DESC',
+            (patient['id'],)
+        ).fetchall()
+        patients_with_docs.append({'patient': patient, 'docs': docs})
+
     return render_template('caretaker/caregiver_upload.html',
-                           linked_patients=linked_patients)
+                           patients_with_docs=patients_with_docs)
