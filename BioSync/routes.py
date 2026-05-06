@@ -329,6 +329,36 @@ def doc_hub():
 
 
 # ─────────────────────────────────────────────
+# ROUTE: /doc/delete/<doc_id>
+# PURPOSE: Delete a document and its associated
+#          biometric readings from the database
+# ─────────────────────────────────────────────
+@bp.route('/doc/delete/<int:doc_id>', methods=['POST'])
+@login_required
+def delete_document(doc_id):
+    db = get_db()
+    # Verify doc belongs to this user
+    doc = db.execute(
+        'SELECT * FROM medical_document WHERE id = ? AND user_id = ?',
+        (doc_id, g.user['id'])
+    ).fetchone()
+    if not doc:
+        flash('Document not found.')
+        return redirect(url_for('main.doc_hub'))
+    # Delete associated biometric readings first
+    db.execute('DELETE FROM biometric_reading WHERE document_id = ?', (doc_id,))
+    # Delete the document record
+    db.execute('DELETE FROM medical_document WHERE id = ?', (doc_id,))
+    db.commit()
+    # Delete file from disk if it exists
+    import os
+    if doc['file_path'] and os.path.exists(doc['file_path']):
+        os.remove(doc['file_path'])
+    flash('Document and associated readings deleted successfully.')
+    return redirect(url_for('main.doc_hub'))
+
+
+# ─────────────────────────────────────────────
 # ROUTE: /upload  (GET + POST)
 # TEMPLATE: templates/upload.html
 # PURPOSE: Legacy upload route — kept for compatibility

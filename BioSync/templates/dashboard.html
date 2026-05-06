@@ -549,17 +549,22 @@
           <p class="text-xs text-on-surface-variant leading-relaxed mb-6">Share this unique code with your doctor or family member to grant access to your portal.</p>
           {% if patient_code %}
           <div class="bg-surface-container-lowest p-4 rounded-xl flex items-center justify-between shadow-sm border border-secondary/10">
-            <span class="font-mono text-secondary font-bold">#{{ patient_code }}</span>
-            <button onclick="navigator.clipboard.writeText('{{ patient_code }}')"
+            <span class="font-mono text-secondary font-bold" id="patient-code-display">#{{ patient_code }}</span>
+            <button onclick="navigator.clipboard.writeText(document.getElementById('patient-code-display').textContent)"
               class="material-symbols-outlined text-secondary hover:bg-secondary-fixed p-2 rounded-full transition-colors">content_copy</button>
           </div>
           {% else %}
-          <form method="POST" action="{{ url_for('main.generate_code') }}">
-            <button type="submit"
+          <div id="code-section">
+            <button onclick="generateCode()"
               class="w-full py-2.5 bg-gradient-to-br from-primary to-primary-container text-white text-sm font-semibold rounded-full shadow-md hover:opacity-90 transition-opacity">
               Generate Patient Code
             </button>
-          </form>
+          </div>
+          <div id="code-display" class="hidden bg-surface-container-lowest p-4 rounded-xl flex items-center justify-between shadow-sm border border-secondary/10">
+            <span class="font-mono text-secondary font-bold" id="code-value"></span>
+            <button onclick="navigator.clipboard.writeText(document.getElementById('code-value').textContent)"
+              class="material-symbols-outlined text-secondary hover:bg-secondary-fixed p-2 rounded-full transition-colors">content_copy</button>
+          </div>
           {% endif %}
         </div>
         <span class="material-symbols-outlined absolute -bottom-4 -right-4 text-primary/5 text-8xl" style="font-variation-settings: 'FILL' 1;">medical_information</span>
@@ -642,5 +647,21 @@
     });
 </script>
 
+<script>
+  function generateCode() {
+    fetch("{{ url_for('main.generate_code') }}", {
+      method: 'POST',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.code) {
+        document.getElementById('code-section').classList.add('hidden');
+        document.getElementById('code-display').classList.remove('hidden');
+        document.getElementById('code-value').textContent = '#' + data.code;
+      }
+    });
+  }
+</script>
 </body>
 </html>

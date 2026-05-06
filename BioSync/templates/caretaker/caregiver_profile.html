@@ -258,13 +258,21 @@
           </div>
         </div>
 
-        <!-- HIPAA / Security Badge -->
-        <div class="bg-primary rounded-xl p-6 text-white">
-          <div class="flex items-center gap-3 mb-3">
-            <span class="material-symbols-outlined text-secondary-container" style="font-variation-settings:'FILL' 1;">verified_user</span>
-            <h3 class="font-headline font-bold">HIPAA Compliant</h3>
+        <!-- Privacy Badge -->
+        <div class="bg-primary-container rounded-xl p-6 text-white relative overflow-hidden">
+          <div class="absolute -right-10 -bottom-10 opacity-10">
+            <span class="material-symbols-outlined text-[120px]">shield</span>
           </div>
-          <p class="text-sm text-primary-fixed-dim leading-relaxed">Your clinical data is encrypted with AES-256 at rest and TLS 1.3 in transit. All patient access is logged per medical audit standards.</p>
+          <div class="relative z-10">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="material-symbols-outlined text-secondary-container" style="font-variation-settings:'FILL' 1;">verified_user</span>
+              <span class="text-xs font-bold uppercase tracking-widest text-secondary-container">Data Privacy</span>
+            </div>
+            <h4 class="text-lg font-headline font-bold mb-2">Your Data Stays Private</h4>
+            <p class="text-xs text-on-primary-container leading-relaxed">
+              Documents are stored securely on the server and are only accessible the patients and you that are linked to them. No data is shared with third parties or advertisers.
+            </p>
+          </div>
         </div>
 
       </div>
@@ -295,7 +303,10 @@
           <div class="flex items-center gap-3">
             <a href="{{ url_for('caretaker.patient_detail', patient_id=patient['id']) }}"
               class="text-xs font-bold text-secondary hover:underline">View</a>
-            <button class="text-xs font-bold text-error hover:underline">Unlink</button>
+            <form method="POST" action="{{ url_for('caretaker.unlink_patient', patient_id=patient['id']) }}"
+              onsubmit="return confirm('Unlink {{ patient['first_name'] or patient['username'] }}? You will lose access to their data.');">
+              <button type="submit" class="text-xs font-bold text-error hover:underline">Unlink</button>
+            </form>
           </div>
         </div>
         {% endfor %}
