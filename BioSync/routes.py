@@ -840,3 +840,25 @@ def export_all_readings():
 @login_required
 def api_trends(metric_name):
     return jsonify(get_trends(g.user['id'], metric_name))
+
+
+# ─────────────────────────────────────────────
+# ROUTE: /help
+# TEMPLATE: templates/help.html
+# PURPOSE: Resources / Help page — FAQs, supported
+#          metrics, how-to guides for new users
+# ─────────────────────────────────────────────
+@bp.route('/help')
+def help_page():
+    return render_template('help.html')
+
+
+# ─────────────────────────────────────────────
+# ROUTE: /privacy
+# TEMPLATE: templates/privacy.html
+# PURPOSE: Privacy policy page — data collection,
+#          storage, access, and deletion details
+# ─────────────────────────────────────────────
+@bp.route('/privacy')
+def privacy_page():
+    return render_template('privacy.html')

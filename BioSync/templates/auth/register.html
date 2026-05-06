@@ -38,7 +38,7 @@
   }
 </script>
 </head>
-<body class="bg-surface text-on-surface min-h-screen flex flex-col md:flex-row overflow-x-hidden">
+<body class="bg-surface text-on-surface min-h-screen flex flex-col md:flex-row overflow-x-hidden pt-[96px]">
 
 <!-- Floating Nav -->
 <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md shadow-sm shadow-blue-900/5 flex justify-between items-center px-6 py-3 font-headline tracking-tight">
@@ -126,13 +126,13 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-        <div class="relative flex flex-col p-8 bg-surface-container-lowest rounded-xl ring-2 ring-secondary shadow-xl overflow-hidden">
+        <div id="card-individual" onclick="selectIndividual()" class="cursor-pointer relative flex flex-col p-8 bg-surface-container-lowest rounded-xl ring-2 ring-transparent hover:ring-secondary hover:shadow-xl transition-all overflow-hidden">
           <div class="absolute top-0 right-0 p-4 opacity-10"><span class="material-symbols-outlined text-9xl text-primary">person</span></div>
-          <div class="w-14 h-14 rounded-full bg-secondary/10 flex items-center justify-center mb-6"><span class="material-symbols-outlined text-secondary text-3xl">person_search</span></div>
-          <div class="absolute top-4 right-4 bg-secondary text-white text-[10px] px-2 py-1 rounded-full font-bold uppercase tracking-widest">Selected</div>
+          <div class="w-14 h-14 rounded-full bg-surface-container-low flex items-center justify-center mb-6"><span class="material-symbols-outlined text-secondary text-3xl">person_search</span></div>
+          <div id="badge-individual" class="hidden absolute top-4 right-4 bg-secondary text-white text-[10px] px-2 py-1 rounded-full font-bold uppercase tracking-widest">Selected</div>
           <h4 class="text-xl font-bold text-primary mb-2">Individual</h4>
           <p class="text-sm text-on-surface-variant leading-relaxed">Monitor personal biometrics, track wellness trends, and sync with your wearable devices.</p>
-          <div class="mt-6 flex items-center text-secondary font-semibold text-sm">Continue to details <span class="material-symbols-outlined ml-2 text-sm">arrow_forward</span></div>
+          <div class="mt-6 flex items-center text-secondary font-semibold text-sm">Select this type <span class="material-symbols-outlined ml-2 text-sm">arrow_forward</span></div>
         </div>
         <a href="{{ url_for('auth.register_caregiver') }}" class="group relative flex flex-col p-8 bg-surface-container-lowest rounded-xl ring-2 ring-transparent hover:ring-secondary hover:shadow-xl transition-all overflow-hidden">
           <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20"><span class="material-symbols-outlined text-9xl text-tertiary">medical_services</span></div>
@@ -148,7 +148,7 @@
           <label class="text-sm font-bold text-primary uppercase tracking-wider ml-1">Username</label>
           <div class="relative flex items-center">
             <span class="material-symbols-outlined absolute left-4 text-on-surface-variant">person</span>
-            <input id="username" type="text" placeholder="Choose a username"
+            <input id="username" type="text" placeholder="Choose a username" autocomplete="off"
               class="w-full bg-surface-container-low border-none rounded-lg pl-12 pr-4 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-outline-variant"/>
           </div>
         </div>
@@ -156,7 +156,7 @@
           <label class="text-sm font-bold text-primary uppercase tracking-wider ml-1">Password</label>
           <div class="relative flex items-center">
             <span class="material-symbols-outlined absolute left-4 text-on-surface-variant">lock</span>
-            <input id="password" type="password" placeholder="••••••••"
+            <input id="password" type="password" placeholder="••••••••" autocomplete="new-password"
               class="w-full bg-surface-container-low border-none rounded-lg pl-12 pr-4 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-outline-variant"/>
           </div>
         </div>
@@ -650,6 +650,14 @@
 </main>
 
 <script>
+  function selectIndividual() {
+    const card = document.getElementById('card-individual');
+    const badge = document.getElementById('badge-individual');
+    card.classList.remove('ring-transparent');
+    card.classList.add('ring-secondary', 'shadow-xl');
+    badge.classList.remove('hidden');
+  }
+
   function goToStep(step) {
     if (step === 2) {
       const u = document.getElementById('username').value;

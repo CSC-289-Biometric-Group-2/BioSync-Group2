@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BioSync — Help & Support</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "primary": "#041839", "primary-container": "#1c2d4f",
+          "secondary": "#006398", "secondary-container": "#6cbdfe",
+          "secondary-fixed": "#cde5ff", "on-secondary-container": "#004b75",
+          "surface": "#f7f9fc", "surface-container-lowest": "#ffffff",
+          "surface-container-low": "#f2f4f7", "surface-container": "#eceef1",
+          "surface-container-high": "#e6e8eb", "on-surface": "#191c1e",
+          "on-surface-variant": "#44474e", "outline-variant": "#c5c6cf",
+          "error": "#ba1a1a", "primary-fixed-dim": "#b6c6f1",
+          "on-primary-container": "#8495bd",
+        },
+        borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+        fontFamily: { "headline": ["Manrope"], "body": ["Inter"] }
+      }
+    }
+  }
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  .nav-active { color: #006398; background: white; border-left: 4px solid #006398; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(4,24,57,0.05); }
+  body { font-family: 'Inter', sans-serif; background-color: #f7f9fc; }
+  h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+  .connector { width: 2px; height: 20px; background: #c5c6cf; margin: 0 auto; }
+  .step-node { width: 100%; background: #f2f4f7; border: 1px solid #c5c6cf; border-radius: 0.75rem; padding: 10px 16px; font-size: 0.875rem; color: #44474e; text-align: center; }
+  .step-done { background: rgba(0,99,152,0.05); border-color: rgba(0,99,152,0.3); }
+</style>
+</head>
+<body class="text-on-surface">
+
+<aside class="h-screen w-64 fixed left-0 top-0 flex flex-col bg-surface-container-low border-r border-outline-variant/10 text-sm z-50">
+  <div class="px-4 py-6">
+    <a href="{{ url_for('main.index') }}">
+      <img src="{{ url_for('static', filename='BioSync.png') }}" alt="BioSync" class="h-20 w-auto mb-3"/>
+    </a>
+    <p class="text-xs text-on-surface-variant leading-relaxed mt-2">Quick guides and FAQs for using BioSync.</p>
+  </div>
+  <nav class="flex-1 px-4 space-y-1">
+    <a href="{{ url_for('main.dashboard') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">dashboard</span> Overview
+    </a>
+    <a href="{{ url_for('main.doc_hub') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">description</span> Documents
+    </a>
+    <a href="{{ url_for('main.trends_overview') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">trending_up</span> Trends
+    </a>
+    <a href="{{ url_for('main.individual_profile') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">person</span> My Profile
+    </a>
+  </nav>
+  <div class="px-6 mb-8">
+    <a href="{{ url_for('main.doc_hub') }}" class="w-full py-3 bg-gradient-to-br from-primary to-primary-container text-white rounded-full font-semibold shadow-md flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+      <span class="material-symbols-outlined text-sm">upload_file</span> Upload Document
+    </a>
+  </div>
+  <div class="px-4 py-6 border-t border-outline-variant/10 space-y-1">
+    <a href="{{ url_for('main.help_page') }}" class="flex items-center gap-3 px-4 py-2 nav-active">
+      <span class="material-symbols-outlined">help_outline</span><span>Support</span>
+    </a>
+    <a href="{{ url_for('auth.logout') }}" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-primary transition-colors">
+      <span class="material-symbols-outlined">logout</span><span>Sign Out</span>
+    </a>
+  </div>
+</aside>
+
+<main class="ml-64 min-h-screen">
+  <header class="sticky top-0 z-40 flex justify-between items-center px-8 h-16 bg-white/80 backdrop-blur-xl shadow-sm">
+    <h2 class="font-headline font-bold text-primary text-lg">Help & Support</h2>
+    <div class="flex items-center gap-4">
+      <a href="{{ url_for('main.notifications') }}" class="p-2 rounded-full hover:bg-surface-container-low text-on-surface-variant relative">
+        <span class="material-symbols-outlined">notifications</span>
+        <span id="notif-badge" class="hidden absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
+      </a>
+      <div class="w-9 h-9 rounded-full bg-primary-container flex items-center justify-center text-white font-bold text-sm">
+        {{ (g.user['first_name'] if g.user and g.user['first_name'] else g.user['username'] if g.user else 'G')[0].upper() }}
+      </div>
+    </div>
+  </header>
+
+  <div class="p-8 max-w-5xl mx-auto space-y-8">
+
+    <!-- Hero -->
+    <section class="bg-gradient-to-br from-primary to-primary-container rounded-xl p-8 text-white">
+      <div class="flex items-center gap-3 mb-2">
+        <span class="material-symbols-outlined text-3xl text-secondary-container">help_center</span>
+        <h1 class="text-3xl font-extrabold font-headline">How to use BioSync</h1>
+      </div>
+      <p class="text-blue-200/80">Click any guide below to expand it.</p>
+    </section>
+
+    <!-- Guide Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+      <!-- Register -->
+      <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+        <button onclick="toggle('register')" class="w-full flex items-center justify-between px-6 py-4 hover:bg-surface-container-low transition-colors">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-secondary bg-secondary/10 p-2 rounded-lg">how_to_reg</span>
+            <span class="font-bold text-primary">Create an Account</span>
+          </div>
+          <span class="material-symbols-outlined text-on-surface-variant" id="icon-register">expand_more</span>
+        </button>
+        <div id="register" class="hidden px-6 pb-6 flex flex-col items-center">
+          <div class="step-node">Go to the <strong>Register</strong> page</div>
+          <div class="connector"></div>
+          <div class="step-node">Choose <strong>Patient</strong> or <strong>Caregiver</strong></div>
+          <div class="connector"></div>
+          <div class="step-node">Fill in your name, DOB &amp; health details</div>
+          <div class="connector"></div>
+          <div class="step-node step-done">✓ Log in and start tracking</div>
+        </div>
+      </div>
+
+      <!-- Log Reading -->
+      <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+        <button onclick="toggle('reading')" class="w-full flex items-center justify-between px-6 py-4 hover:bg-surface-container-low transition-colors">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-secondary bg-secondary/10 p-2 rounded-lg">add_circle</span>
+            <span class="font-bold text-primary">Log a Manual Reading</span>
+          </div>
+          <span class="material-symbols-outlined text-on-surface-variant" id="icon-reading">expand_more</span>
+        </button>
+        <div id="reading" class="hidden px-6 pb-6 flex flex-col items-center">
+          <div class="step-node">Click <strong>Log Reading</strong> on the dashboard</div>
+          <div class="connector"></div>
+          <div class="step-node">Select your metric <span class="text-xs text-on-surface-variant">(Heart Rate, BP, SpO2…)</span></div>
+          <div class="connector"></div>
+          <div class="step-node">Enter the value &amp; select your device</div>
+          <div class="connector"></div>
+          <div class="step-node step-done">✓ Appears in Dashboard &amp; Trends instantly</div>
+        </div>
+      </div>
+
+      <!-- Upload Document -->
+      <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+        <button onclick="toggle('upload')" class="w-full flex items-center justify-between px-6 py-4 hover:bg-surface-container-low transition-colors">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-secondary bg-secondary/10 p-2 rounded-lg">upload_file</span>
+            <span class="font-bold text-primary">Upload a PDF Document</span>
+          </div>
+          <span class="material-symbols-outlined text-on-surface-variant" id="icon-upload">expand_more</span>
+        </button>
+        <div id="upload" class="hidden px-6 pb-6 flex flex-col items-center">
+          <div class="step-node">Go to <strong>Documents</strong> in the sidebar</div>
+          <div class="connector"></div>
+          <div class="step-node">Drag &amp; drop your PDF or click <strong>Browse Files</strong></div>
+          <div class="connector"></div>
+          <div class="step-node">Click <strong>Upload Selected Files</strong></div>
+          <div class="connector"></div>
+          <div class="step-node step-done">✓ Readings extracted automatically</div>
+        </div>
+      </div>
+
+      <!-- Generate Patient Code -->
+      <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+        <button onclick="toggle('code')" class="w-full flex items-center justify-between px-6 py-4 hover:bg-surface-container-low transition-colors">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-secondary bg-secondary/10 p-2 rounded-lg">qr_code</span>
+            <span class="font-bold text-primary">Generate a Patient Code</span>
+          </div>
+          <span class="material-symbols-outlined text-on-surface-variant" id="icon-code">expand_more</span>
+        </button>
+        <div id="code" class="hidden px-6 pb-6 flex flex-col items-center">
+          <div class="step-node">Go to <strong>Dashboard</strong> or <strong>My Profile</strong></div>
+          <div class="connector"></div>
+          <div class="step-node">Find the <strong>Link a Caregiver</strong> panel</div>
+          <div class="connector"></div>
+          <div class="step-node">Click <strong>Generate Patient Code</strong></div>
+          <div class="connector"></div>
+          <div class="step-node step-done">✓ Share the code with your caregiver</div>
+        </div>
+      </div>
+
+      <!-- Link Caregiver -->
+      <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+        <button onclick="toggle('caregiver')" class="w-full flex items-center justify-between px-6 py-4 hover:bg-surface-container-low transition-colors">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-secondary bg-secondary/10 p-2 rounded-lg">people</span>
+            <span class="font-bold text-primary">Link a Caregiver</span>
+          </div>
+          <span class="material-symbols-outlined text-on-surface-variant" id="icon-caregiver">expand_more</span>
+        </button>
+        <div id="caregiver" class="hidden px-6 pb-6 flex flex-col items-center">
+          <div class="step-node">Generate your patient code <span class="text-xs text-on-surface-variant">(see above)</span></div>
+          <div class="connector"></div>
+          <div class="step-node">Share it with your caregiver</div>
+          <div class="connector"></div>
+          <div class="step-node">They enter it in their <strong>caregiver portal</strong></div>
+          <div class="connector"></div>
+          <div class="step-node step-done">✓ They can view your readings &amp; documents</div>
+        </div>
+      </div>
+
+      <!-- Reset Password -->
+      <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+        <button onclick="toggle('password')" class="w-full flex items-center justify-between px-6 py-4 hover:bg-surface-container-low transition-colors">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-secondary bg-secondary/10 p-2 rounded-lg">lock_reset</span>
+            <span class="font-bold text-primary">Reset Your Password</span>
+          </div>
+          <span class="material-symbols-outlined text-on-surface-variant" id="icon-password">expand_more</span>
+        </button>
+        <div id="password" class="hidden px-6 pb-6 flex flex-col items-center">
+          <div class="step-node">Go to the <strong>Login</strong> page</div>
+          <div class="connector"></div>
+          <div class="step-node">Click <strong>Forgot Password</strong></div>
+          <div class="connector"></div>
+          <div class="step-node">Enter your username &amp; answer your security question</div>
+          <div class="connector"></div>
+          <div class="step-node step-done">✓ Set your new password</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- FAQ -->
+    <section>
+      <h2 class="text-lg font-extrabold font-headline text-primary mb-4 flex items-center gap-2">
+        <span class="material-symbols-outlined text-secondary">quiz</span> FAQ
+      </h2>
+      <div class="space-y-2">
+        {% set faqs = [
+          ("Who can see my data?", "Only you and caregivers you have explicitly linked."),
+          ("What happens when I delete a document?", "All readings extracted from it are also deleted. This cannot be undone."),
+          ("Can I export my data?", "Yes — CSV from Dashboard and Trends, or a full PDF Health Report from the dashboard."),
+          ("What file types can I upload?", "PDF files only."),
+          ("How do I delete my account?", "Contact support below — all data is removed within 30 days."),
+        ] %}
+        {% for q, a in faqs %}
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+          <details class="group">
+            <summary class="flex items-center justify-between px-5 py-3 cursor-pointer list-none">
+              <span class="font-semibold text-sm text-primary">{{ q }}</span>
+              <span class="material-symbols-outlined text-on-surface-variant text-sm transition-transform group-open:rotate-180">expand_more</span>
+            </summary>
+            <p class="px-5 pb-3 text-sm text-on-surface-variant">{{ a }}</p>
+          </details>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section class="bg-surface-container-lowest rounded-xl p-6 shadow-sm flex items-center gap-4 mb-8">
+      <span class="material-symbols-outlined text-secondary p-3 bg-secondary/10 rounded-xl text-2xl">support_agent</span>
+      <div>
+        <h3 class="font-bold text-primary">Still need help?</h3>
+        <p class="text-sm text-secondary font-bold mt-1">support@biosync.health</p>
+      </div>
+      <a href="{{ url_for('main.privacy_page') }}" class="ml-auto text-xs text-on-surface-variant hover:text-primary">Privacy Policy →</a>
+    </section>
+
+  </div>
+</main>
+
+<script>
+  function toggle(id) {
+    const el = document.getElementById(id);
+    const icon = document.getElementById('icon-' + id);
+    const isOpen = !el.classList.contains('hidden');
+    el.classList.toggle('hidden', isOpen);
+    icon.style.transform = isOpen ? '' : 'rotate(180deg)';
+  }
+  fetch('/api/notifications/unread-count')
+    .then(r => r.json())
+    .then(data => { if (data.count > 0) document.getElementById('notif-badge')?.classList.remove('hidden'); });
+</script>
+</body>
+</html>

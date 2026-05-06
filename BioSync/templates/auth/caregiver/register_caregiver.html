@@ -55,12 +55,27 @@
 </head>
 <body class="bg-surface text-on-surface min-h-screen flex flex-col md:flex-row overflow-x-hidden">
 
+<!-- Floating Nav -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md shadow-sm shadow-blue-900/5 flex justify-between items-center px-6 py-3 font-headline tracking-tight">
+  <div class="flex items-center gap-8">
+    <a href="{{ url_for('main.index') }}" class="flex items-center gap-2">
+      <img src="{{ url_for('static', filename='BioSync.png') }}" alt="BioSync" class="h-20 w-auto"/>
+    </a>
+    <div class="hidden md:flex gap-6 items-center">
+      <a class="text-on-surface-variant hover:text-primary transition-colors" href="{{ url_for('main.index') }}">Home</a>
+      <a class="text-on-surface-variant hover:text-primary transition-colors" href="{{ url_for('main.dashboard') }}">Dashboard</a>
+      <a class="text-on-surface-variant hover:text-primary transition-colors" href="{{ url_for('main.help_page') }}">Resources</a>
+    </div>
+  </div>
+  <div class="flex items-center gap-4">
+    <a href="{{ url_for('auth.login') }}" class="text-on-surface-variant hover:text-primary font-semibold transition-colors">Log In</a>
+    <a href="{{ url_for('auth.register') }}" class="hidden md:block px-6 py-2 bg-gradient-to-br from-primary to-primary-container text-white rounded-full font-semibold active:scale-95 duration-150">Get Started</a>
+  </div>
+</nav>
+
 <!-- Left Branding Section -->
 <section class="hidden lg:flex w-5/12 relative bg-primary items-center justify-center p-12 overflow-hidden sticky top-0 h-screen">
   <div class="relative z-10 max-w-lg">
-    <div class="flex items-center gap-3 mb-12">
-      <img src="{{ url_for('static', filename='BioSync.png') }}" alt="BioSync" class="h-16 w-auto"/>
-    </div>
     <h1 class="text-5xl font-extrabold text-white leading-tight mb-6 tracking-tight">
       Advanced Biometric <br/>
       <span class="text-secondary-container">Clinical Precision.</span>
@@ -92,7 +107,7 @@
 </section>
 
 <!-- Main Registration Canvas -->
-<main class="flex-1 bg-surface flex flex-col items-center justify-start p-6 md:p-12 lg:p-16 overflow-y-auto">
+<main class="flex-1 bg-surface flex flex-col items-center justify-start p-6 md:p-12 lg:p-16 overflow-y-auto pt-28 lg:pt-28">
 
   <!-- Mobile Header -->
   <div class="lg:hidden w-full max-w-xl flex items-center justify-between mb-8">
@@ -179,7 +194,7 @@
     </div>
 
     <!-- Caregiver Registration Form -->
-    <form method="post" class="space-y-6">
+    <form method="post" autocomplete="off" class="space-y-6">
       <input type="hidden" name="account_type" value="caregiver"/>
 
       <!-- Username -->
@@ -187,7 +202,7 @@
         <label class="text-sm font-bold text-primary uppercase tracking-wider ml-1">Username</label>
         <div class="relative flex items-center">
           <span class="material-symbols-outlined absolute left-4 text-on-surface-variant">person</span>
-          <input name="username" type="text" required
+          <input name="username" type="text" required autocomplete="off"
             class="w-full bg-surface-container-low border-none rounded-lg pl-12 pr-4 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-outline-variant"
             placeholder="Choose a username"/>
         </div>
@@ -198,7 +213,7 @@
         <label class="text-sm font-bold text-primary uppercase tracking-wider ml-1">Password</label>
         <div class="relative flex items-center">
           <span class="material-symbols-outlined absolute left-4 text-on-surface-variant">lock</span>
-          <input name="password" type="password" required
+          <input name="password" type="password" required autocomplete="new-password"
             class="w-full bg-surface-container-low border-none rounded-lg pl-12 pr-4 py-4 text-on-surface focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-outline-variant"
             placeholder="••••••••"/>
         </div>
