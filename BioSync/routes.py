@@ -5,13 +5,31 @@ from flask import (
     request, jsonify, url_for, current_app
 )
 from werkzeug.utils import secure_filename
-from BioSync.auth import login_required, check_and_notify, create_notification, calculate_age, get_hr_range
-from BioSync.db import get_db
-from BioSync.doc_processor import process_document
-from BioSync.pattern_engine import get_trends, get_all_metrics, compare_baseline
-from BioSync.caretaker.utils import generate_patient_code
+from auth import login_required, check_and_notify, create_notification, calculate_age, get_hr_range
+from db import get_db
+from doc_processor import process_document
+from pattern_engine import get_trends, get_all_metrics, compare_baseline
+from caretaker.utils import generate_patient_code
 
 bp = Blueprint('main', __name__)
+
+# ─────────────────────────────────────────────
+# DATE HELPER
+# SQLite stores TIMESTAMP as plain strings.
+# parse_date() converts them to datetime objects
+# so strftime() and comparisons always work.
+# ─────────────────────────────────────────────
+def parse_date(val):
+    if val is None:
+        return None
+    if isinstance(val, datetime):
+        return val
+    for fmt in ('%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M:%S.%f', '%Y-%m-%d'):
+        try:
+            return datetime.strptime(str(val).strip(), fmt)
+        except ValueError:
+            continue
+    return None
 
 ALLOWED_EXTENSIONS = {'pdf'}
 LAB_EXTENSIONS = {'pdf'}
@@ -276,12 +294,15 @@ def doc_hub():
             db.commit()
             doc_id = db.execute('SELECT last_insert_rowid()').fetchone()[0]
 
-            readings = process_document(filepath)
+            result = process_document(filepath)
+            readings = result['readings']
+            recorded_date = result['recorded_date'] or datetime.now()
+
             for r in readings:
                 db.execute(
-                    '''INSERT INTO biometric_reading (user_id, document_id, metric_name, value, source)
-                       VALUES (?, ?, ?, ?, ?)''',
-                    (g.user['id'], doc_id, r['metric_name'], r['value'], 'document')
+                    '''INSERT INTO biometric_reading (user_id, document_id, metric_name, value, source, recorded_date)
+                       VALUES (?, ?, ?, ?, ?, ?)''',
+                    (g.user['id'], doc_id, r['metric_name'], r['value'], 'document', recorded_date)
                 )
 
             db.execute('UPDATE medical_document SET processed = 1 WHERE id = ?', (doc_id,))
@@ -386,12 +407,15 @@ def upload():
         db.commit()
         doc_id = db.execute('SELECT last_insert_rowid()').fetchone()[0]
 
-        readings = process_document(filepath)
+        result = process_document(filepath)
+        readings = result['readings']
+        recorded_date = result['recorded_date'] or datetime.now()
+
         for r in readings:
             db.execute(
-                '''INSERT INTO biometric_reading (user_id, document_id, metric_name, value, source)
-                   VALUES (?, ?, ?, ?, ?)''',
-                (g.user['id'], doc_id, r['metric_name'], r['value'], 'document')
+                '''INSERT INTO biometric_reading (user_id, document_id, metric_name, value, source, recorded_date)
+                   VALUES (?, ?, ?, ?, ?, ?)''',
+                (g.user['id'], doc_id, r['metric_name'], r['value'], 'document', recorded_date)
             )
 
         db.execute('UPDATE medical_document SET processed = 1 WHERE id = ?', (doc_id,))
@@ -426,7 +450,6 @@ def trends_overview():
     ).fetchall()
     raw_metrics = [r['metric_name'] for r in rows]
 
-    # Replace sys/dia with single 'blood_pressure' entry
     available_metrics = []
     bp_added = False
     for m in raw_metrics:
@@ -441,46 +464,53 @@ def trends_overview():
     selected_days   = request.args.get('days', '30')
     is_bp           = selected_metric == 'blood_pressure'
 
+    # ── Fetch ALL readings for a metric, parse dates in Python ──
+    # We fetch everything and filter by date in Python so that
+    # SQLite string vs datetime comparison issues don't break the
+    # time range buttons.
     def fetch_readings(metric_name):
+        all_rows = db.execute(
+            '''SELECT value, unit, recorded_date FROM biometric_reading
+               WHERE user_id = ? AND metric_name = ?
+               ORDER BY recorded_date ASC''',
+            (g.user['id'], metric_name)
+        ).fetchall()
+
+        # Parse dates and attach to each row as a real datetime
+        parsed = []
+        for r in all_rows:
+            dt = parse_date(r['recorded_date'])
+            parsed.append({'value': r['value'], 'unit': r['unit'], 'dt': dt})
+
+        # Filter by selected time range in Python
         if selected_days != '0':
             cutoff = datetime.now() - timedelta(days=int(selected_days))
-            return db.execute(
-                '''SELECT value, unit, recorded_date FROM biometric_reading
-                   WHERE user_id = ? AND metric_name = ? AND recorded_date >= ?
-                   ORDER BY recorded_date ASC''',
-                (g.user['id'], metric_name, cutoff)
-            ).fetchall()
-        else:
-            return db.execute(
-                '''SELECT value, unit, recorded_date FROM biometric_reading
-                   WHERE user_id = ? AND metric_name = ?
-                   ORDER BY recorded_date ASC''',
-                (g.user['id'], metric_name)
-            ).fetchall()
+            parsed = [p for p in parsed if p['dt'] and p['dt'] >= cutoff]
 
-    chart_labels    = []
-    chart_values    = []
-    chart_values_dia = []  # only used for BP
+        return parsed
+
+    chart_labels     = []
+    chart_values     = []
+    chart_values_dia = []
 
     if is_bp:
         sys_readings = fetch_readings('blood_pressure_sys')
         dia_readings = fetch_readings('blood_pressure_dia')
         for r in sys_readings:
-            val = r['recorded_date']
-            chart_labels.append(val.strftime('%b %d') if hasattr(val, 'strftime') else str(val)[:10])
+            chart_labels.append(r['dt'].strftime('%b %d') if r['dt'] else '—')
             chart_values.append(r['value'])
         for r in dia_readings:
             chart_values_dia.append(r['value'])
-        readings = sys_readings  # use sys for stats
+        readings = sys_readings
     else:
         readings = fetch_readings(selected_metric)
         for r in readings:
-            val = r['recorded_date']
-            chart_labels.append(val.strftime('%b %d') if hasattr(val, 'strftime') else str(val)[:10])
+            chart_labels.append(r['dt'].strftime('%b %d') if r['dt'] else '—')
             chart_values.append(r['value'])
 
-    trend = None
+    trend      = None
     comparison = None
+
     if chart_values:
         avg  = round(sum(chart_values) / len(chart_values), 1)
         unit = 'mmHg' if is_bp else (readings[0]['unit'] if readings else '')
@@ -496,36 +526,35 @@ def trends_overview():
 
         change_pct = round(((chart_values[-1] - chart_values[0]) / chart_values[0]) * 100, 1) if chart_values[0] != 0 else 0
 
+        # Build full history table (ALL readings, newest first)
         if is_bp:
-            all_sys = db.execute(
+            all_sys_rows = db.execute(
                 'SELECT value, recorded_date FROM biometric_reading WHERE user_id = ? AND metric_name = ? ORDER BY recorded_date DESC',
                 (g.user['id'], 'blood_pressure_sys')
             ).fetchall()
-            all_dia = db.execute(
+            all_dia_rows = db.execute(
                 'SELECT value, recorded_date FROM biometric_reading WHERE user_id = ? AND metric_name = ? ORDER BY recorded_date DESC',
                 (g.user['id'], 'blood_pressure_dia')
             ).fetchall()
-            all_dates  = []
-            all_values = []  # sys values for stats
-            bp_readings = []  # (date, sys/dia string)
-            for i, r in enumerate(all_sys[:20]):
-                val = r['recorded_date']
-                date_str = val.strftime('%b %d, %Y %I:%M %p') if hasattr(val, 'strftime') else str(val)
-                sys_val = r['value']
-                dia_val = all_dia[i]['value'] if i < len(all_dia) else '—'
-                all_dates.append(date_str)
+            all_values  = []
+            bp_readings = []
+            for i, r in enumerate(all_sys_rows[:20]):
+                dt      = parse_date(r['recorded_date'])
+                date_str = dt.strftime('%b %d, %Y') if dt else str(r['recorded_date'])[:10]
+                sys_val  = r['value']
+                dia_val  = all_dia_rows[i]['value'] if i < len(all_dia_rows) else '—'
                 all_values.append(sys_val)
                 bp_readings.append((date_str, f"{int(sys_val)}/{int(dia_val)}"))
         else:
-            all_readings = db.execute(
+            all_rows = db.execute(
                 'SELECT value, unit, recorded_date FROM biometric_reading WHERE user_id = ? AND metric_name = ? ORDER BY recorded_date DESC',
                 (g.user['id'], selected_metric)
             ).fetchall()
-            all_dates  = []
-            all_values = []
-            for r in all_readings:
-                val = r['recorded_date']
-                all_dates.append(val.strftime('%b %d, %Y %I:%M %p') if hasattr(val, 'strftime') else str(val))
+            all_values  = []
+            all_dates   = []
+            for r in all_rows:
+                dt = parse_date(r['recorded_date'])
+                all_dates.append(dt.strftime('%b %d, %Y') if dt else str(r['recorded_date'])[:10])
                 all_values.append(r['value'])
             bp_readings = list(zip(all_dates[:20], all_values[:20]))
 

@@ -1,5 +1,5 @@
 import numpy as np
-from BioSync.db import get_db
+from db import get_db
 
 def get_trends(user_id, metric_name):
     db = get_db()

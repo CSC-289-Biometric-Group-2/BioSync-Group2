@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 
 # ─────────────────────────────────────────────
 # TEXT EXTRACTION
@@ -31,6 +32,57 @@ def extract_text(filepath):
         except Exception:
             with open(filepath, 'r', encoding='latin-1') as f:
                 return f.read()
+
+
+# ─────────────────────────────────────────────
+# DATE EXTRACTION
+# Tries to pull the report date from the document
+# text. Handles formats like:
+#   "Date: April 19, 2026"
+#   "Date: 04/19/2026"
+#   "Date: 2026-04-19"
+#   "Report Date: December 14, 2025"
+# Falls back to None if no date found —
+# routes.py will then use today's date.
+# ─────────────────────────────────────────────
+DATE_PATTERNS = [
+    # "Date: April 19, 2026"  or  "Report Date: December 14, 2025"
+    (r'(?:report\s*)?date[:\s]+([A-Za-z]+\s+\d{1,2},?\s+\d{4})',
+     ['%B %d, %Y', '%B %d %Y']),
+
+    # "Date: 04/19/2026"  or  "Date: 04-19-2026"
+    (r'(?:report\s*)?date[:\s]+(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4})',
+     ['%m/%d/%Y', '%m-%d-%Y']),
+
+    # "Date: 2026-04-19"  (ISO format)
+    (r'(?:report\s*)?date[:\s]+(\d{4}[\/\-]\d{2}[\/\-]\d{2})',
+     ['%Y-%m-%d', '%Y/%m/%d']),
+
+    # "| Date: April 19, 2026" (pipe-separated like our PDFs)
+    (r'\|\s*date[:\s]+([A-Za-z]+\s+\d{1,2},?\s+\d{4})',
+     ['%B %d, %Y', '%B %d %Y']),
+]
+
+def extract_date(text):
+    """
+    Try to extract a report date from document text.
+    Returns a datetime object or None.
+    """
+    lower = text.lower()
+
+    for pattern, formats in DATE_PATTERNS:
+        match = re.search(pattern, lower)
+        if match:
+            raw = match.group(1).strip()
+            # Normalize — remove extra spaces, fix comma
+            raw = re.sub(r'\s+', ' ', raw)
+            for fmt in formats:
+                try:
+                    return datetime.strptime(raw, fmt)
+                except ValueError:
+                    continue
+
+    return None
 
 
 # ─────────────────────────────────────────────
@@ -114,8 +166,16 @@ def parse_biometrics(text):
 
 # ─────────────────────────────────────────────
 # MAIN ENTRY POINT
-# Called by routes.py for each uploaded file
+# Called by routes.py for each uploaded file.
+# Now returns a dict with:
+#   'readings' — list of {metric_name, value}
+#   'recorded_date' — datetime from the doc, or None
+# routes.py uses recorded_date if present,
+# otherwise falls back to datetime.now()
 # ─────────────────────────────────────────────
 def process_document(filepath):
     text = extract_text(filepath)
-    return parse_biometrics(text)
+    return {
+        'readings': parse_biometrics(text),
+        'recorded_date': extract_date(text),
+    }

@@ -6,9 +6,9 @@ from flask import (
     request, url_for, current_app
 )
 from werkzeug.utils import secure_filename
-from BioSync.auth import login_required
-from BioSync.db import get_db
-from BioSync.doc_processor import process_document
+from auth import login_required
+from db import get_db
+from doc_processor import process_document
 
 bp = Blueprint('caretaker', __name__, url_prefix='/caretaker')
 

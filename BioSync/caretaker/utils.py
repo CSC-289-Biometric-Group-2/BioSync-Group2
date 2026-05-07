@@ -1,5 +1,5 @@
 import secrets
-from BioSync.db import get_db
+from db import get_db
 
 def generate_patient_code(user_id):
     """Generate a unique patient code for linking."""
