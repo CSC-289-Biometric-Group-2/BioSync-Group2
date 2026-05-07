@@ -1,0 +1,55 @@
+BIOSYNC CLINICAL LABORATORY REPORT
+Patient: Sarah Ayres
+Date of Birth: 11/08/2000
+Date of Report: April 19, 2026
+
+─────────────────────────────────────────
+VITAL SIGNS & BIOMETRIC READINGS
+─────────────────────────────────────────
+
+Heart Rate: 108 BPM
+Blood Pressure: 134/83 mmHg
+SpO2 (Oxygen Saturation): 93%
+Temperature: 99.8°F
+Glucose (Fasting): 152 mg/dL
+Weight: 265 lbs
+BMI: 42.8
+HRV (Heart Rate Variability): 38
+
+─────────────────────────────────────────
+CLINICAL NOTES
+─────────────────────────────────────────
+
+Patient presents with complaints of mild fatigue and
+occasional shortness of breath over the past two weeks.
+Non-smoker. Occasional alcohol consumption reported.
+No current medications. No prior surgeries.
+
+Resting heart rate elevated at 108 BPM — consistent with
+mild tachycardia. Patient reports increased stress at work.
+Blood pressure reading of 134/83 mmHg indicates Hypertension
+Stage 1. Monitoring recommended.
+Oxygen saturation at 93% is in the concerning range.
+Patient reports mild congestion.
+Fasting glucose at 152 mg/dL is borderline — dietary review
+recommended. Family history of diabetes noted.
+Temperature at 99.8°F suggests a slight fever.
+HRV at 38 ms is below average — indicative of elevated stress
+or early autonomic dysfunction.
+
+─────────────────────────────────────────
+PROVIDER NOTES
+─────────────────────────────────────────
+
+Given elevated blood pressure and borderline glucose,
+lifestyle modification counseling initiated. Low-sodium
+diet and 150 minutes of moderate exercise per week advised.
+Repeat labs in 6 weeks. Monitor blood pressure at home.
+Consider referral to endocrinology if glucose remains
+elevated at follow-up.
+
+Family history of hypertension and diabetes elevates
+patient risk profile. Proactive management advised.
+
+Ordering Provider: Dr. James Henderson, MD
+Facility: BioSync Clinical Health Center

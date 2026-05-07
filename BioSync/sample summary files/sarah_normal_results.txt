@@ -1,0 +1,47 @@
+BIOSYNC CLINICAL LABORATORY REPORT
+Patient: Sarah Ayres
+Date of Birth: 11/08/2000
+Date of Report: April 19, 2026
+
+─────────────────────────────────────────
+VITAL SIGNS & BIOMETRIC READINGS
+─────────────────────────────────────────
+
+Heart Rate: 72 BPM
+Blood Pressure: 118/76 mmHg
+SpO2 (Oxygen Saturation): 97%
+Temperature: 98.4°F
+Glucose (Fasting): 95 mg/dL
+Weight: 265 lbs
+BMI: 42.8
+HRV (Heart Rate Variability): 55
+
+─────────────────────────────────────────
+CLINICAL NOTES
+─────────────────────────────────────────
+
+Patient presents for routine annual wellness check.
+Non-smoker. Occasional alcohol consumption reported.
+No current medications. No prior surgeries.
+
+Resting heart rate is within normal range at 72 BPM.
+Blood pressure reading of 118/76 mmHg is within normal range.
+Oxygen saturation at 97% is optimal.
+Fasting glucose at 95 mg/dL is within normal limits.
+Body temperature 98.4°F is normal.
+
+Family history notable for hypertension, heart disease,
+and diabetes on maternal and paternal side.
+
+No personal history of chronic illness reported.
+
+─────────────────────────────────────────
+PROVIDER NOTES
+─────────────────────────────────────────
+
+Patient is encouraged to maintain current activity level.
+Follow-up recommended in 12 months or sooner if symptoms arise.
+BMI noted — weight management counseling offered.
+
+Ordering Provider: Dr. James Henderson, MD
+Facility: BioSync Clinical Health Center

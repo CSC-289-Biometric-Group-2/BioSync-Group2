@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload Document{% endblock %}
+
+{% block header %}
+  <h1>Upload Medical Document</h1>
+{% endblock %}
+
+{% block content %}
+  <p>Upload a medical document to extract and store your biometric data.</p>
+  <p>Accepted file types: PDF, DOCX, TXT, CSV</p>
+  <form method="post" enctype="multipart/form-data">
+    <label for="document">Choose a file</label>
+    <input type="file" name="document" id="document" 
+           accept=".pdf,.docx,.txt,.csv" required>
+    <input type="submit" value="Upload & Analyze">
+    <a href="{{ url_for('main.index') }}">← Back to Home</a>
+  </form>
+{% endblock %}

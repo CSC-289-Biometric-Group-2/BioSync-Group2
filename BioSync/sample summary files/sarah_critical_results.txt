@@ -1,0 +1,64 @@
+BIOSYNC CLINICAL LABORATORY REPORT — URGENT
+Patient: Sarah Ayres
+Date of Birth: 11/08/2000
+Date of Report: April 19, 2026
+
+⚠ ATTENTION: VALUES OUTSIDE SAFE CLINICAL RANGE ⚠
+
+─────────────────────────────────────────
+VITAL SIGNS & BIOMETRIC READINGS
+─────────────────────────────────────────
+
+Heart Rate: 158 BPM
+Blood Pressure: 182/122 mmHg
+SpO2 (Oxygen Saturation): 86%
+Temperature: 103°F
+Glucose (Fasting): 318 mg/dL
+Weight: 265 lbs
+BMI: 42.8
+HRV (Heart Rate Variability): 18
+
+─────────────────────────────────────────
+CLINICAL NOTES
+─────────────────────────────────────────
+
+Patient presents via urgent care with chest tightness,
+dizziness, and confusion. Non-smoker. Occasional drinker.
+No current medications. No prior surgeries.
+
+Heart rate critically elevated at 158 BPM. Patient
+reports palpitations and dizziness. Immediate evaluation
+for arrhythmia indicated.
+
+Blood pressure of 182/122 mmHg meets threshold for
+hypertensive crisis. Immediate intervention required.
+Emergency protocol initiated.
+
+Oxygen saturation at 86% is critically low. Supplemental
+oxygen administered. Respiratory status being monitored.
+
+Temperature at 103°F indicates high fever. Sepsis
+workup ordered.
+
+Glucose at 318 mg/dL is critically high. Patient denied
+prior diabetes diagnosis. Insulin protocol initiated.
+HbA1c ordered.
+
+HRV at 18 ms is severely depressed indicating significant
+autonomic stress consistent with acute medical emergency.
+
+─────────────────────────────────────────
+PROVIDER NOTES — URGENT ACTION REQUIRED
+─────────────────────────────────────────
+
+Patient admitted for emergency observation.
+Cardiology and endocrinology consulted.
+IV antihypertensive initiated.
+Continuous cardiac monitoring in place.
+Family notified. Patient stable but critical.
+
+Family history of hypertension and diabetes on both
+maternal and paternal sides significantly elevates risk.
+
+Ordering Provider: Dr. James Henderson, MD — URGENT
+Facility: BioSync Clinical Health Center — Emergency Dept

@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Trends — BioSync</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "primary": "#041839", "primary-container": "#1c2d4f",
+          "on-primary": "#ffffff", "primary-fixed-dim": "#b6c6f1",
+          "secondary": "#006398", "secondary-container": "#6cbdfe",
+          "secondary-fixed": "#cde5ff", "on-secondary-container": "#004b75",
+          "on-secondary": "#ffffff",
+          "tertiary": "#3d0001", "tertiary-container": "#640002",
+          "on-tertiary-container": "#ff6050", "error": "#ba1a1a",
+          "surface": "#f7f9fc", "surface-container-lowest": "#ffffff",
+          "surface-container-low": "#f2f4f7", "surface-container": "#eceef1",
+          "surface-container-high": "#e6e8eb", "surface-container-highest": "#e0e3e6",
+          "on-surface": "#191c1e", "on-surface-variant": "#44474e",
+          "outline": "#75777f", "outline-variant": "#c5c6cf",
+          "error-container": "#ffdad6", "on-primary-container": "#8495bd",
+          "on-tertiary-fixed-variant": "#930005",
+        },
+        "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+        "fontFamily": { "headline": ["Manrope"], "body": ["Inter"], "label": ["Inter"] }
+      }
+    }
+  }
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  .nav-active { color: #006398; background: white; border-left: 4px solid #006398; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(4,24,57,0.05); }
+  body { font-family: 'Inter', sans-serif; background-color: #f7f9fc; }
+  h1, h2, h3, h4, .headline { font-family: 'Manrope', sans-serif; }
+</style>
+</head>
+<body class="bg-surface text-on-surface">
+
+<!-- Sidebar -->
+<aside class="h-screen w-64 fixed left-0 top-0 flex flex-col bg-surface-container-low border-r border-outline-variant/10 font-body text-sm z-50">
+  <div class="px-4 py-6">
+    <a href="{{ url_for('main.index') }}">
+      <img src="{{ url_for('static', filename='BioSync.png') }}" alt="BioSync" class="h-20 w-auto mb-3"/>
+    </a>
+    <p class="text-xs text-on-surface-variant leading-relaxed mt-2">Track your biometric history over time. Visualize patterns, compare baselines, and monitor progress across all metrics.</p>
+  </div>
+  <nav class="flex-1 px-4 space-y-1">
+    <a href="{{ url_for('main.dashboard') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">dashboard</span> Overview
+    </a>
+    <a href="{{ url_for('main.doc_hub') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">description</span> Documents
+    </a>
+    <a href="{{ url_for('main.trends_overview') }}" class="flex items-center gap-3 px-4 py-3 nav-active transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">trending_up</span> Trends
+    </a>
+    <a href="{{ url_for('main.individual_profile') }}" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-white/50 transition-all duration-200 text-sm font-medium rounded-lg">
+      <span class="material-symbols-outlined">person</span> My Profile
+    </a>
+  </nav>
+  <div class="px-6 mb-8">
+    <a href="{{ url_for('main.doc_hub') }}" class="w-full py-3 bg-gradient-to-br from-primary to-primary-container text-white rounded-full font-semibold shadow-md flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+      <span class="material-symbols-outlined text-sm">upload_file</span>
+      Upload Document
+    </a>
+  </div>
+  <div class="px-4 py-6 border-t border-outline-variant/10 space-y-1">
+    <a href="{{ url_for('main.help_page') }}" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-primary transition-colors">
+      <span class="material-symbols-outlined">help_outline</span>
+      <span>Support</span>
+    </a>
+    <a href="{{ url_for('auth.logout') }}" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-primary transition-colors">
+      <span class="material-symbols-outlined">logout</span>
+      <span>Sign Out</span>
+    </a>
+  </div>
+</aside>
+
+<!-- Main Content -->
+<main class="ml-64 min-h-screen">
+
+  <!-- Top Bar -->
+  <header class="sticky top-0 z-40 flex justify-between items-center w-full px-8 h-16 bg-white/80 backdrop-blur-xl shadow-sm">
+    <div class="flex items-center gap-6 flex-1">
+      <h2 class="font-headline font-bold text-primary text-lg">Trends</h2>
+      <div class="relative w-full max-w-md">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+        <input class="w-full bg-surface-container-low border-none rounded-full pl-10 pr-4 py-1.5 text-sm focus:ring-1 focus:ring-primary/20 transition-all" placeholder="Search analytics..." type="text"/>
+      </div>
+    </div>
+    <div class="flex items-center gap-4">
+      <a href="{{ url_for('main.notifications') }}" class="p-2 rounded-full hover:bg-surface-container-low transition-colors text-on-surface-variant relative">
+        <span class="material-symbols-outlined">notifications</span>
+        <span id="notif-badge" class="hidden absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
+      </a>
+      <button class="p-2 rounded-full hover:bg-surface-container-low transition-colors text-on-surface-variant">
+        <span class="material-symbols-outlined">settings</span>
+      </button>
+      <div class="h-8 w-px bg-outline-variant/30 mx-2"></div>
+      <div class="flex items-center gap-3">
+        <div class="text-right">
+          <div class="text-sm font-bold text-primary">{{ g.user['first_name'] if g.user['first_name'] else g.user['username'] }}</div>
+          <div class="text-xs text-on-surface-variant">Patient</div>
+        </div>
+        <div class="w-9 h-9 rounded-full bg-primary-container flex items-center justify-center text-white font-bold text-sm">
+          {{ (g.user['first_name'] if g.user['first_name'] else g.user['username'])[0].upper() }}
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Canvas Content -->
+  <div class="p-8 max-w-7xl mx-auto space-y-8">
+
+    <!-- Metric Selector -->
+    <section>
+      <div class="flex flex-wrap gap-3">
+        {% for m in available_metrics %}
+        <a href="{{ url_for('main.trends_overview', metric=m) }}"
+          class="px-6 py-2.5 rounded-full text-sm font-bold transition-all
+          {% if m == selected_metric %}bg-primary text-white shadow-md{% else %}bg-surface-container-lowest text-on-surface-variant border border-outline-variant/10 hover:bg-surface-container-high/50{% endif %}">
+          {% if m == 'blood_pressure' %}Blood Pressure
+          {% elif m == 'blood_pressure_sys' %}BP Systolic
+          {% elif m == 'blood_pressure_dia' %}BP Diastolic
+          {% else %}{{ m.replace('_', ' ').title() }}{% endif %}
+        </a>
+        {% endfor %}
+        {% if not available_metrics %}
+          <p class="text-sm text-on-surface-variant">No metrics recorded yet. Upload a document to get started.</p>
+        {% endif %}
+      </div>
+    </section>
+
+    {% if trend and chart_labels %}
+    <!-- Main Chart -->
+    <section class="bg-surface-container-lowest rounded-xl p-8 shadow-sm relative overflow-hidden">
+      <div class="absolute top-0 left-0 w-1 h-full bg-secondary"></div>
+      <div class="flex justify-between items-start mb-8">
+        <div>
+          <h3 class="font-headline font-bold text-2xl text-primary">
+            {% if is_bp %}Blood Pressure Over Time{% else %}{{ selected_metric.replace('_', ' ').title() }} Over Time{% endif %}
+          </h3>
+          <p class="text-on-surface-variant text-sm mt-1">Consistency analysis across selected period</p>
+        </div>
+        <div class="bg-surface-container-low p-1 rounded-lg flex gap-1">
+          {% for range_opt in [('1W', '7'), ('1M', '30'), ('3M', '90'), ('6M', '180'), ('ALL', '0')] %}
+          <a href="{{ url_for('main.trends_overview', metric=selected_metric, days=range_opt[1]) }}"
+            class="px-3 py-1 text-xs font-bold rounded transition-colors
+            {% if selected_days == range_opt[1] %}bg-white text-secondary shadow-sm{% else %}text-on-surface-variant hover:text-primary{% endif %}">
+            {{ range_opt[0] }}
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+      <canvas id="trendChart" height="100"></canvas>
+    </section>
+
+    <!-- Summary Row -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+      <!-- Biometric Snapshot -->
+      <div class="bg-surface-container-low rounded-xl p-8 flex flex-col justify-between">
+        <div class="flex justify-between items-center mb-8">
+          <h4 class="font-headline font-bold text-primary">Biometric Snapshot</h4>
+          <span class="text-xs font-bold text-secondary uppercase tracking-tighter bg-secondary-fixed px-2 py-1 rounded">
+            {% if trend.trend == 'increasing' %}Rising Trend
+            {% elif trend.trend == 'decreasing' %}Declining Trend
+            {% else %}Stable Trend{% endif %}
+          </span>
+        </div>
+        <div class="grid grid-cols-2 gap-y-8">
+          <div>
+            <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Average</p>
+            <p class="text-3xl font-headline font-extrabold text-primary">
+              {% if trend.is_bp %}
+                {{ trend.average }}/{{ trend.avg_dia if trend.avg_dia else '—' }}
+                <span class="text-sm font-medium text-on-surface-variant">mmHg</span>
+              {% else %}
+                {{ trend.average }} <span class="text-sm font-medium text-on-surface-variant">{{ trend.unit if trend.unit else '' }}</span>
+              {% endif %}
+            </p>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Max Recorded</p>
+            <p class="text-3xl font-headline font-extrabold text-primary">
+              {% if trend.is_bp %}
+                {{ trend.max }}/{{ trend.max_dia if trend.max_dia else '—' }}
+                <span class="text-sm font-medium text-on-surface-variant">mmHg</span>
+              {% else %}
+                {{ trend.max }} <span class="text-sm font-medium text-on-surface-variant">{{ trend.unit if trend.unit else '' }}</span>
+              {% endif %}
+            </p>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Min Recorded</p>
+            <p class="text-3xl font-headline font-extrabold text-primary">
+              {% if trend.is_bp %}
+                {{ trend.min }}/{{ trend.min_dia if trend.min_dia else '—' }}
+                <span class="text-sm font-medium text-on-surface-variant">mmHg</span>
+              {% else %}
+                {{ trend.min }} <span class="text-sm font-medium text-on-surface-variant">{{ trend.unit if trend.unit else '' }}</span>
+              {% endif %}
+            </p>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Total Readings</p>
+            <p class="text-3xl font-headline font-extrabold text-primary">{{ trend.count }}</p>
+          </div>
+        </div>
+        <div class="mt-8 pt-6 border-t border-outline-variant/20 flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center text-secondary">
+            <span class="material-symbols-outlined">
+              {% if trend.trend == 'increasing' %}trending_up{% elif trend.trend == 'decreasing' %}trending_down{% else %}trending_flat{% endif %}
+            </span>
+          </div>
+          <div>
+            <p class="text-sm font-bold text-primary">{{ trend.change_pct }}% from baseline</p>
+            <p class="text-xs text-on-surface-variant">{{ trend.trend | title }} trend over selected period</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Baseline Comparison -->
+      <div class="bg-surface-container-lowest rounded-xl p-8 shadow-sm">
+        <h4 class="font-headline font-bold text-primary mb-8">Clinical Baseline vs Recent</h4>
+        {% if comparison %}
+        <div class="space-y-8">
+          <div class="space-y-3">
+            <div class="flex justify-between items-end">
+              <span class="text-sm font-bold text-on-surface-variant">{{ selected_metric.replace('_', ' ').title() }}</span>
+              <div class="text-right">
+                <span class="text-xs text-on-surface-variant block">Baseline: {{ comparison.baseline_avg }}</span>
+                <span class="text-lg font-bold text-primary">Recent: {{ comparison.recent_avg }}</span>
+              </div>
+            </div>
+            <div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+              <div class="h-full bg-secondary rounded-full"
+                style="width: {{ [((comparison.recent_avg / (comparison.baseline_avg + 1)) * 70)|int, 100]|min }}%"></div>
+            </div>
+          </div>
+          <div class="pt-4 border-t border-outline-variant/10">
+            <div class="flex justify-between text-sm">
+              <span class="text-on-surface-variant font-medium">Change</span>
+              <span class="font-bold {% if comparison.direction == 'above baseline' %}text-error{% else %}text-green-600{% endif %}">
+                {{ comparison.delta }} ({{ comparison.direction }})
+              </span>
+            </div>
+          </div>
+        </div>
+        {% else %}
+          <div class="text-center py-8">
+            <span class="material-symbols-outlined text-4xl text-on-surface-variant/30 mb-2 block">analytics</span>
+            <p class="text-on-surface-variant text-sm">Not enough data for baseline comparison yet.</p>
+          </div>
+        {% endif %}
+      </div>
+
+    </section>
+
+    <!-- History Table -->
+    <section class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm">
+      <div class="px-8 py-6 border-b border-outline-variant/10 flex justify-between items-center">
+        <h4 class="font-headline font-bold text-primary">Recent Readings History</h4>
+        <a href="{{ url_for('main.export_readings', metric=selected_metric) }}"
+          class="text-secondary text-sm font-bold flex items-center gap-1 hover:underline">
+          Download CSV <span class="material-symbols-outlined text-sm">download</span>
+        </a>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-surface-container-low/50">
+              <th class="px-8 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Date &amp; Time</th>
+              <th class="px-8 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Metric Value</th>
+              <th class="px-8 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Unit</th>
+              <th class="px-8 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest text-right">Status</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-outline-variant/5">
+            {% for date, val in trend.readings %}
+            <tr class="hover:bg-surface-container-low/30 transition-colors">
+              <td class="px-8 py-5 text-sm font-medium">{{ date }}</td>
+              <td class="px-8 py-5 text-sm font-bold text-primary">{{ val }}</td>
+              <td class="px-8 py-5 text-sm text-on-surface-variant">{{ trend.unit if trend.unit else '—' }}</td>
+              <td class="px-8 py-5 text-right">
+                {% if not trend.is_bp %}
+                  {% set val_num = val | float %}
+                  {% if selected_metric == 'spo2' %}
+                    {% if val_num >= 95 %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-green-500 mr-2"></span>
+                      <span class="text-xs font-bold text-green-700">Normal</span>
+                    {% elif val_num >= 91 %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-yellow-400 mr-2"></span>
+                      <span class="text-xs font-bold text-yellow-700">Concerning</span>
+                    {% elif val_num >= 90 %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-orange-400 mr-2"></span>
+                      <span class="text-xs font-bold text-orange-700">Low</span>
+                    {% elif val_num >= 80 %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-red-500 mr-2"></span>
+                      <span class="text-xs font-bold text-red-700">⚠ Seek Care</span>
+                    {% else %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-error mr-2"></span>
+                      <span class="text-xs font-bold text-error">⚠ Cyanosis</span>
+                    {% endif %}
+                  {% elif selected_metric == 'heart_rate' %}
+                    {% if val_num < 40 %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-red-500 mr-2"></span>
+                      <span class="text-xs font-bold text-red-700">⚠ Very Low</span>
+                    {% elif val_num < 60 %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-blue-400 mr-2"></span>
+                      <span class="text-xs font-bold text-blue-700">Athletic</span>
+                    {% elif val_num <= 100 %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-green-500 mr-2"></span>
+                      <span class="text-xs font-bold text-green-700">Normal</span>
+                    {% elif val_num <= 150 %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-yellow-400 mr-2"></span>
+                      <span class="text-xs font-bold text-yellow-700">⚠ Tachycardia</span>
+                    {% else %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-red-500 mr-2"></span>
+                      <span class="text-xs font-bold text-red-700">⚠ High</span>
+                    {% endif %}
+                  {% elif selected_metric == 'glucose' %}
+                    {% if val_num < 50 %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-error mr-2"></span>
+                      <span class="text-xs font-bold text-error">⚠ Danger Low</span>
+                    {% elif val_num < 70 %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-red-500 mr-2"></span>
+                      <span class="text-xs font-bold text-red-700">Low</span>
+                    {% elif val_num <= 108 %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-green-500 mr-2"></span>
+                      <span class="text-xs font-bold text-green-700">Normal</span>
+                    {% elif val_num <= 180 %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-yellow-400 mr-2"></span>
+                      <span class="text-xs font-bold text-yellow-700">Borderline</span>
+                    {% elif val_num <= 315 %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-red-500 mr-2"></span>
+                      <span class="text-xs font-bold text-red-700">⚠ High</span>
+                    {% else %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-error mr-2"></span>
+                      <span class="text-xs font-bold text-error">⚠ Danger High</span>
+                    {% endif %}
+                  {% elif selected_metric == 'temperature' %}
+                    {% if val_num < 95 %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-blue-400 mr-2"></span>
+                      <span class="text-xs font-bold text-blue-700">Hypothermia</span>
+                    {% elif val_num <= 99.1 %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-green-500 mr-2"></span>
+                      <span class="text-xs font-bold text-green-700">Normal</span>
+                    {% elif val_num <= 100.4 %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-yellow-400 mr-2"></span>
+                      <span class="text-xs font-bold text-yellow-700">Slight Fever</span>
+                    {% elif val_num <= 102.2 %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-orange-400 mr-2"></span>
+                      <span class="text-xs font-bold text-orange-700">Fever</span>
+                    {% else %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-red-500 mr-2"></span>
+                      <span class="text-xs font-bold text-red-700">⚠ High Fever</span>
+                    {% endif %}
+                  {% elif selected_metric == 'bmi' %}
+                    {% if val_num < 18.5 %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-blue-400 mr-2"></span>
+                      <span class="text-xs font-bold text-blue-700">Underweight</span>
+                    {% elif val_num < 25 %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-green-500 mr-2"></span>
+                      <span class="text-xs font-bold text-green-700">Normal</span>
+                    {% elif val_num < 30 %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-yellow-400 mr-2"></span>
+                      <span class="text-xs font-bold text-yellow-700">Overweight</span>
+                    {% else %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-red-500 mr-2"></span>
+                      <span class="text-xs font-bold text-red-700">Obese</span>
+                    {% endif %}
+                  {% elif selected_metric == 'hrv' %}
+                    {% if val_num >= 60 %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-green-500 mr-2"></span>
+                      <span class="text-xs font-bold text-green-700">Good</span>
+                    {% elif val_num >= 40 %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-yellow-400 mr-2"></span>
+                      <span class="text-xs font-bold text-yellow-700">Average</span>
+                    {% else %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-red-500 mr-2"></span>
+                      <span class="text-xs font-bold text-red-700">Low</span>
+                    {% endif %}
+                  {% else %}
+                    {% if trend.average %}
+                      {% if val_num > trend.average * 1.1 %}
+                        <span class="inline-block w-2 h-2 rounded-full bg-error mr-2"></span>
+                        <span class="text-xs font-bold text-on-surface-variant">Elevated</span>
+                      {% elif val_num < trend.average * 0.9 %}
+                        <span class="inline-block w-2 h-2 rounded-full bg-secondary-container mr-2"></span>
+                        <span class="text-xs font-bold text-on-surface-variant">Low</span>
+                      {% else %}
+                        <span class="inline-block w-2 h-2 rounded-full bg-secondary mr-2"></span>
+                        <span class="text-xs font-bold text-on-surface-variant">Normal</span>
+                      {% endif %}
+                    {% endif %}
+                  {% endif %}
+                {% else %}
+                  {% set parts = val.split('/') %}
+                  {% if parts | length == 2 %}
+                    {% set sys = parts[0] | float %}
+                    {% set dia = parts[1] | float %}
+                    {% if sys > 180 or dia > 120 %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-error mr-2"></span>
+                      <span class="text-xs font-bold text-error">⚠ Crisis</span>
+                    {% elif sys >= 140 or dia >= 90 %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-red-500 mr-2"></span>
+                      <span class="text-xs font-bold text-red-700">Stage 2</span>
+                    {% elif sys >= 130 or dia >= 80 %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-orange-400 mr-2"></span>
+                      <span class="text-xs font-bold text-orange-700">Stage 1</span>
+                    {% elif sys >= 120 %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-yellow-400 mr-2"></span>
+                      <span class="text-xs font-bold text-yellow-700">Elevated</span>
+                    {% else %}
+                      <span class="inline-block w-2 h-2 rounded-full bg-green-500 mr-2"></span>
+                      <span class="text-xs font-bold text-green-700">Normal</span>
+                    {% endif %}
+                  {% else %}
+                    <span class="inline-block w-2 h-2 rounded-full bg-secondary mr-2"></span>
+                    <span class="text-xs font-bold text-on-surface-variant">mmHg</span>
+                  {% endif %}
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="px-8 py-4 bg-surface-container-low/20 text-center">
+        <span class="text-xs font-bold text-on-surface-variant">{{ trend.count }} total records for {{ selected_metric.replace('_', ' ').title() }}</span>
+      </div>
+    </section>
+
+    {% else %}
+    <!-- No Data State -->
+    <section class="bg-surface-container-lowest rounded-xl p-16 text-center shadow-sm">
+      <span class="material-symbols-outlined text-6xl text-on-surface-variant/30 mb-4 block">monitoring</span>
+      <h3 class="font-headline font-bold text-xl text-primary mb-2">No data yet for this metric</h3>
+      <p class="text-on-surface-variant text-sm mb-6">Upload a document containing {{ selected_metric.replace('_', ' ') }} readings to see trends.</p>
+      <a href="{{ url_for('main.doc_hub') }}"
+        class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-primary to-primary-container text-white font-bold text-sm rounded-full shadow-lg hover:shadow-xl transition-all">
+        <span class="material-symbols-outlined text-sm">upload_file</span> Upload Document
+      </a>
+    </section>
+    {% endif %}
+
+  </div>
+</main>
+
+<script>
+{% if trend and chart_labels %}
+const labels = {{ chart_labels | tojson }};
+const values = {{ chart_values | tojson }};
+const valuesDia = {{ chart_values_dia | tojson }};
+const isBP = {{ 'true' if is_bp else 'false' }};
+const ctx = document.getElementById('trendChart').getContext('2d');
+
+const datasets = [{
+  label: isBP ? 'Systolic' : '{{ selected_metric.replace("_", " ").title() }}',
+  data: values,
+  borderColor: '#006398',
+  backgroundColor: 'rgba(0, 99, 152, 0.08)',
+  borderWidth: 2.5,
+  fill: !isBP,
+  tension: 0.4,
+  pointRadius: 4,
+  pointBackgroundColor: '#006398',
+  pointHoverRadius: 6,
+}];
+
+if (isBP && valuesDia.length) {
+  datasets.push({
+    label: 'Diastolic',
+    data: valuesDia,
+    borderColor: '#6cbdfe',
+    backgroundColor: 'rgba(108, 189, 254, 0.05)',
+    borderWidth: 2,
+    fill: false,
+    tension: 0.4,
+    pointRadius: 4,
+    pointBackgroundColor: '#6cbdfe',
+    pointHoverRadius: 6,
+    borderDash: [4, 2],
+  });
+}
+
+new Chart(ctx, {
+  type: 'line',
+  data: { labels, datasets },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: isBP, position: 'top' },
+      tooltip: {
+        backgroundColor: 'rgba(255,255,255,0.95)',
+        titleColor: '#44474e',
+        bodyColor: '#041839',
+        bodyFont: { weight: 'bold', size: 14 },
+        borderColor: 'rgba(197,198,207,0.3)',
+        borderWidth: 1,
+        padding: 12,
+        callbacks: {
+          label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y + ' mmHg'
+        }
+      }
+    },
+    scales: {
+      x: { display: true, ticks: { color: '#44474e', font: { size: 10 }, maxTicksLimit: 8 }, grid: { display: false } },
+      y: { display: true, ticks: { color: '#44474e', font: { size: 10 } }, grid: { color: 'rgba(0,0,0,0.04)' } }
+    }
+  }
+});
+{% endif %}
+</script>
+
+</body>
+</html>
