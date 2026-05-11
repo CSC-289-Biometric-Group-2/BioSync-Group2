@@ -3,48 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BioSync — Biometric Wellness Ecosystem</title>
+    <title>BioSync — Biometric Health Ecosystem</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             line-height: 1.6;
-            color: #1a1a2e;
+            color: #1C2D4F;
             background: #fafafa;
         }
         .hero {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            background: linear-gradient(135deg, #1C2D4F 0%, #1a3a6b 50%, #377BA8 100%);
             color: #e0e0e0;
             padding: 4rem 2rem;
             text-align: center;
         }
         .hero img {
-            width: 80px;
-            height: 80px;
+            width: 90px;
+            height: 90px;
             object-fit: contain;
             margin-bottom: 1rem;
-            border-radius: 16px;
+            border-radius: 18px;
         }
-        .hero h1 { font-size: 2.5rem; margin-bottom: 0.5rem; color: #fff; }
-        .hero .subtitle { font-size: 0.95rem; opacity: 0.6; margin-top: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase; }
-        .hero p.tagline { font-size: 1.2rem; opacity: 0.85; max-width: 600px; margin: 0.5rem auto 0; }
-        .content { max-width: 800px; margin: 0 auto; padding: 2rem; }
+        .hero h1 { font-size: 2.8rem; margin-bottom: 0.3rem; color: #fff; }
+        .hero h1 span { color: #E63329; }
+        .hero .tagline { font-size: 1.15rem; opacity: 0.85; max-width: 600px; margin: 0.5rem auto 0; }
+        .hero .meta { font-size: 0.85rem; opacity: 0.55; margin-top: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; }
+        .content { max-width: 820px; margin: 0 auto; padding: 2rem; }
         section { margin-bottom: 2.5rem; }
         h2 {
-            font-size: 1.4rem;
+            font-size: 1.35rem;
             margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid #0f3460;
+            padding-bottom: 0.4rem;
+            border-bottom: 2px solid #E63329;
+            color: #1C2D4F;
         }
-        .tech-stack {
-            display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;
-        }
+        p { margin-bottom: 0.8rem; color: #333; }
+        .tech-stack { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
         .tech-stack span {
-            background: #e8eaf6;
+            background: #CAE6F6;
+            color: #1C2D4F;
             padding: 0.3rem 0.8rem;
             border-radius: 4px;
-            font-size: 0.9rem;
-            font-weight: 500;
+            font-size: 0.88rem;
+            font-weight: 600;
         }
         .team-grid {
             display: grid;
@@ -54,12 +56,14 @@
         .team-member {
             background: #fff;
             border: 1px solid #ddd;
+            border-top: 3px solid #377BA8;
             border-radius: 8px;
             padding: 1.2rem;
         }
-        .team-member h3 { font-size: 1rem; margin-bottom: 0.3rem; }
-        .team-member p { font-size: 0.85rem; color: #555; margin-bottom: 0.5rem; }
-        .team-member a { color: #0f3460; text-decoration: none; font-size: 0.85rem; }
+        .team-member h3 { font-size: 1rem; margin-bottom: 0.2rem; color: #1C2D4F; }
+        .team-member .role { font-size: 0.8rem; color: #E63329; font-weight: 600; margin-bottom: 0.4rem; }
+        .team-member .contrib { font-size: 0.82rem; color: #555; margin-bottom: 0.6rem; }
+        .team-member a { color: #377BA8; text-decoration: none; font-size: 0.82rem; font-weight: 600; }
         .team-member a:hover { text-decoration: underline; }
         .screenshot {
             width: 100%;
@@ -69,37 +73,70 @@
         }
         .cta {
             display: inline-block;
-            background: #0f3460;
+            background: #1C2D4F;
             color: #fff;
             padding: 0.8rem 1.5rem;
             border-radius: 6px;
             text-decoration: none;
             font-weight: 600;
             margin-top: 1rem;
+            margin-right: 0.5rem;
         }
-        .cta:hover { background: #1a1a2e; }
+        .cta:hover { background: #E63329; }
+        .cta.secondary {
+            background: transparent;
+            border: 2px solid #1C2D4F;
+            color: #1C2D4F;
+        }
+        .cta.secondary:hover { background: #1C2D4F; color: #fff; }
         .run-instructions {
-            background: #1a1a2e;
-            color: #a8e6cf;
+            background: #1C2D4F;
+            color: #CAE6F6;
             padding: 1.2rem;
             border-radius: 8px;
             font-family: 'Courier New', monospace;
             font-size: 0.9rem;
             overflow-x: auto;
             line-height: 2;
+            margin-top: 0.8rem;
         }
         .run-instructions code { color: #ffd93d; }
         ul { padding-left: 1.5rem; }
-        ul li { margin-bottom: 0.4rem; }
+        ul li { margin-bottom: 0.5rem; color: #333; }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+        .feature-card {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1rem 1.2rem;
+        }
+        .feature-card h3 { font-size: 0.95rem; color: #1C2D4F; margin-bottom: 0.3rem; }
+        .feature-card p { font-size: 0.85rem; color: #555; margin: 0; }
+        .status-badge {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.1rem 0.5rem;
+            border-radius: 3px;
+            margin-left: 0.4rem;
+            vertical-align: middle;
+        }
+        .done { background: #d4edda; color: #155724; }
+        .partial { background: #fff3cd; color: #856404; }
     </style>
 </head>
 <body>
 
 <div class="hero">
     <img src="../BioSync/static/BioSync.png" alt="BioSync logo">
-    <h1>BioSync</h1>
-    <p class="tagline">A personal health tracking app that reads your lab reports and turns them into clear, actionable insights.</p>
-    <p class="subtitle">CSC 289 · Programming Capstone · Spring 2026 · Group 2</p>
+    <h1>Bio<span>Sync</span></h1>
+    <p class="tagline">A biometric health tracking platform that bridges the gap between patients, caregivers, and providers.</p>
+    <p class="meta">CSC 289 · Programming Capstone · Spring 2026 · Wake Technical Community College · Group 2</p>
 </div>
 
 <div class="content">
@@ -107,54 +144,87 @@
     <section>
         <h2>About</h2>
         <p>
-            BioSync helps individuals and their caregivers stay on top of health trends over time.
-            Users upload PDF lab reports, and the app automatically extracts biometric data —
-            heart rate, blood pressure, oxygen levels, glucose, and more — then displays trend
-            charts, flags values outside healthy ranges, and sends alerts when something needs
-            attention. Caregivers can link to patients, monitor readings, and upload
-            documents on their behalf, all from a separate portal.
+            BioSync consolidates health data collection, storage, and analysis into a single accessible platform.
+            Patients upload medical documents and log readings — heart rate, blood pressure, blood oxygen, glucose,
+            and more — and the app extracts biometric data automatically, tracks trends over time, and alerts
+            when values fall outside safe ranges.
         </p>
-        <!-- Add a screenshot: save docs/screenshot.png then uncomment this -->
+        <p>
+            Caregivers connect to patients through a secure, patient-initiated linking system using a unique code —
+            no shared passwords, no HIPAA violations. They get a role-scoped view of the patients they support:
+            readings, alerts, and documents, without access to anything beyond what their role requires.
+        </p>
+        <p>
+            The project was inspired by a real problem: team lead Sarah Ayres is an active caregiver whose mother
+            is a veteran. Managing care across VA and local hospital systems — where medication changes take days
+            to communicate and no tool adequately supports the caregiver role — directly shaped every feature in BioSync.
+        </p>
+        <!-- Add a screenshot of your dashboard and save it as docs/screenshot.png, then uncomment: -->
         <!-- <img src="screenshot.png" alt="BioSync dashboard" class="screenshot"> -->
+    </section>
+
+    <section>
+        <h2>Features</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>📄 PDF Lab Report Parsing <span class="status-badge done">Done</span></h3>
+                <p>Upload a report and biometric readings are extracted and stored automatically.</p>
+            </div>
+            <div class="feature-card">
+                <h3>📊 Health Trend Charts <span class="status-badge done">Done</span></h3>
+                <p>Visualize heart rate, blood pressure, SpO₂, glucose, and more over time.</p>
+            </div>
+            <div class="feature-card">
+                <h3>🔔 Smart Health Alerts <span class="status-badge done">Done</span></h3>
+                <p>Age- and sex-adjusted notifications flag readings outside safe ranges.</p>
+            </div>
+            <div class="feature-card">
+                <h3>🔗 Caregiver Portal <span class="status-badge done">Done</span></h3>
+                <p>Caregivers link to patients via a unique code — no shared credentials needed.</p>
+            </div>
+            <div class="feature-card">
+                <h3>📁 Document Hub <span class="status-badge done">Done</span></h3>
+                <p>All uploaded medical documents organized and accessible in one place.</p>
+            </div>
+            <div class="feature-card">
+                <h3>📈 Baseline Comparison <span class="status-badge done">Done</span></h3>
+                <p>Detects meaningful shifts by comparing recent readings to your historical average.</p>
+            </div>
+            <div class="feature-card">
+                <h3>📤 CSV Export <span class="status-badge done">Done</span></h3>
+                <p>Download biometric history as a CSV — per metric or as a full all-readings report to share with providers.</p>
+            </div>
+        </div>
     </section>
 
     <section>
         <h2>Tech Stack</h2>
         <div class="tech-stack">
             <span>Python 3.11</span>
-            <span>Flask</span>
+            <span>Flask 3.1</span>
             <span>SQLite</span>
             <span>HTML / CSS / JavaScript</span>
+            <span>Jinja2</span>
+            <span>Werkzeug</span>
             <span>pdfplumber</span>
             <span>NumPy</span>
             <span>pandas</span>
             <span>ReportLab</span>
+            <span>GitHub Codespaces</span>
         </div>
-    </section>
-
-    <section>
-        <h2>Key Features</h2>
-        <ul>
-            <li><strong>PDF lab report parsing</strong> — upload a report and biometric readings are extracted and stored automatically</li>
-            <li><strong>Health trend charts</strong> — visualize how your heart rate, blood pressure, glucose, SpO₂, and more change over time</li>
-            <li><strong>Smart health alerts</strong> — age- and sex-adjusted notifications flag readings outside safe ranges</li>
-            <li><strong>Caregiver portal</strong> — caregivers can link to patients via a unique code, upload documents, and monitor readings</li>
-            <li><strong>Document hub</strong> — all uploaded medical documents organized in one place</li>
-            <li><strong>Baseline comparison</strong> — detects meaningful changes by comparing recent readings to your personal historical average</li>
-            <li><strong>Manual readings</strong> — log biometric values directly without a document upload</li>
-        </ul>
     </section>
 
     <section>
         <h2>Try It Yourself</h2>
-        <p>This app runs in a free GitHub Codespace — no local setup needed.</p>
+        <p>BioSync runs in a free GitHub Codespace — no local setup needed.</p>
         <div class="run-instructions">
-            <code>1.</code> Click "Code" → "Codespaces" → "Create codespace on main"<br>
+            <code>1.</code> Click <strong style="color:#fff">Code</strong> → <strong style="color:#fff">Codespaces</strong> → <strong style="color:#fff">Create codespace on main</strong><br>
             <code>2.</code> In the terminal: <code>bash setup.sh</code><br>
             <code>3.</code> Then: <code>bash run.sh</code><br>
-            <code>4.</code> Open the forwarded port link — BioSync loads in your browser
+            <code>4.</code> Open the forwarded port link — BioSync loads in your browser<br>
+            <code>5.</code> Register at <code>/auth/register</code>, then log in at <code>/auth/login</code>
         </div>
-        <a href="https://github.com/YOUR-ORG/BioSync-Group2" class="cta">View on GitHub →</a>
+        <a href="https://github.com/CSC-289-Biometric-Group-2/BioSync-Group2" class="cta">View on GitHub →</a>
     </section>
 
     <section>
@@ -162,27 +232,31 @@
         <div class="team-grid">
 
             <div class="team-member">
-                <h3>Joshua</h3>
-                <p>[Role / main contributions]</p>
-                <a href="https://github.com/your-username">GitHub ↗</a>
+                <h3>Sarah Ayres</h3>
+                <div class="role">Scrum Master</div>
+                <div class="contrib">Led full-stack development across all major features — dashboard, caregiver portal, PDF extraction, notification system, clinical thresholds, and UI design.</div>
+                <a href="https://github.com/Sayres-dev">GitHub ↗</a>
             </div>
 
             <div class="team-member">
-                <h3>Toni</h3>
-                <p>[Role / main contributions]</p>
-                <a href="https://github.com/your-username">GitHub ↗</a>
+                <h3>Joshua Eckman</h3>
+                <div class="role">Developer</div>
+                <div class="contrib">Built the initial Flask application structure and SQLite database schema. Implemented age/sex-based heart rate thresholds using CDC resting BPM ranges.</div>
+                <a href="https://github.com/Eckmanj8966">GitHub ↗</a>
             </div>
 
             <div class="team-member">
-                <h3>Myra</h3>
-                <p>[Role / main contributions]</p>
-                <a href="https://github.com/your-username">GitHub ↗</a>
+                <h3>Myra Williams</h3>
+                <div class="role">Developer</div>
+                <div class="contrib">Built the live biometric readings feature allowing users to log real-time vitals directly from connected devices. (Companion Python app — not included in this repository.)</div>
+                <a href="https://github.com/mwill2214">GitHub ↗</a>
             </div>
 
             <div class="team-member">
-                <h3>Sarah</h3>
-                <p>[Role / main contributions]</p>
-                <a href="https://github.com/your-username">GitHub ↗</a>
+                <h3>Toni Wilson</h3>
+                <div class="role">Developer</div>
+                <div class="contrib">Prepped initial pitch and user stories.</div>
+                <a href="https://github.com/toniwilson">GitHub ↗</a>
             </div>
 
         </div>
@@ -191,9 +265,56 @@
     <section>
         <h2>What I Learned</h2>
         <p>
-            [2–3 sentences about what building BioSync taught you — parsing real-world PDFs,
-            handling multiple user roles, working across a team codebase, or whatever feels honest.]
+            <!-- Sarah: fill this in with your own words. Here's a starting point from your binder reflection: -->
+            Building BioSync taught me more about the gap between building something and building something
+            right than any course work before it. The parts I'm most proud of are the ones that came from the
+            second pass — the caregiver linking system, the session management, the file scoping — because those
+            took the most deliberate thought and would hold up in a real environment.
         </p>
+    </section>
+
+    <section>
+        <h2>Future Implications</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>📱 Native iOS & Android Apps</h3>
+                <p>Dedicated mobile applications for both platforms connecting directly to wearable devices via Bluetooth.</p>
+            </div>
+            <div class="feature-card">
+                <h3>⌚ Device Integration</h3>
+                <p>Direct Bluetooth connectivity to home monitors — blood pressure cuffs, pulse oximeters, and smart rings — readings flow into BioSync automatically.</p>
+            </div>
+            <div class="feature-card">
+                <h3>💊 Medication List Automation</h3>
+                <p>Automatically extract medication changes from uploaded discharge summaries and visit records, keeping the living medication list current without manual entry.</p>
+            </div>
+            <div class="feature-card">
+                <h3>📄 PDF Summary Output</h3>
+                <p>One-tap generation of a provider-ready PDF health summary including biometric trends, current medications, and recent alerts — formatted for any appointment.</p>
+            </div>
+            <div class="feature-card">
+                <h3>😴 Sleep Data Tracking</h3>
+                <p>Sync sleep metrics from wearables and health apps to give providers and caregivers a complete picture of patient wellness over time.</p>
+            </div>
+            <div class="feature-card">
+                <h3>🌙 Cycle Tracking</h3>
+                <p>Integrated menstrual cycle tracking to provide context for biometric fluctuations and support a more complete personal health profile.</p>
+            </div>
+            <div class="feature-card">
+                <h3>☁️ Cloud Deployment</h3>
+                <p>Production deployment to Render with PostgreSQL for scalability, persistent storage, and real-world use beyond the development environment.</p>
+            </div>
+            <div class="feature-card">
+                <h3>🔗 Health App Integration</h3>
+                <p>Sync with Apple Health, Google Health Connect, and Samsung Health to pull in activity and biometric data alongside clinical readings.</p>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Project Documents</h2>
+        <a href="BioSync_ProjectBinder.pdf" class="cta secondary">📄 Project Binder</a>
+        <a href="BioSync_Presentation__2__6556985.pptx" class="cta secondary">📊 Pitch Deck</a>
     </section>
 
 </div>
